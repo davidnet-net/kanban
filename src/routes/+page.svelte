@@ -1,0 +1,200 @@
+<script lang="ts">
+	import { kanbanapiurl } from "$lib/config";
+	import { authFetch, getSessionInfo } from "$lib/session";
+	import { Button, FlexWrapper, Icon, LinkButton, Loader, Space, toast } from "@davidnet/svelte-ui";
+	import type { Board, SessionInfo } from "$lib/types";
+	import { onMount } from "svelte";
+	import { wait } from "$lib/utils/time";
+
+	let loading = $state(true);
+	let boards: Board[] = $state([]);
+	let correlationID = crypto.randomUUID();
+	let si: SessionInfo | null = $state(null);
+	let zeroboards = $state(true);
+
+	// later: boards shared with you
+	let sharedBoards: Board[] = $state([]);
+
+	function showError(msg: string) {
+		toast({
+			title: "Something failed",
+			desc: "Error: " + msg,
+			icon: "crisis_alert",
+			appearance: "danger",
+			position: "top-center",
+			autoDismiss: 5000
+		});
+	}
+
+	onMount(async () => {
+		si = await getSessionInfo(correlationID, true);
+		if (!si) {
+			showError("Session Invalid.");
+			return;
+		}
+
+		try {
+			const res = await authFetch(`${kanbanapiurl}boards/list`, correlationID, { method: "GET" });
+			boards = await res.json();
+			zeroboards = boards.length === 0;
+			sharedBoards = [];
+			await wait(500);
+			loading = false;
+		} catch (e) {
+			console.warn(e);
+			showError(String(e));
+		}
+	});
+</script>
+
+{#if loading}
+	<Loader />
+	<p>Getting your Kanban boards, {si?.display_name}.</p>
+{:else}
+	<FlexWrapper justifycontent="flex-start" alignitems="flex-start" direction="column" gap="var(--token-space-2)" width="100%" height="100%">
+		{#if zeroboards}
+			<div class="no-boards">
+				<Icon icon="iframe_off" size="5rem" color="var(--token-color-text-warning)" />
+				<p>You don't have any boards yet.<br />Create one to get started!</p>
+				<LinkButton appearance="primary" href="/board/create">Create Board</LinkButton>
+			</div>
+		{:else}
+			<Space height="var(--token-space-6)" />
+			<div class="section">
+				<LinkButton appearance="primary" href="/board/create">Create Board</LinkButton>
+				<LinkButton appearance="subtle" href="https://account.davidnet.net/account/settings/">Settings</LinkButton>
+			</div>
+
+			<div class="section">
+				<h2 class="section-title">Recent boards:</h2>
+				<div class="boards-grid">No boards visited recently.</div>
+			</div>
+			<div class="section">
+				<h2 class="section-title">Your boards:</h2>
+				<div class="boards-grid">
+					{#each boards as board}
+						<a href={"/board/" + board.id} class="board-link">
+							<div class="board-card">
+								<img src={board.background_url} alt="Board background" aria-hidden="true" />
+								<div class="board-info">
+									<h3>{board.name}</h3>
+								</div>
+							</div>
+						</a>
+					{/each}
+				</div>
+			</div>
+
+			<!-- Shared boards -->
+			<div class="section">
+				<h2 class="section-title">Boards shared with you:</h2>
+				{#if sharedBoards.length > 0}
+					<div class="boards-grid">
+						{#each sharedBoards as board}
+							<a href={"/board/" + board.id}>
+								<div class="board-card">
+									<img src={board.background_url} alt="Board background" aria-hidden="true" />
+									<div class="board-info">
+										<h3>{board.name}</h3>
+									</div>
+								</div>
+							</a>
+						{/each}
+					</div>
+				{:else}
+					<p class="shared-empty">No shared boards found.</p>
+				{/if}
+			</div>
+		{/if}
+	</FlexWrapper>
+{/if}
+
+<style>
+	/* Sections */
+	.section {
+		width: 100%;
+		max-width: 1000px;
+		margin: var(--token-space-4) auto;
+	}
+
+	.section-title {
+		font-size: 1.1rem;
+		font-weight: 500;
+		margin-bottom: var(--token-space-2);
+		text-align: left;
+	}
+
+	.shared-empty {
+		text-align: left;
+		color: var(--token-color-text-subtle);
+		margin-top: var(--token-space-2);
+	}
+
+	/* Boards Grid */
+	.boards-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+		gap: var(--token-space-3);
+		margin: var(--token-space-2) auto;
+		width: 100%;
+		max-width: 1000px;
+	}
+
+	.board-link {
+		color: var(--token-color-text-default-normal);
+		text-decoration: none;
+	}
+
+	.board-card {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		border-radius: 1rem;
+		overflow: hidden;
+		cursor: pointer;
+		background: var(--token-color-surface-raised-normal);
+		transition:
+			transform 0.3s ease,
+			box-shadow 0.3s ease;
+	}
+
+	.board-card:hover {
+		transform: translateY(-4px);
+		background: var(--token-color-surface-raised-hover);
+		box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+	}
+
+	.board-card img {
+		width: 100%;
+		height: 120px;
+		object-fit: cover;
+	}
+
+	.board-info {
+		padding: var(--token-space-3);
+		background: var(--token-color-surface-raised-normal);
+	}
+
+	.board-info h3 {
+		font-size: 1.1rem;
+		margin: 0;
+	}
+
+	/* Empty state */
+	.no-boards {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+		gap: var(--token-space-3);
+		margin-top: var(--token-space-6);
+		text-align: center;
+	}
+
+	.no-boards p {
+		font-size: 1.1rem;
+		line-height: 1.4;
+	}
+</style>
