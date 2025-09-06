@@ -6,18 +6,19 @@
 	import { accessToken, refreshAccessToken } from "$lib/session";
 	import { FlexWrapper, Loader, SplitButton, toast } from "@davidnet/svelte-ui";
 
-	// Board ID from route params
 	const id = page.params.id;
 
-	// State
-	let loading = $state(true);
-	// Define a type for board metadata
+	let loading = true;
 	type BoardMeta = { name?: string; background_url?: string; [key: string]: any };
 	const boardMeta = writable<BoardMeta | null>(null);
-	// Define a type for a list
 	type List = { id: string; name: string; [key: string]: any };
 	const lists = writable<List[]>([]);
-	const cards = writable<{ [listId: string]: any[] }>({}); // { listId: [cards] }
+	const cards = writable<{ [listId: string]: any[] }>({});
+
+	// Track which list is currently adding a new card
+	const addingCard = writable<{ [listId: string]: boolean }>({});
+	const newCardText = writable<{ [listId: string]: string }>({});
+
 	const correlationID = crypto.randomUUID();
 
 	function showError(msg: string) {
@@ -31,7 +32,6 @@
 		});
 	}
 
-	// --- API fetch helpers ---
 	async function authFetch(url: string, body: any) {
 		await refreshAccessToken(correlationID, true, true);
 		const token = get(accessToken);
@@ -48,6 +48,7 @@
 		return res.json();
 	}
 
+	// --- Real API calls ---
 	async function fetchBoard() {
 		try {
 			const data = await authFetch(`${kanbanapiurl}board/get`, { id });
@@ -92,37 +93,75 @@
 			loading = false;
 		}
 	});
+
+	// --- Local add card ---
+	function addCard(listId: string) {
+		addingCard.update((a) => ({ ...a, [listId]: true }));
+		newCardText.update((t) => ({ ...t, [listId]: "" }));
+	}
+
+	function confirmNewCard(listId: string) {
+		newCardText.update((t) => {
+			const text = t[listId]?.trim();
+			if (text) {
+				cards.update((c) => ({ ...c, [listId]: [...(c[listId] || []), { id: crypto.randomUUID(), name: text }] }));
+			}
+			return { ...t, [listId]: "" };
+		});
+		addingCard.update((a) => ({ ...a, [listId]: false }));
+	}
+
+	function autoFocus(node: HTMLInputElement) {
+		// Delay to let DOM update
+		setTimeout(() => node.focus(), 0);
+		return {
+			destroy() {}
+		};
+	}
 </script>
 
 {#if loading}
-	<p class="loading-text">Loading board {get(boardMeta)?.name ?? id}.</p>
+	<p class="loading-text">Loading board {$boardMeta?.name ?? id}.</p>
 	<Loader />
 	<p>Getting things ready.</p>
 {:else}
-	<div class="board" style="background-image: url({get(boardMeta)?.background_url});">
+	<div class="board" style="background-image: url({$boardMeta?.background_url});">
 		<div class="lists">
-			{#each get(lists) as list}
+			{#each $lists as list (list.id)}
 				<div class="list">
 					<div class="list-header">
 						<h3 class="list-title">{list.name}</h3>
 					</div>
 
 					<div class="cards">
-						{#each get(cards)[list.id] ?? [] as card}
+						{#each $cards[list.id] ?? [] as card (card.id)}
 							<div class="card">{card.name}</div>
 						{/each}
+
+						{#if $addingCard[list.id]}
+							<input
+								class="card new-card-input"
+								bind:value={$newCardText[list.id]}
+								placeholder="Enter card title..."
+								on:keydown={(e) => e.key === "Enter" && confirmNewCard(list.id)}
+								on:blur={() => confirmNewCard(list.id)}
+								use:autoFocus
+							/>
+						{/if}
 					</div>
 
 					<div class="card-footer">
 						<FlexWrapper direction="row" justifycontent="center" alignitems="center" width="100%">
 							<SplitButton
 								appearance="subtle"
-								onClick={() => console.log("Add new card")}
+								onClick={() => addCard(list.id)}
 								actions={[
 									{ label: "Option A", onClick: () => {} },
 									{ label: "Option B", onClick: () => {} }
-								]}>Add new card</SplitButton
+								]}
 							>
+								Add new card
+							</SplitButton>
 						</FlexWrapper>
 					</div>
 				</div>
@@ -198,6 +237,23 @@
 		cursor: grabbing;
 		transform: scale(1.02);
 		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	}
+
+	/* New card input looks like a card */
+	.new-card-input {
+		background-color: var(--token-color-surface-raised-normal);
+		border-radius: 6px;
+		padding: 0.5rem 0.75rem;
+		box-shadow: 0 1px 0 rgba(9, 30, 66, 0.25);
+		border: none;
+		width: 100%;
+		font-family: inherit;
+		font-size: 1rem;
+		color: var(--token-color-text-default-normal);
+	}
+
+	.new-card-input:focus {
+		outline: 2px solid var(--token-color-focus);
 	}
 	.card-footer {
 		padding-top: var(--token-space-2);
