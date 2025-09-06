@@ -2,7 +2,7 @@
 	import { page } from "$app/state";
 	import { kanbanapiurl } from "$lib/config";
 	import { accessToken, refreshAccessToken } from "$lib/session";
-	import type { board } from "$lib/types";
+	import type { Board } from "$lib/types";
 	import { wait } from "$lib/utils/time";
 	import { Button, FlexWrapper, IconButton, Loader, SplitButton, toast } from "@davidnet/svelte-ui";
 	import { onMount } from "svelte";
@@ -10,7 +10,7 @@
 
 	const id = page.params.id;
 	let loading = $state(true); // keep your $state usage
-	const boardMeta = writable<board | null>(null);
+	const boardMeta = writable<Board | null>(null);
 	const correlationID = crypto.randomUUID();
 
 	function showError(msg: string) {
@@ -41,7 +41,7 @@
 
 			if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-			const data: board = await res.json();
+			const data: Board = await res.json();
 			boardMeta.set(data);
 			await wait(100);
 			loading = false;
