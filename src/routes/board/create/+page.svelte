@@ -21,6 +21,7 @@
 		busy = true;
 
         if (boardname_invalid) {
+			busy = false;
             return;
         }
         boardname_invalid = false;
