@@ -4,7 +4,7 @@
 	import { page } from "$app/state";
 	import { writable, get } from "svelte/store";
 	import { kanbanapiurl } from "$lib/config";
-	import { accessToken, refreshAccessToken } from "$lib/session";
+	import { accessToken, isAuthenticated, refreshAccessToken } from "$lib/session";
 	import { Button, FlexWrapper, IconButton, Loader, SplitButton, toast } from "@davidnet/svelte-ui";
 
 	const id = page.params.id;
@@ -15,6 +15,7 @@
 	type List = { id: string; name: string; [key: string]: any };
 	const lists = writable<List[]>([]);
 	const cards = writable<{ [listId: string]: any[] }>({});
+	let board_favorited = writable(false);
 
 	// Track which list is currently adding a new card
 	const addingCard = writable<{ [listId: string]: boolean }>({});
@@ -58,6 +59,18 @@
 		try {
 			const data = await authFetch(`${kanbanapiurl}board/get`, { id });
 			boardMeta.set(data);
+		} catch (e) {
+			console.warn(e);
+			showError(String(e));
+		}
+
+		if (!(await isAuthenticated(correlationID))) {
+			return;
+		}
+
+		try {
+			const data = await authFetch(`${kanbanapiurl}board/is_favorited`, { board_id: id });
+			board_favorited.set(data.favorited);
 		} catch (e) {
 			console.warn(e);
 			showError(String(e));
@@ -229,6 +242,42 @@
 			await fetchCardsForAllLists();
 		}
 	}
+
+	async function toggleFav(toggleto: boolean) {
+		if (toggleto) {
+			try {
+				await authFetch(`${kanbanapiurl}board/favorite`, { board_id: id });
+				board_favorited.set(toggleto);
+				toast({
+					title: "Favorited board",
+					desc: $boardMeta?.name ?? id,
+					icon: "family_star",
+					appearance: "success",
+					position: "bottom-left",
+					autoDismiss: 5000
+				});
+			} catch (e) {
+				console.warn(e);
+				showError(String(e));
+			}
+		} else {
+			try {
+				await authFetch(`${kanbanapiurl}board/unfavorite`, { board_id: id });
+				board_favorited.set(toggleto);
+				toast({
+					title: "Unfavorited board",
+					desc: $boardMeta?.name ?? id,
+					icon: "kid_star",
+					appearance: "success",
+					position: "bottom-left",
+					autoDismiss: 5000
+				});
+			} catch (e) {
+				console.warn(e);
+				showError(String(e));
+			}
+		}
+	}
 </script>
 
 {#if loading}
@@ -243,9 +292,14 @@
 			</div>
 			<div class="nav-center"></div>
 			<div class="nav-right">
-				<IconButton appearance="subtle" alt="Add board to favorites." onClick={() => {}} icon="star"/>
+				{#if $board_favorited}
+					<IconButton appearance="warning" alt="Remove board from favorites." onClick={() => toggleFav(false)} icon="star_shine" />
+				{:else}
+					<IconButton appearance="subtle" alt="Add board to favorites." onClick={() => toggleFav(true)} icon="star" />
+				{/if}
+
 				<Button appearance="discover" iconbefore="group_add" onClick={() => {}}>Share</Button>
-				<IconButton appearance="subtle" alt="More actions" onClick={() => {}} icon="more_horiz"/>
+				<IconButton appearance="subtle" alt="More actions" onClick={() => {}} icon="more_horiz" />
 			</div>
 		</nav>
 		<div
@@ -267,9 +321,8 @@
 				<div class="list">
 					<div class="list-header">
 						<h3 class="list-title">{list.name}</h3>
-						<IconButton appearance="subtle" alt="More actions" onClick={() => {}} icon="more_horiz"/>
+						<IconButton appearance="subtle" alt="More actions" onClick={() => {}} icon="more_horiz" />
 					</div>
-
 
 					<div
 						class="cards"
