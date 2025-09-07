@@ -6,8 +6,9 @@
 	import { kanbanapiurl } from "$lib/config";
 	import { accessToken, getSessionInfo, isAuthenticated, refreshAccessToken } from "$lib/session";
 	import { Button, FlexWrapper, IconButton, IconDropdown, Loader, Modal, SplitButton, toast } from "@davidnet/svelte-ui";
-	import type { SessionInfo } from "$lib/types";
+	import type { Card, SessionInfo } from "$lib/types";
 	import { goto } from "$app/navigation";
+	import CardOverlay from "$lib/components/CardOverlay.svelte";
 
 	const id = page.params.id;
 
@@ -420,6 +421,16 @@
 			}
 		}
 	}
+
+	let openedCard: Card | null = $state(null);
+
+	function openCard(card: any) {
+		openedCard = card;
+	}
+
+	function closeCard() {
+		openedCard = null;
+	}
 </script>
 
 {#if loading}
@@ -468,10 +479,10 @@
 						{
 							label: "Edit board",
 							onClick: () => {
-								goto("/board/" + id + "/edit")
+								goto("/board/" + id + "/edit");
 							}
 						},
-												{
+						{
 							label: "Change background",
 							onClick: () => {
 								// goto("/board/" + id + "/background")
@@ -539,7 +550,7 @@
 						onfinalize={(e) => moveCard(e, list.id)}
 					>
 						{#each $cards[list.id] ?? [] as card (card.id)}
-							<div class="card" data-id={card.id}>{card.name}</div>
+							<div class="card" data-id={card.id} Onclick={() => openCard(card)}>{card.name}</div>
 						{/each}
 
 						{#if $addingCard[list.id]}
@@ -605,6 +616,10 @@
 			{ appearance: "danger", content: "Delete board", onClick: DeleteBoard }
 		]}
 	/>
+{/if}
+
+{#if openedCard}
+		<CardOverlay closeCard={closeCard} openedCard={openedCard}/>
 {/if}
 
 <style>
