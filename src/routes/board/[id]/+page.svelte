@@ -120,8 +120,7 @@
 		// Optimistically add card locally at the end
 		cards.update((c) => ({
 			...c,
-			[listId]: [...(c[listId] || []), { id: tempId, name: text, isLoading: true }]
-				.sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+			[listId]: [...(c[listId] || []), { id: tempId, name: text, isLoading: true }].sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
 		}));
 
 		addingCard.update((a) => ({ ...a, [listId]: false }));
@@ -136,9 +135,7 @@
 			// Replace the temporary card with the real one
 			cards.update((c) => ({
 				...c,
-				[listId]: c[listId]
-					.map((card) => (card.id === tempId ? newCard : card))
-					.sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+				[listId]: c[listId].map((card) => (card.id === tempId ? newCard : card)).sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
 			}));
 		} catch (err) {
 			console.error(err);
@@ -184,8 +181,29 @@
 		setTimeout(() => node.focus(), 0);
 		return { destroy() {} };
 	}
-</script>
 
+	async function moveList(e: CustomEvent<{ items: List[] }>) {
+		const newOrder = e.detail.items.map((item, index) => ({
+			...item,
+			position: index + 1
+		}));
+
+		lists.set(newOrder);
+
+		try {
+			await authFetch(`${kanbanapiurl}list/move`, {
+				board_id: id,
+				lists: newOrder.map(({ id, position }) => ({ id, position }))
+			});
+		} catch (err) {
+			console.error("Failed to move lists:", err);
+			showError("Failed to update list order on server.");
+
+			// Reset
+			await fetchLists();
+		}
+	}
+</script>
 
 {#if loading}
 	<p class="loading-text">Loading board {$boardMeta?.name ?? id}.</p>
@@ -204,7 +222,9 @@
 				delayTouchStart: true
 			}}
 			on:consider={(e) => lists.set(e.detail.items)}
-			on:finalize={(e) => lists.set(e.detail.items)}
+			on:finalize={(e) => {
+				moveList(e);
+			}}
 		>
 			{#each $lists as list (list.id)}
 				<div class="list">
