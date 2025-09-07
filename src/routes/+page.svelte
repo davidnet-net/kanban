@@ -1,19 +1,20 @@
 <script lang="ts">
 	import { kanbanapiurl } from "$lib/config";
 	import { authFetch, getSessionInfo } from "$lib/session";
-	import { Button, FlexWrapper, Icon, LinkButton, Loader, Space, toast } from "@davidnet/svelte-ui";
+	import { FlexWrapper, Icon, LinkButton, Loader, Space, toast } from "@davidnet/svelte-ui";
 	import type { Board, SessionInfo } from "$lib/types";
 	import { onMount } from "svelte";
 	import { wait } from "$lib/utils/time";
 
 	let loading = $state(true);
-	let boards: Board[] = $state([]);
 	let correlationID = crypto.randomUUID();
 	let si: SessionInfo | null = $state(null);
 	let zeroboards = $state(true);
 
-	// later: boards shared with you
-	let sharedBoards: Board[] = $state([]);
+	let recent_boards: Board[] = $state([]);
+	let boards: Board[] = $state([]);
+	let shared_boards: Board[] = $state([]);
+	let favorite_boards: Board[] = $state([]);
 
 	function showError(msg: string) {
 		toast({
@@ -37,7 +38,14 @@
 			const res = await authFetch(`${kanbanapiurl}boards/list`, correlationID, { method: "GET" });
 			boards = await res.json();
 			zeroboards = boards.length === 0;
-			sharedBoards = [];
+			shared_boards = [];
+
+			const favorite_boards_res = await authFetch(`${kanbanapiurl}boards/favorites`, correlationID, { method: "GET" });
+			favorite_boards = await favorite_boards_res.json();
+
+			const recent_boards_res = await authFetch(`${kanbanapiurl}boards/recent`, correlationID, { method: "GET" });
+			recent_boards = await recent_boards_res.json();
+
 			await wait(500);
 			loading = false;
 		} catch (e) {
@@ -67,30 +75,70 @@
 
 			<div class="section">
 				<h2 class="section-title">Recent boards:</h2>
-				<div class="boards-grid">No boards visited recently.</div>
+				{#if recent_boards.length > 0}
+					<div class="boards-grid">
+						{#each recent_boards as board}
+							<a href={"/board/" + board.id} class="board-link">
+								<div class="board-card">
+									<img src={board.background_url} alt="Board background" aria-hidden="true" />
+									<div class="board-info">
+										<h3>{board.name}</h3>
+									</div>
+								</div>
+							</a>
+						{/each}
+					</div>
+				{:else}
+					<p class="no-boards-section">You did not visit an board recently.</p>
+				{/if}
 			</div>
+
+			<div class="section">
+				<h2 class="section-title">Favorite boards:</h2>
+				{#if favorite_boards.length > 0}
+					<div class="boards-grid">
+						{#each favorite_boards as board}
+							<a href={"/board/" + board.id} class="board-link">
+								<div class="board-card">
+									<img src={board.background_url} alt="Board background" aria-hidden="true" />
+									<div class="board-info">
+										<h3>{board.name}</h3>
+									</div>
+								</div>
+							</a>
+						{/each}
+					</div>
+				{:else}
+					<p class="no-boards-section">You have not yet favorited an board.</p>
+				{/if}
+			</div>
+
 			<div class="section">
 				<h2 class="section-title">Your boards:</h2>
-				<div class="boards-grid">
-					{#each boards as board}
-						<a href={"/board/" + board.id} class="board-link">
-							<div class="board-card">
-								<img src={board.background_url} alt="Board background" aria-hidden="true" />
-								<div class="board-info">
-									<h3>{board.name}</h3>
+				{#if boards.length > 0}
+					<div class="boards-grid">
+						{#each boards as board}
+							<a href={"/board/" + board.id} class="board-link">
+								<div class="board-card">
+									<img src={board.background_url} alt="Board background" aria-hidden="true" />
+									<div class="board-info">
+										<h3>{board.name}</h3>
+									</div>
 								</div>
-							</div>
-						</a>
-					{/each}
-				</div>
+							</a>
+						{/each}
+					</div>
+				{:else}
+					<p class="no-boards-section">You have not yet created an board.</p>
+				{/if}
 			</div>
 
 			<!-- Shared boards -->
 			<div class="section">
 				<h2 class="section-title">Boards shared with you:</h2>
-				{#if sharedBoards.length > 0}
+				{#if shared_boards.length > 0}
 					<div class="boards-grid">
-						{#each sharedBoards as board}
+						{#each shared_boards as board}
 							<a href={"/board/" + board.id}>
 								<div class="board-card">
 									<img src={board.background_url} alt="Board background" aria-hidden="true" />
@@ -102,7 +150,7 @@
 						{/each}
 					</div>
 				{:else}
-					<p class="shared-empty">No shared boards found.</p>
+					<p class="no-boards-section">No boards are shared with you.</p>
 				{/if}
 			</div>
 		{/if}
@@ -124,9 +172,9 @@
 		text-align: left;
 	}
 
-	.shared-empty {
+	.no-boards-section {
 		text-align: left;
-		color: var(--token-color-text-subtle);
+		color: var(--token-color-text-default-tertiary);
 		margin-top: var(--token-space-2);
 	}
 

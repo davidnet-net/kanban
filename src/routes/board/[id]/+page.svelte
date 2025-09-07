@@ -5,7 +5,7 @@
 	import { writable, get } from "svelte/store";
 	import { kanbanapiurl } from "$lib/config";
 	import { accessToken, refreshAccessToken } from "$lib/session";
-	import { Button, FlexWrapper, Loader, SplitButton, toast } from "@davidnet/svelte-ui";
+	import { Button, FlexWrapper, IconButton, Loader, SplitButton, toast } from "@davidnet/svelte-ui";
 
 	const id = page.params.id;
 
@@ -237,6 +237,17 @@
 	<p>Getting things ready.</p>
 {:else}
 	<div class="board" style="background-image: url({$boardMeta?.background_url});">
+		<nav id="board-nav">
+			<div class="nav-left">
+				<h2>{$boardMeta?.name ?? id}</h2>
+			</div>
+			<div class="nav-center"></div>
+			<div class="nav-right">
+				<IconButton appearance="subtle" alt="Add board to favorites." onClick={() => {}} icon="star"/>
+				<Button appearance="discover" iconbefore="group_add" onClick={() => {}}>Share</Button>
+				<IconButton appearance="subtle" alt="More actions" onClick={() => {}} icon="more_horiz"/>
+			</div>
+		</nav>
 		<div
 			class="lists"
 			use:dndzone={{
@@ -256,7 +267,9 @@
 				<div class="list">
 					<div class="list-header">
 						<h3 class="list-title">{list.name}</h3>
+						<IconButton appearance="subtle" alt="More actions" onClick={() => {}} icon="more_horiz"/>
 					</div>
+
 
 					<div
 						class="cards"
@@ -322,6 +335,40 @@
 {/if}
 
 <style>
+	#board-nav {
+		height: 48px;
+		width: calc(100% - 3rem);
+		background: rgba(83, 182, 175, 0.21);
+		backdrop-filter: blur(10px);
+		-webkit-backdrop-filter: blur(10px);
+		padding: 4px;
+		color: #fff;
+		transition: all 0.3s ease;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0 1.5rem;
+	}
+
+	#board-nav > div {
+		flex: 1;
+		display: flex;
+		align-items: center;
+	}
+
+	.nav-left h2 {
+		margin: 0px;
+	}
+
+	.nav-center {
+		justify-content: center;
+	}
+
+	.nav-right {
+		justify-content: flex-end;
+		gap: 0.5rem;
+	}
+
 	.loading-text {
 		font-weight: bold;
 		font-size: 1.2rem;
@@ -333,7 +380,7 @@
 		flex-direction: column;
 		background: var(--token-color-background);
 		overflow: hidden;
-		padding: 1rem 0;
+		padding-bottom: 1rem;
 		background-size: cover;
 		background-position: center;
 		background-repeat: no-repeat;
@@ -342,14 +389,13 @@
 		display: flex;
 		gap: 1.5rem;
 		overflow-x: auto;
-		padding-left: 1rem;
-		padding-bottom: 2rem;
+		padding: 1.5rem;
 		flex-grow: 1;
 		scroll-behavior: smooth;
 	}
 	.list {
 		background: var(--token-color-surface-sunken-normal);
-		min-width: 272px;
+		min-width: 250px;
 		height: fit-content;
 		min-height: 10vh;
 		max-height: 90vh;
@@ -360,14 +406,19 @@
 		box-shadow: 0 1px 0 rgba(9, 30, 66, 0.25);
 		flex-shrink: 0;
 	}
+
 	.list-header {
+		position: relative; /* allows absolute positioning of button */
 		display: flex;
-		justify-content: center;
-		align-items: center;
+		align-items: center; /* vertical center */
+		justify-content: center; /* centers the title */
+		padding: 0.5rem; /* optional spacing inside the header */
 	}
 
 	.list-title {
-		margin-bottom: 0px;
+		margin: 0px;
+		text-align: center;
+		flex: 1;
 	}
 
 	.add-list {
@@ -400,6 +451,7 @@
 		padding: 0.5rem 0.75rem;
 		box-shadow: 0 1px 0 rgba(9, 30, 66, 0.25);
 		cursor: grab;
+		color: var(--token-color-text-default-secondary);
 		transition:
 			transform 0.2s ease,
 			box-shadow 0.2s ease;
