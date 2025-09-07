@@ -80,6 +80,8 @@
 			allLists.map(async (list: any) => {
 				try {
 					const data = await authFetch(`${kanbanapiurl}list/cards`, { list_id: list.id });
+					// Sort cards by position
+					data.sort((a: any, b: any) => (a.position ?? 0) - (b.position ?? 0));
 					cards.update((c) => ({ ...c, [list.id]: data }));
 				} catch (e) {
 					console.warn(e);
@@ -115,10 +117,11 @@
 
 		const tempId = crypto.randomUUID();
 
-		// Optimistically add card locally
+		// Optimistically add card locally at the end
 		cards.update((c) => ({
 			...c,
 			[listId]: [...(c[listId] || []), { id: tempId, name: text, isLoading: true }]
+				.sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
 		}));
 
 		addingCard.update((a) => ({ ...a, [listId]: false }));
@@ -133,7 +136,9 @@
 			// Replace the temporary card with the real one
 			cards.update((c) => ({
 				...c,
-				[listId]: c[listId].map((card) => (card.id === tempId ? newCard : card))
+				[listId]: c[listId]
+					.map((card) => (card.id === tempId ? newCard : card))
+					.sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
 			}));
 		} catch (err) {
 			console.error(err);
@@ -180,6 +185,7 @@
 		return { destroy() {} };
 	}
 </script>
+
 
 {#if loading}
 	<p class="loading-text">Loading board {$boardMeta?.name ?? id}.</p>
