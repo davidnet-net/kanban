@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { onMount } from "svelte";
+	import { dndzone } from "svelte-dnd-action";
 	import { page } from "$app/state";
 	import { writable, get } from "svelte/store";
 	import { kanbanapiurl } from "$lib/config";
 	import { accessToken, refreshAccessToken } from "$lib/session";
-	import { FlexWrapper, Loader, SplitButton, toast } from "@davidnet/svelte-ui";
+	import { Button, FlexWrapper, Loader, SplitButton, toast } from "@davidnet/svelte-ui";
 
 	const id = page.params.id;
 
@@ -18,6 +19,10 @@
 	// Track which list is currently adding a new card
 	const addingCard = writable<{ [listId: string]: boolean }>({});
 	const newCardText = writable<{ [listId: string]: string }>({});
+
+	// Track adding a new list
+	const addingList = writable(false);
+	const newListName = writable("");
 
 	const correlationID = crypto.randomUUID();
 
@@ -74,7 +79,7 @@
 		await Promise.all(
 			allLists.map(async (list: any) => {
 				try {
-					const data = await authFetch(`${kanbanapiurl}board/cards`, { list_id: list.id });
+					const data = await authFetch(`${kanbanapiurl}list/cards`, { list_id: list.id });
 					cards.update((c) => ({ ...c, [list.id]: data }));
 				} catch (e) {
 					console.warn(e);
@@ -100,23 +105,79 @@
 		newCardText.update((t) => ({ ...t, [listId]: "" }));
 	}
 
-	function confirmNewCard(listId: string) {
-		newCardText.update((t) => {
-			const text = t[listId]?.trim();
-			if (text) {
-				cards.update((c) => ({ ...c, [listId]: [...(c[listId] || []), { id: crypto.randomUUID(), name: text }] }));
-			}
-			return { ...t, [listId]: "" };
-		});
+	async function confirmNewCard(listId: string) {
+		const t = get(newCardText);
+		const text = t[listId]?.trim();
+		if (!text) {
+			newCardText.update((t) => ({ ...t, [listId]: "" }));
+			return;
+		}
+
+		const tempId = crypto.randomUUID();
+
+		// Optimistically add card locally
+		cards.update((c) => ({
+			...c,
+			[listId]: [...(c[listId] || []), { id: tempId, name: text, isLoading: true }]
+		}));
+
 		addingCard.update((a) => ({ ...a, [listId]: false }));
+		newCardText.update((t) => ({ ...t, [listId]: "" }));
+
+		try {
+			const newCard = await authFetch(`${kanbanapiurl}card/add`, {
+				list_id: listId,
+				name: text
+			});
+
+			// Replace the temporary card with the real one
+			cards.update((c) => ({
+				...c,
+				[listId]: c[listId].map((card) => (card.id === tempId ? newCard : card))
+			}));
+		} catch (err) {
+			console.error(err);
+			// Remove temporary card on failure
+			cards.update((c) => ({
+				...c,
+				[listId]: c[listId].filter((card) => card.id !== tempId)
+			}));
+			showError(`Failed to create card: ${err}`);
+		}
+	}
+
+	// --- Add list ---
+	async function confirmNewList() {
+		const name = get(newListName)?.trim();
+		if (!name) return;
+
+		const tempId = crypto.randomUUID();
+		lists.update((l) => [...l, { id: tempId, name }]);
+		addingList.set(false);
+		newListName.set("");
+
+		try {
+			const newList = await authFetch(`${kanbanapiurl}list/add`, {
+				board_id: id,
+				name
+			});
+
+			lists.update((l) => l.map((list) => (list.id === tempId ? newList : list)));
+		} catch (err) {
+			console.error(err);
+			lists.update((l) => l.filter((list) => list.id !== tempId));
+			showError(`Failed to create list: ${err}`);
+		}
 	}
 
 	function autoFocus(node: HTMLInputElement) {
-		// Delay to let DOM update
 		setTimeout(() => node.focus(), 0);
-		return {
-			destroy() {}
-		};
+		return { destroy() {} };
+	}
+
+	function autoFocusInput(node: HTMLInputElement) {
+		setTimeout(() => node.focus(), 0);
+		return { destroy() {} };
 	}
 </script>
 
@@ -126,16 +187,39 @@
 	<p>Getting things ready.</p>
 {:else}
 	<div class="board" style="background-image: url({$boardMeta?.background_url});">
-		<div class="lists">
+		<div
+			class="lists"
+			use:dndzone={{
+				items: $lists,
+				flipDurationMs: 300,
+				dropFromOthersDisabled: true,
+				dropTargetStyle: { border: "2px dashed rgba(128, 128, 128, 0.5)" },
+				type: "list",
+				delayTouchStart: true
+			}}
+			on:consider={(e) => lists.set(e.detail.items)}
+			on:finalize={(e) => lists.set(e.detail.items)}
+		>
 			{#each $lists as list (list.id)}
 				<div class="list">
 					<div class="list-header">
 						<h3 class="list-title">{list.name}</h3>
 					</div>
 
-					<div class="cards">
+					<div
+						class="cards"
+						use:dndzone={{
+							items: $cards[list.id] ?? [],
+							flipDurationMs: 300,
+							type: "card",
+							dropTargetStyle: { border: "2px dashed rgba(128, 128, 128, 0.5)" },
+							delayTouchStart: true
+						}}
+						on:consider={(e) => cards.update((c) => ({ ...c, [list.id]: e.detail.items }))}
+						on:finalize={(e) => cards.update((c) => ({ ...c, [list.id]: e.detail.items }))}
+					>
 						{#each $cards[list.id] ?? [] as card (card.id)}
-							<div class="card">{card.name}</div>
+							<div class="card" data-id={card.id}>{card.name}</div>
 						{/each}
 
 						{#if $addingCard[list.id]}
@@ -166,6 +250,21 @@
 					</div>
 				</div>
 			{/each}
+
+			<div class="add-list">
+				{#if $addingList}
+					<input
+						bind:value={$newListName}
+						class="new-list-input"
+						placeholder="Enter list name..."
+						on:keydown={(e) => e.key === "Enter" && confirmNewList()}
+						on:blur={confirmNewList}
+						use:autoFocusInput
+					/>
+				{:else}
+					<Button appearance="subtle" onClick={() => addingList.set(true)}>Add list</Button>
+				{/if}
+			</div>
 		</div>
 	</div>
 {/if}
@@ -208,13 +307,30 @@
 		border-radius: 1rem;
 		box-shadow: 0 1px 0 rgba(9, 30, 66, 0.25);
 		flex-shrink: 0;
-		gap: 0.5rem;
 	}
 	.list-header {
 		display: flex;
 		justify-content: center;
 		align-items: center;
 	}
+
+	.list-title {
+		margin-bottom: 0px;
+	}
+
+	.add-list {
+		background: var(--token-color-surface-sunken-normal);
+		min-width: 272px;
+		height: fit-content;
+		display: flex;
+		flex-direction: column;
+		padding: 0.4rem;
+		border-radius: 1rem;
+		box-shadow: 0 1px 0 rgba(9, 30, 66, 0.25);
+		flex-shrink: 0;
+		gap: 0.5rem;
+	}
+
 	.cards {
 		display: flex;
 		flex-direction: column;
@@ -222,6 +338,9 @@
 		overflow-y: auto;
 		max-height: 70vh;
 		padding: 0 0.25rem;
+		min-height: 1vh;
+		padding-bottom: 2rem;
+		padding-top: 1.5rem;
 	}
 	.card {
 		background-color: var(--token-color-surface-raised-normal);
@@ -239,8 +358,8 @@
 		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 	}
 
-	/* New card input looks like a card */
-	.new-card-input {
+	.new-card-input,
+	.new-list-input {
 		background-color: var(--token-color-surface-raised-normal);
 		border-radius: 6px;
 		padding: 0.5rem 0.75rem;
@@ -251,8 +370,8 @@
 		font-size: 1rem;
 		color: var(--token-color-text-default-normal);
 	}
-
-	.new-card-input:focus {
+	.new-card-input:focus,
+	.new-list-input:focus {
 		outline: 2px solid var(--token-color-focus);
 	}
 	.card-footer {
