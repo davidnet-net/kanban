@@ -37,6 +37,16 @@
 		try {
 			const si: SessionInfo | null = await getSessionInfo(correlationID);
 
+			const pathname = page.url.pathname;
+
+			
+			// Match only /board/<numeric-id>
+			const boardRegex = /^\/board\/\d+$/;
+			if (boardRegex.test(pathname)) {
+				authed = true; // Due public boards
+				return;
+			}
+
 			if (!(await isAuthenticated(correlationID)) || !si) {
 				window.location.href = "https://account.davidnet.net/login?redirect=" + encodeURIComponent(page.url.toString());
 				return;

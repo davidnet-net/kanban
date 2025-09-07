@@ -4,12 +4,14 @@
 	import { page } from "$app/state";
 	import { writable, get } from "svelte/store";
 	import { kanbanapiurl } from "$lib/config";
-	import { accessToken, isAuthenticated, refreshAccessToken } from "$lib/session";
-	import { Button, FlexWrapper, IconButton, Loader, SplitButton, toast } from "@davidnet/svelte-ui";
+	import { accessToken, getSessionInfo, isAuthenticated, refreshAccessToken } from "$lib/session";
+	import { Button, FlexWrapper, IconButton, IconDropdown, Loader, Modal, SplitButton, toast } from "@davidnet/svelte-ui";
+	import type { SessionInfo } from "$lib/types";
+	import { goto } from "$app/navigation";
 
 	const id = page.params.id;
 
-	let loading = true;
+	let loading = $state(true);
 	type BoardMeta = { name?: string; background_url?: string; [key: string]: any };
 	const boardMeta = writable<BoardMeta | null>(null);
 	type List = { id: string; name: string; [key: string]: any };
@@ -26,6 +28,13 @@
 	const newListName = writable("");
 
 	const correlationID = crypto.randomUUID();
+	let token = "";
+
+	// Modals
+	let showBoardDelModal = $state(false);
+	let authencated = $state(false);
+	let is_owner = $state(false);
+	let si: SessionInfo | null = $state(null);
 
 	function showError(msg: string) {
 		toast({
@@ -39,8 +48,6 @@
 	}
 
 	async function authFetch(url: string, body: any) {
-		await refreshAccessToken(correlationID, true, true);
-		const token = get(accessToken);
 		const res = await fetch(url, {
 			method: "POST",
 			credentials: "include",
@@ -57,20 +64,18 @@
 	// --- Real API calls ---
 	async function fetchBoard() {
 		try {
-			const data = await authFetch(`${kanbanapiurl}board/get`, { id });
+			const res = await fetch(`${kanbanapiurl}board/get`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+					...(token ? { Authorization: `Bearer ${token}` } : {})
+				},
+				body: JSON.stringify({ id })
+			});
+			if (!res.ok) throw new Error(`HTTP ${res.status}`);
+			const data = await res.json();
 			boardMeta.set(data);
-		} catch (e) {
-			console.warn(e);
-			showError(String(e));
-		}
-
-		if (!(await isAuthenticated(correlationID))) {
-			return;
-		}
-
-		try {
-			const data = await authFetch(`${kanbanapiurl}board/is_favorited`, { board_id: id });
-			board_favorited.set(data.favorited);
 		} catch (e) {
 			console.warn(e);
 			showError(String(e));
@@ -79,7 +84,17 @@
 
 	async function fetchLists() {
 		try {
-			const data = await authFetch(`${kanbanapiurl}board/lists`, { board_id: id });
+			const res = await fetch(`${kanbanapiurl}board/lists`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+					...(token ? { Authorization: `Bearer ${token}` } : {})
+				},
+				body: JSON.stringify({ board_id: id })
+			});
+			if (!res.ok) throw new Error(`HTTP ${res.status}`);
+			const data = await res.json();
 			lists.set(data);
 		} catch (e) {
 			console.warn(e);
@@ -92,7 +107,17 @@
 		await Promise.all(
 			allLists.map(async (list: any) => {
 				try {
-					const data = await authFetch(`${kanbanapiurl}list/cards`, { list_id: list.id });
+					const res = await fetch(`${kanbanapiurl}list/cards`, {
+						method: "POST",
+						credentials: "include",
+						headers: {
+							"Content-Type": "application/json",
+							...(token ? { Authorization: `Bearer ${token}` } : {})
+						},
+						body: JSON.stringify({ list_id: list.id })
+					});
+					if (!res.ok) throw new Error(`HTTP ${res.status}`);
+					const data = await res.json();
 					// Sort cards by position
 					data.sort((a: any, b: any) => (a.position ?? 0) - (b.position ?? 0));
 					cards.update((c) => ({ ...c, [list.id]: data }));
@@ -106,9 +131,32 @@
 
 	onMount(async () => {
 		try {
+			await refreshAccessToken(correlationID, true, true);
+			if (get(accessToken)) {
+				if (!(await isAuthenticated(correlationID))) {
+					return;
+				}
+				token = String(get(accessToken));
+				authencated = true;
+
+				si = await getSessionInfo(correlationID, false);
+
+				try {
+					const data = await authFetch(`${kanbanapiurl}board/is_favorited`, { board_id: id });
+					board_favorited.set(data.favorited);
+				} catch (e) {
+					console.warn(e);
+					showError(String(e));
+				}
+			}
+
 			await fetchBoard();
 			await fetchLists();
 			await fetchCardsForAllLists();
+
+			if (authencated && si && $boardMeta?.owner == si?.userId) {
+				is_owner = true;
+			}
 		} finally {
 			loading = false;
 		}
@@ -278,6 +326,25 @@
 			}
 		}
 	}
+
+	async function DeleteBoard() {
+		try {
+			await authFetch(`${kanbanapiurl}board/delete`, { board_id: id });
+			toast({
+				title: "Deleted board",
+				desc: $boardMeta?.name ?? id,
+				icon: "delete_forever",
+				appearance: "success",
+				position: "bottom-left",
+				autoDismiss: 5000
+			});
+			showBoardDelModal = false;
+			goto("/");
+		} catch (e) {
+			console.warn(e);
+			showError(String(e));
+		}
+	}
 </script>
 
 {#if loading}
@@ -293,13 +360,38 @@
 			<div class="nav-center"></div>
 			<div class="nav-right">
 				{#if $board_favorited}
-					<IconButton appearance="warning" alt="Remove board from favorites." onClick={() => toggleFav(false)} icon="star_shine" />
+					<IconButton
+						appearance="warning"
+						alt="Remove board from favorites."
+						onClick={() => toggleFav(false)}
+						icon="star_shine"
+						disabled={!authencated}
+					/>
 				{:else}
-					<IconButton appearance="subtle" alt="Add board to favorites." onClick={() => toggleFav(true)} icon="star" />
+					<IconButton
+						appearance="subtle"
+						alt="Add board to favorites."
+						onClick={() => toggleFav(true)}
+						icon="star"
+						disabled={!authencated}
+					/>
 				{/if}
 
 				<Button appearance="discover" iconbefore="group_add" onClick={() => {}}>Share</Button>
-				<IconButton appearance="subtle" alt="More actions" onClick={() => {}} icon="more_horiz" />
+				<IconDropdown
+					appearance="subtle"
+					icon="more_horiz"
+					alt="More actions."
+					disabled={!is_owner}
+					actions={[
+						{
+							label: "Delete board",
+							onClick: () => {
+								showBoardDelModal = true;
+							}
+						}
+					]}
+				/>
 			</div>
 		</nav>
 		<div
@@ -312,16 +404,14 @@
 				type: "list",
 				delayTouchStart: true
 			}}
-			on:consider={(e) => lists.set(e.detail.items)}
-			on:finalize={(e) => {
-				moveList(e);
-			}}
+			onconsider={(e) => lists.set(e.detail.items)}
+			onfinalize={moveList}
 		>
 			{#each $lists as list (list.id)}
 				<div class="list">
 					<div class="list-header">
 						<h3 class="list-title">{list.name}</h3>
-						<IconButton appearance="subtle" alt="More actions" onClick={() => {}} icon="more_horiz" />
+						<IconButton appearance="subtle" alt="More actions" onClick={() => {}} icon="more_horiz" disabled={!authencated} />
 					</div>
 
 					<div
@@ -333,8 +423,8 @@
 							dropTargetStyle: { border: "2px dashed rgba(128, 128, 128, 0.5)" },
 							delayTouchStart: true
 						}}
-						on:consider={(e) => cards.update((c) => ({ ...c, [list.id]: e.detail.items }))}
-						on:finalize={(e) => moveCard(e, list.id)}
+						onconsider={(e) => cards.update((c) => ({ ...c, [list.id]: e.detail.items }))}
+						onfinalize={(e) => moveCard(e, list.id)}
 					>
 						{#each $cards[list.id] ?? [] as card (card.id)}
 							<div class="card" data-id={card.id}>{card.name}</div>
@@ -345,8 +435,8 @@
 								class="card new-card-input"
 								bind:value={$newCardText[list.id]}
 								placeholder="Enter card title..."
-								on:keydown={(e) => e.key === "Enter" && confirmNewCard(list.id)}
-								on:blur={() => confirmNewCard(list.id)}
+								onkeydown={(e) => e.key === "Enter" && confirmNewCard(list.id)}
+								onblur={() => confirmNewCard(list.id)}
 								use:autoFocus
 							/>
 						{/if}
@@ -375,8 +465,8 @@
 						bind:value={$newListName}
 						class="new-list-input"
 						placeholder="Enter list name..."
-						on:keydown={(e) => e.key === "Enter" && confirmNewList()}
-						on:blur={confirmNewList}
+						onkeydown={(e) => e.key === "Enter" && confirmNewList()}
+						onblur={confirmNewList}
 						use:autoFocusInput
 					/>
 				{:else}
@@ -385,6 +475,24 @@
 			</div>
 		</div>
 	</div>
+{/if}
+
+{#if showBoardDelModal}
+	<Modal
+		title="Delete board {$boardMeta?.name ?? id}?"
+		titleIcon="delete_forever"
+		desc="This cannot be undone?"
+		hasCloseBtn
+		on:close={() => (showBoardDelModal = false)}
+		options={[
+			{
+				appearance: "subtle",
+				content: "Cancel",
+				onClick: () => (showBoardDelModal = false)
+			},
+			{ appearance: "danger", content: "Delete board", onClick: DeleteBoard }
+		]}
+	/>
 {/if}
 
 <style>
