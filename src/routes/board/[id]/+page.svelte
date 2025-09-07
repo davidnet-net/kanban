@@ -203,6 +203,32 @@
 			await fetchLists();
 		}
 	}
+
+	async function moveCard(e: CustomEvent<{ items: any[]; info?: any }>, sourceListId: string) {
+		const updatedCards = e.detail.items;
+
+		// Update local store immediately
+		cards.update((c) => ({ ...c, [sourceListId]: updatedCards }));
+
+		try {
+			// Send updated positions to backend
+			await Promise.all(
+				updatedCards.map((card, index) =>
+					authFetch(`${kanbanapiurl}card/move`, {
+						card_id: card.id,
+						list_id: sourceListId,
+						position: index
+					})
+				)
+			);
+		} catch (err) {
+			console.error("Failed to move cards:", err);
+			showError("Failed to update card positions on server.");
+
+			// Reset cards from backend
+			await fetchCardsForAllLists();
+		}
+	}
 </script>
 
 {#if loading}
@@ -242,7 +268,7 @@
 							delayTouchStart: true
 						}}
 						on:consider={(e) => cards.update((c) => ({ ...c, [list.id]: e.detail.items }))}
-						on:finalize={(e) => cards.update((c) => ({ ...c, [list.id]: e.detail.items }))}
+						on:finalize={(e) => moveCard(e, list.id)}
 					>
 						{#each $cards[list.id] ?? [] as card (card.id)}
 							<div class="card" data-id={card.id}>{card.name}</div>
