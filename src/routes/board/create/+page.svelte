@@ -23,7 +23,7 @@
         if (boardname_invalid) {
 			busy = false;
             return;
-        }
+        }visibility
         boardname_invalid = false;
 
 		try {

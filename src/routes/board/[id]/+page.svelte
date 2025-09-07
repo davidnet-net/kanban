@@ -33,6 +33,7 @@
 	// Modals
 	let showBoardDelModal = $state(false);
 	let authencated = $state(false);
+	let can_edit = $state(false);
 	let is_owner = $state(false);
 	let si: SessionInfo | null = $state(null);
 
@@ -156,6 +157,17 @@
 
 			if (authencated && si && $boardMeta?.owner == si?.userId) {
 				is_owner = true;
+				can_edit = true;
+			}
+
+			if (authencated && si && !is_owner) {
+				try {
+					const data = await authFetch(`${kanbanapiurl}board/am_i_member`, { id });
+					can_edit = data.result;
+				} catch (e) {
+					console.warn(e);
+					showError(String(e));
+				}
 			}
 		} finally {
 			loading = false;
@@ -345,6 +357,69 @@
 			showError(String(e));
 		}
 	}
+
+	async function deleteList(list_id: number, list_name: string) {
+		try {
+			await authFetch(`${kanbanapiurl}list/delete`, { board_id: id, list_id });
+			toast({
+				title: "Deleted list",
+				desc: list_name,
+				icon: "delete_forever",
+				appearance: "success",
+				position: "bottom-left",
+				autoDismiss: 5000
+			});
+		} catch (e) {
+			console.warn(e);
+			showError(String(e));
+		} finally {
+			await fetchLists();
+		}
+	}
+
+	async function moveListLeft(list_id: number) {
+		const currentLists = get(lists);
+		const index = currentLists.findIndex((l) => Number(l.id) === list_id);
+		if (index > 0) {
+			// swap with the previous one
+			const newOrder = [...currentLists];
+			[newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
+			lists.set(newOrder);
+
+			try {
+				await authFetch(`${kanbanapiurl}list/move`, {
+					board_id: id,
+					lists: newOrder.map((l, idx) => ({ id: l.id, position: idx + 1 }))
+				});
+			} catch (err) {
+				console.error("Failed to move list left:", err);
+				showError("Failed to move list left on server.");
+				await fetchLists();
+			}
+		}
+	}
+
+	async function moveListRight(list_id: number) {
+		const currentLists = get(lists);
+		const index = currentLists.findIndex((l) => Number(l.id) === list_id);
+		if (index >= 0 && index < currentLists.length - 1) {
+			// swap with the next one
+			const newOrder = [...currentLists];
+			[newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
+			lists.set(newOrder);
+
+			try {
+				await authFetch(`${kanbanapiurl}list/move`, {
+					board_id: id,
+					lists: newOrder.map((l, idx) => ({ id: l.id, position: idx + 1 }))
+				});
+			} catch (err) {
+				console.error("Failed to move list right:", err);
+				showError("Failed to move list right on server.");
+				await fetchLists();
+			}
+		}
+	}
 </script>
 
 {#if loading}
@@ -389,6 +464,18 @@
 							onClick: () => {
 								showBoardDelModal = true;
 							}
+						},
+						{
+							label: "Edit board",
+							onClick: () => {
+								goto("/board/" + id + "/edit")
+							}
+						},
+												{
+							label: "Change background",
+							onClick: () => {
+								// goto("/board/" + id + "/background")
+							}
 						}
 					]}
 				/>
@@ -411,7 +498,32 @@
 				<div class="list">
 					<div class="list-header">
 						<h3 class="list-title">{list.name}</h3>
-						<IconButton appearance="subtle" alt="More actions" onClick={() => {}} icon="more_horiz" disabled={!authencated} />
+						<IconDropdown
+							appearance="subtle"
+							icon="more_horiz"
+							alt="More actions."
+							disabled={!is_owner}
+							actions={[
+								{
+									label: "Delete list",
+									onClick: () => {
+										deleteList(Number(list.id), list.name);
+									}
+								},
+								{
+									label: "Move left",
+									onClick: () => {
+										moveListLeft(Number(list.id));
+									}
+								},
+								{
+									label: "Move right",
+									onClick: () => {
+										moveListRight(Number(list.id));
+									}
+								}
+							]}
+						/>
 					</div>
 
 					<div
