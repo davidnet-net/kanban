@@ -619,14 +619,14 @@
 {/if}
 
 {#if openedCard}
-		<CardOverlay closeCard={closeCard} openedCard={openedCard}/>
+		<CardOverlay closeCard={closeCard} openedCard={openedCard} correlationID={correlationID}/>
 {/if}
 
 <style>
 	#board-nav {
 		height: 48px;
 		width: calc(100% - 3rem);
-		background: rgba(83, 182, 175, 0.21);
+		background: rgba(103, 155, 151, 0.21);
 		backdrop-filter: blur(10px);
 		-webkit-backdrop-filter: blur(10px);
 		padding: 4px;

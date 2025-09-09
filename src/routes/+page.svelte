@@ -46,7 +46,7 @@
 			const recent_boards_res = await authFetch(`${kanbanapiurl}boards/recent`, correlationID, { method: "GET" });
 			recent_boards = await recent_boards_res.json();
 
-			await wait(500);
+			await wait(200);
 			loading = false;
 		} catch (e) {
 			console.warn(e);

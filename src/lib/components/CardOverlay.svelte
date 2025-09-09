@@ -1,60 +1,182 @@
 <script lang="ts">
-	import type { Card } from "$lib/types";
-	import { Button, IconButton, Space } from "@davidnet/svelte-ui";
+	import { authapiurl } from "$lib/config";
+	import { accessToken } from "$lib/session";
+	import type { Card, ProfileResponse } from "$lib/types";
+	import { formatDate_PREFERREDTIME } from "$lib/utils/time";
+	import { Button, IconButton, Loader, Space, toast } from "@davidnet/svelte-ui";
+	import { onMount } from "svelte";
+	import { get } from "svelte/store";
+	import { marked } from "marked";
 
-	export let closeCard;
-	export let openedCard: Card;
+	let { closeCard, openedCard, correlationID } = $props<{
+		closeCard: () => void;
+		openedCard: Card;
+		correlationID: string;
+	}>();
+
+	let creation_date: string = $state("");
+	let owner: ProfileResponse | null = $state(null);
+	let loaded = $state(false);
+	onMount(async () => {
+		creation_date = await formatDate_PREFERREDTIME(openedCard.created_at, correlationID);
+		owner = await fetchProfile(openedCard.owner);
+
+		if (!owner) {
+			return;
+		}
+
+		if (!creation_date || creation_date === "") {
+			return;
+		}
+
+		loaded = true;
+	});
+
+	async function fetchProfile(id: number) {
+		let created_on: string;
+		const token = get(accessToken);
+		try {
+			const res = await fetch(`${authapiurl}profile/${id}`, {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					"x-correlation-id": correlationID,
+					Authorization: `Bearer ${token}`
+				},
+				credentials: "include"
+			});
+
+			if (!res.ok) {
+				toast({
+					title: "Profile load error",
+					desc: "Some profile(s) could not be loaded.",
+					icon: "crisis-alert",
+					appearance: "danger",
+					position: "top-center",
+					autoDismiss: 5000
+				});
+			}
+
+			const data = await res.json();
+			console.log(data);
+			created_on = await formatDate_PREFERREDTIME(data.profile.created_at, correlationID);
+			return data;
+		} catch (err) {
+			console.error("fetchProfile error:", err);
+			toast({
+				title: "Network Error",
+				desc: "Something went wrong while fetching the profile.",
+				icon: "crisis-alert",
+				appearance: "danger",
+				position: "top-center",
+				autoDismiss: 5000
+			});
+		}
+	}
+
+	let editing = $state(false);
+	let description = $state(openedCard.description ?? "");
+
+	function saveDescription() {
+		console.log("Saving description:", description);
+		editing = false;
+		toast({
+			title: "Card updated",
+			desc: "Description saved successfully.",
+			icon: "check",
+			appearance: "success",
+			position: "bottom-left",
+			autoDismiss: 3000
+		});
+	}
+
+	function handleKey(e: KeyboardEvent) {
+		if (e.key === "Enter" && !e.shiftKey) {
+			e.preventDefault();
+			saveDescription();
+		}
+	}
 </script>
 
-<div class="overlay" Onclick={closeCard}>
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<div class="blanket" onclick={(e) => e.target === e.currentTarget && closeCard()} tabindex="-1" aria-modal="true">
 	<div class="content">
-		<header class="header">
-			<h2>{openedCard.name}</h2>
-			<div>
-				<IconButton icon="help" appearance="subtle" onClick={() => {}} alt="About cards." />
-				<IconButton icon="archive" appearance="danger" onClick={() => {}} alt="Archive." />
-				<IconButton icon="close" appearance="primary" onClick={closeCard} alt="Close." />
-			</div>
-		</header>
-
-		<div class="container">
-			<div class="card-body">
-				<div class="action-bar">
-					<Button onClick={() => {}} iconbefore="new_label">Add label</Button>
-					<Button onClick={() => {}} iconbefore="calendar_clock">Dates</Button>
-					<Button onClick={() => {}} iconbefore="checklist">Add checklist</Button>
-					<Button onClick={() => {}} iconbefore="attach_file_add">Add attachment</Button>
+		{#if loaded}
+			<header class="header">
+				<h2>{openedCard.name}</h2>
+				<div>
+					<IconButton icon="help" disabled appearance="subtle" onClick={() => {}} alt="About cards." />
+					<IconButton icon="delete_forever" appearance="danger" onClick={() => {}} alt="Delete card." />
+					<IconButton icon="close" appearance="primary" onClick={closeCard} alt="Close." />
 				</div>
-				<Space height="var(--token-space-3)" />
-				<p><strong>ID:</strong> {openedCard.id}</p>
-				<p><strong>Created at:</strong> {openedCard.created_at}</p>
-				<p><strong>Is Archived:</strong> {openedCard.is_archived}</p>
-				<p><strong>Name:</strong> {openedCard.name}</p>
-				<p><strong>Owner:</strong> {openedCard.owner}</p>
-				<Space height="var(--token-space-6)" />
-				<Space height="var(--token-space-6)" />
-				<Space height="var(--token-space-6)" />
+			</header>
+
+			<div class="container">
+				<div class="card-body">
+					<div class="action-bar">
+						<Button onClick={() => {}} iconbefore="new_label">Add label</Button>
+						<Button onClick={() => {}} iconbefore="calendar_clock">Dates</Button>
+						<Button onClick={() => {}} iconbefore="checklist">Add checklist</Button>
+						<Button onClick={() => {}} iconbefore="attach_file_add">Add attachment</Button>
+					</div>
+					<div class="meta-bar">
+						<div><bold>Created at:</bold><br />{creation_date}</div>
+
+						{#if owner!.profile.display_name === owner!.profile.username}
+							<div><bold>Created by:</bold><br />@{owner!.profile.username}</div>
+						{:else}
+							<div>
+								<bold>Created by:</bold><br />{owner!.profile.display_name} <span class="secondary">@{owner!.profile.username}</span>
+							</div>
+						{/if}
+					</div>
+					<div class="description">
+						<h4>Description</h4>
+						{#if editing}
+							<textarea
+								bind:value={description}
+								onkeydown={handleKey}
+								class="description-input"
+								placeholder="Write a description..."
+								rows="4"
+							></textarea>
+							<div class="actions">
+								<Button appearance="primary" onClick={saveDescription}>Save</Button>
+								<Button appearance="subtle" onClick={() => (editing = false)}>Cancel</Button>
+							</div>
+						{:else}
+							<div class="description-preview" onclick={() => (editing = true)}>
+								{@html marked(description || "_Add a more detailed description..._")}
+							</div>
+						{/if}
+					</div>
+				</div>
+				<div class="activity-container">
+					<h3>Activity & Comments</h3>
+					<div class="activity">
+						<img src="https://account.davidnet.net/placeholder.png" alt="test" />
+						<a href="https://account.davidnet.net/profile/{openedCard.owner}">{owner!.profile.display_name}</a>Created card on<br
+						/>{creation_date}
+					</div>
+				</div>
 			</div>
-			<div class="activity-container">
-				<h1>Activity & Comments</h1>
-				<div class="activity">
-                    <img src="https://account.davidnet.net/placeholder.png" alt="test">
-                    <a href="/a">David</a> created card on Sep 7 14:53
-                </div>
-			</div>
-		</div>
+		{:else}
+			<Loader />
+		{/if}
 	</div>
 </div>
 
 <style>
-	.overlay {
+	.blanket {
 		position: fixed;
 		inset: 0;
-		background: rgba(0, 0, 0, 0.6);
+		background-color: var(--token-color-blanket-normal);
+		backdrop-filter: blur(4px);
 		display: flex;
-		justify-content: center;
 		align-items: center;
-		z-index: 1000;
+		justify-content: center;
+		z-index: 900;
 	}
 
 	.container {
@@ -78,37 +200,50 @@
 	.card-body {
 		width: 50%;
 		gap: 1rem;
+		min-height: 400px;
 	}
 
 	.activity-container {
 		text-align: center;
 		background-color: var(--token-color-surface-raised-normal);
 		width: 50%;
-        padding: 1rem;
+		padding: 1rem;
+		padding-top: 0rem;
 	}
 
 	.activity {
 		background-color: var(--token-color-surface-overlay-normal);
-        padding: 1rem;
-        border-radius: 1rem;
-        vertical-align: middle;
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
-        gap: 1rem;
+		padding: 1rem;
+		border-radius: 1rem;
+		vertical-align: middle;
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: center;
+		color: var(--token-color-text-default-normal);
+		gap: 1rem;
+		line-height: 1.2;
+		text-align: left;
 	}
 
-    .activity img {
-        border-radius: 50%;
-        height: 1.5rem;
-        width: 1.5rem;
-    }
+	.activity a {
+		color: var(--token-color-text-default-normal);
+	}
 
-    .activity:hover {
-        background-color: var(--token-color-surface-overlay-hover);
-        transform: scale(1.01);
-    }
+	.activity a:hover {
+		color: var(--token-color-text-default-secondary);
+	}
+
+	.activity img {
+		border-radius: 50%;
+		height: 1.5rem;
+		width: 1.5rem;
+	}
+
+	.activity:hover {
+		background-color: var(--token-color-surface-overlay-hover);
+		transform: scale(1.01);
+	}
 
 	.action-bar {
 		display: flex;
@@ -117,6 +252,18 @@
 		padding: 1rem;
 		justify-content: flex-start;
 		align-items: center;
+	}
+
+	.meta-bar {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem;
+		padding: 1rem;
+		justify-content: space-around;
+		align-items: center;
+		line-height: 1.5;
+		text-align: center;
+		width: 80%;
 	}
 
 	.header {
@@ -130,5 +277,47 @@
 	.header h2 {
 		margin: 0;
 		font-size: 1.25rem;
+	}
+
+	.secondary {
+		color: var(--token-color-text-default-secondary);
+	}
+	.description {
+		margin-top: 1rem;
+	}
+
+	.description h4 {
+		font-size: 0.9rem;
+		font-weight: 600;
+		margin-bottom: 0.5rem;
+		color: var(--token-color-text-default-secondary);
+	}
+
+	.description-input {
+		width: 85%;
+		padding: 0.5rem 0.75rem;
+		border-radius: 0.4rem;
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		background: var(--token-color-surface-overlay-normal);
+		color: var(--token-color-text-default-normal);
+		resize: vertical;
+		font-family: inherit;
+		font-size: 0.9rem;
+		line-height: 1.4;
+	}
+
+	.description-preview {
+		color: var(--token-color-text-default-normal);
+		line-height: 1.5;
+		white-space: pre-wrap;
+		font-size: 0.9rem;
+		cursor: pointer;
+		padding: 0.25rem 0;
+	}
+
+	.actions {
+		margin-top: 0.5rem;
+		display: flex;
+		gap: 0.5rem;
 	}
 </style>
