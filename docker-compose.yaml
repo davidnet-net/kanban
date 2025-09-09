@@ -3,5 +3,5 @@ services:
     build: .
     container_name: kanban-frontend
     ports:
-      - "2000:3001"
+      - "2001:3000"
     restart: unless-stopped
