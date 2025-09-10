@@ -1,4 +1,7 @@
-export const authapiurl = "https://auth.davidnet.net/";
-export const kanbanapiurl = "https://kanban-api.davidnet.net/";
-//export const authapiurl = "http://localhost:1000/";
-//export const kanbanapiurl = "http://localhost:1001/";
+export const authapiurl = import.meta.env.DEV
+    ? "http://localhost:1000/"
+    : "https://auth.davidnet.net/";
+
+export const kanbanapi = import.meta.env.DEV
+    ? "http://localhost:1001/"
+    : "https://kanban-api.davidnet.net/";
