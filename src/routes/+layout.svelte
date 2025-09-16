@@ -14,7 +14,6 @@
 	import { onMount } from "svelte";
 	import type { SessionInfo } from "$lib/types";
 	import { getSessionInfo, isAuthenticated } from "$lib/session";
-	import { goto } from "$app/navigation";
 	import { page } from "$app/state";
 
 	let { children } = $props();

@@ -3,7 +3,7 @@
 	import { accessToken } from "$lib/session";
 	import type { Card, ProfileResponse } from "$lib/types";
 	import { formatDate_PREFERREDTIME } from "$lib/utils/time";
-	import { Button, IconButton, Loader, Space, toast } from "@davidnet/svelte-ui";
+	import { Button, FlexWrapper, IconButton, Loader, Space, toast } from "@davidnet/svelte-ui";
 	import { onMount } from "svelte";
 	import { get } from "svelte/store";
 	import { marked } from "marked";
@@ -162,7 +162,9 @@
 				</div>
 			</div>
 		{:else}
-			<Loader />
+			<FlexWrapper width="100%">
+				<Loader />
+			</FlexWrapper>
 		{/if}
 	</div>
 </div>

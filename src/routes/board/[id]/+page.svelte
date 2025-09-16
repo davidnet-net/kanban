@@ -5,12 +5,13 @@
 	import { writable, get } from "svelte/store";
 	import { kanbanapiurl } from "$lib/config";
 	import { accessToken, getSessionInfo, isAuthenticated, refreshAccessToken } from "$lib/session";
-	import { Button, FlexWrapper, IconButton, IconDropdown, Loader, Modal, SplitButton, toast } from "@davidnet/svelte-ui";
+	import { Button, Dropdown, FlexWrapper, IconButton, IconDropdown, Loader, Modal, SplitButton, toast } from "@davidnet/svelte-ui";
 	import type { Card, SessionInfo } from "$lib/types";
 	import { goto } from "$app/navigation";
 	import CardOverlay from "$lib/components/CardOverlay.svelte";
 
 	const id = page.params.id;
+	let view: "kanban" | "calendar" = $state("kanban");
 
 	let loading = $state(true);
 	type BoardMeta = { name?: string; background_url?: string; [key: string]: any };
@@ -63,7 +64,6 @@
 		return res.json();
 	}
 
-	// --- Real API calls ---
 	async function fetchBoard() {
 		try {
 			const res = await fetch(`${kanbanapiurl}board/get`, {
@@ -442,6 +442,17 @@
 		<nav id="board-nav">
 			<div class="nav-left">
 				<h2>{$boardMeta?.name ?? id}</h2>
+				<Dropdown
+					actions={[
+						{ label: "Kanban", value: "kanban" },
+						{ label: "Calendar", value: "calendar" }
+					]}
+					bind:value={view}
+					appearance="subtle"
+					alwaysshowslot
+				>
+					View
+				</Dropdown>
 			</div>
 			<div class="nav-center"></div>
 			<div class="nav-right">
@@ -492,111 +503,118 @@
 				/>
 			</div>
 		</nav>
-		<div
-			class="lists"
-			use:dndzone={{
-				items: $lists,
-				flipDurationMs: 300,
-				dropFromOthersDisabled: true,
-				dropTargetStyle: { border: "2px dashed rgba(128, 128, 128, 0.5)" },
-				type: "list",
-				delayTouchStart: true
-			}}
-			onconsider={(e) => lists.set(e.detail.items)}
-			onfinalize={moveList}
-		>
-			{#each $lists as list (list.id)}
-				<div class="list">
-					<div class="list-header">
-						<h3 class="list-title">{list.name}</h3>
-						<IconDropdown
-							appearance="subtle"
-							icon="more_horiz"
-							alt="More actions."
-							disabled={!is_owner}
-							actions={[
-								{
-									label: "Delete list",
-									onClick: () => {
-										deleteList(Number(list.id), list.name);
-									}
-								},
-								{
-									label: "Move left",
-									onClick: () => {
-										moveListLeft(Number(list.id));
-									}
-								},
-								{
-									label: "Move right",
-									onClick: () => {
-										moveListRight(Number(list.id));
-									}
-								}
-							]}
-						/>
-					</div>
-
-					<div
-						class="cards"
-						use:dndzone={{
-							items: $cards[list.id] ?? [],
-							flipDurationMs: 300,
-							type: "card",
-							dropTargetStyle: { border: "2px dashed rgba(128, 128, 128, 0.5)" },
-							delayTouchStart: true
-						}}
-						onconsider={(e) => cards.update((c) => ({ ...c, [list.id]: e.detail.items }))}
-						onfinalize={(e) => moveCard(e, list.id)}
-					>
-						{#each $cards[list.id] ?? [] as card (card.id)}
-							<div class="card" data-id={card.id} Onclick={() => openCard(card)}>{card.name}</div>
-						{/each}
-
-						{#if $addingCard[list.id]}
-							<input
-								class="card new-card-input"
-								bind:value={$newCardText[list.id]}
-								placeholder="Enter card title..."
-								onkeydown={(e) => e.key === "Enter" && confirmNewCard(list.id)}
-								onblur={() => confirmNewCard(list.id)}
-								use:autoFocus
-							/>
-						{/if}
-					</div>
-
-					<div class="card-footer">
-						<FlexWrapper direction="row" justifycontent="center" alignitems="center" width="100%">
-							<SplitButton
+		{#if view === "kanban"}
+			<div
+				class="lists"
+				use:dndzone={{
+					items: $lists,
+					flipDurationMs: 300,
+					dropFromOthersDisabled: true,
+					dropTargetStyle: { border: "2px dashed rgba(128, 128, 128, 0.5)" },
+					type: "list",
+					delayTouchStart: true
+				}}
+				onconsider={(e) => lists.set(e.detail.items)}
+				onfinalize={moveList}
+			>
+				{#each $lists as list (list.id)}
+					<div class="list">
+						<div class="list-header">
+							<h3 class="list-title">{list.name}</h3>
+							<IconDropdown
 								appearance="subtle"
-								onClick={() => addCard(list.id)}
+								icon="more_horiz"
+								alt="More actions."
+								disabled={!is_owner}
 								actions={[
-									{ label: "Option A", onClick: () => {} },
-									{ label: "Option B", onClick: () => {} }
+									{
+										label: "Delete list",
+										onClick: () => {
+											deleteList(Number(list.id), list.name);
+										}
+									},
+									{
+										label: "Move left",
+										onClick: () => {
+											moveListLeft(Number(list.id));
+										}
+									},
+									{
+										label: "Move right",
+										onClick: () => {
+											moveListRight(Number(list.id));
+										}
+									}
 								]}
-							>
-								Add new card
-							</SplitButton>
-						</FlexWrapper>
-					</div>
-				</div>
-			{/each}
+							/>
+						</div>
 
-			<div class="add-list">
-				{#if $addingList}
-					<input
-						bind:value={$newListName}
-						class="new-list-input"
-						placeholder="Enter list name..."
-						onkeydown={(e) => e.key === "Enter" && confirmNewList()}
-						onblur={confirmNewList}
-						use:autoFocusInput
-					/>
-				{:else}
-					<Button appearance="subtle" onClick={() => addingList.set(true)}>Add list</Button>
-				{/if}
+						<div
+							class="cards"
+							use:dndzone={{
+								items: $cards[list.id] ?? [],
+								flipDurationMs: 300,
+								type: "card",
+								dropTargetStyle: { border: "2px dashed rgba(128, 128, 128, 0.5)" },
+								delayTouchStart: true
+							}}
+							onconsider={(e) => cards.update((c) => ({ ...c, [list.id]: e.detail.items }))}
+							onfinalize={(e) => moveCard(e, list.id)}
+						>
+							{#each $cards[list.id] ?? [] as card (card.id)}
+								<div class="card" data-id={card.id} Onclick={() => openCard(card)}>{card.name}</div>
+							{/each}
+
+							{#if $addingCard[list.id]}
+								<input
+									class="card new-card-input"
+									bind:value={$newCardText[list.id]}
+									placeholder="Enter card title..."
+									onkeydown={(e) => e.key === "Enter" && confirmNewCard(list.id)}
+									onblur={() => confirmNewCard(list.id)}
+									use:autoFocus
+								/>
+							{/if}
+						</div>
+
+						<div class="card-footer">
+							<FlexWrapper direction="row" justifycontent="center" alignitems="center" width="100%">
+								<SplitButton
+									appearance="subtle"
+									onClick={() => addCard(list.id)}
+									actions={[
+										{ label: "Option A", onClick: () => {} },
+										{ label: "Option B", onClick: () => {} }
+									]}
+								>
+									Add new card
+								</SplitButton>
+							</FlexWrapper>
+						</div>
+					</div>
+				{/each}
+
+				<div class="add-list">
+					{#if $addingList}
+						<input
+							bind:value={$newListName}
+							class="new-list-input"
+							placeholder="Enter list name..."
+							onkeydown={(e) => e.key === "Enter" && confirmNewList()}
+							onblur={confirmNewList}
+							use:autoFocusInput
+						/>
+					{:else}
+						<Button appearance="subtle" onClick={() => addingList.set(true)}>Add list</Button>
+					{/if}
+				</div>
 			</div>
-		</div>
+		{:else if view === "calendar"}
+			<h1>Calendar</h1>
+		{:else}
+			<h1>Unhandled view.</h1>
+			<Loader/>
+		{/if}
 	</div>
 {/if}
 
@@ -619,7 +637,7 @@
 {/if}
 
 {#if openedCard}
-		<CardOverlay closeCard={closeCard} openedCard={openedCard} correlationID={correlationID}/>
+	<CardOverlay {closeCard} {openedCard} {correlationID} />
 {/if}
 
 <style>
@@ -636,6 +654,7 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: 0 1.5rem;
+		z-index: 5;
 	}
 
 	#board-nav > div {
