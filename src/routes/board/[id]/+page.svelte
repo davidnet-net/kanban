@@ -5,7 +5,7 @@
 	import { writable, get } from "svelte/store";
 	import { kanbanapiurl } from "$lib/config";
 	import { accessToken, getSessionInfo, isAuthenticated, refreshAccessToken } from "$lib/session";
-	import { Button, Dropdown, FlexWrapper, IconButton, IconDropdown, Loader, Modal, SplitButton, toast } from "@davidnet/svelte-ui";
+	import { Button, Dropdown, FlexWrapper, IconButton, IconDropdown, Loader, Modal, Space, SplitButton, toast } from "@davidnet/svelte-ui";
 	import type { Card, SessionInfo } from "$lib/types";
 	import { goto } from "$app/navigation";
 	import CardOverlay from "$lib/components/CardOverlay.svelte";
@@ -450,7 +450,9 @@
 		<nav id="board-nav">
 			<div class="nav-left">
 				<h2>{$boardMeta?.name ?? id}</h2>
+				<Space width="var(--token-space-4)"/>
 				<Dropdown
+					iconbefore="view_kanban"
 					actions={[
 						{ label: "Kanban", value: "kanban" },
 						{ label: "Calendar", value: "calendar" }
@@ -643,6 +645,12 @@
 				{:else}
 					<p>Please select a list to view its cards.</p>
 				{/if}
+				<div class="list">
+					<FlexWrapper width="100%">
+											<h1>Loading Calendar</h1>
+					<Loader />
+					</FlexWrapper>
+				</div>
 			</div>
 		{:else}
 			<h1>Unhandled view.</h1>
