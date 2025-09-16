@@ -39,6 +39,9 @@
 	let is_owner = $state(false);
 	let si: SessionInfo | null = $state(null);
 
+	// Calendar
+	let CalendarListID: string | null = $state(null);
+
 	function showError(msg: string) {
 		toast({
 			title: "Something failed",
@@ -98,6 +101,11 @@
 			if (!res.ok) throw new Error(`HTTP ${res.status}`);
 			const data = await res.json();
 			lists.set(data);
+
+			// CalendarListID (Default view on calendar list)
+			if (data.length > 0 && !CalendarListID) {
+				CalendarListID = data[0].id;
+			}
 		} catch (e) {
 			console.warn(e);
 			showError(String(e));
@@ -610,10 +618,35 @@
 				</div>
 			</div>
 		{:else if view === "calendar"}
-			<h1>Calendar</h1>
+			<div class="lists">
+				{#if CalendarListID}
+					<div class="list">
+						<FlexWrapper width="100%">
+							<Dropdown
+								appearance="subtle"
+								bind:value={CalendarListID}
+								actions={$lists.length > 0
+									? $lists.map((l) => ({ label: l.name, value: l.id }))
+									: [{ label: "No lists available", value: null }]}
+							/>
+						</FlexWrapper>
+						<div class="cards">
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							{#each $cards[CalendarListID] ?? [] as card (card.id)}
+								<!-- svelte-ignore a11y_click_events_have_key_events -->
+								<div class="card" onclick={() => openCard(card)}>
+									{card.name}
+								</div>
+							{/each}
+						</div>
+					</div>
+				{:else}
+					<p>Please select a list to view its cards.</p>
+				{/if}
+			</div>
 		{:else}
 			<h1>Unhandled view.</h1>
-			<Loader/>
+			<Loader />
 		{/if}
 	</div>
 {/if}
