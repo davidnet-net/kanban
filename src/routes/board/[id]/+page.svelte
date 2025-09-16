@@ -450,7 +450,7 @@
 		<nav id="board-nav">
 			<div class="nav-left">
 				<h2>{$boardMeta?.name ?? id}</h2>
-				<Space width="var(--token-space-4)"/>
+				<Space width="var(--token-space-4)" />
 				<Dropdown
 					iconbefore="view_kanban"
 					actions={[
@@ -647,8 +647,8 @@
 				{/if}
 				<div class="list">
 					<FlexWrapper width="100%">
-											<h1>Loading Calendar</h1>
-					<Loader />
+						<h1>Loading Calendar</h1>
+						<Loader />
 					</FlexWrapper>
 				</div>
 			</div>
