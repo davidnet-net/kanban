@@ -20,6 +20,7 @@
 
 	let correlationID = crypto.randomUUID();
 	let authed = $state(false);
+	let si: SessionInfo | null = $state(null);
 
 	let fontsLoaded = $state(false);
 
@@ -34,7 +35,7 @@
 		const initloader = document.getElementById("initloader");
 		if (initloader) initloader.remove();
 		try {
-			const si: SessionInfo | null = await getSessionInfo(correlationID);
+			si = await getSessionInfo(correlationID);
 
 			const pathname = page.url.pathname;
 
@@ -79,7 +80,7 @@
 		<div class="nav-center">Davidnet</div>
 		<div class="nav-right">
 			<ThemeMenu />
-			<Avatar />
+			<Avatar id={String(si?.userId)} owner name={si?.display_name} presence="online" src={si?.profilePicture}/>
 		</div>
 	</nav>
 {/if}
