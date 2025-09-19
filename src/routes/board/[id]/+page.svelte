@@ -5,7 +5,7 @@
 	import { writable, get } from "svelte/store";
 	import { kanbanapiurl } from "$lib/config";
 	import { accessToken, getSessionInfo, isAuthenticated, refreshAccessToken } from "$lib/session";
-	import { Button, Dropdown, FlexWrapper, IconButton, IconDropdown, Loader, Modal, Space, SplitButton, toast } from "@davidnet/svelte-ui";
+	import { Button, Dropdown, FlexWrapper, Icon, IconButton, IconDropdown, LinkButton, Loader, Modal, Space, SplitButton, toast } from "@davidnet/svelte-ui";
 	import type { Card, SessionInfo } from "$lib/types";
 	import { goto } from "$app/navigation";
 	import CardOverlay from "$lib/components/CardOverlay.svelte";
@@ -20,6 +20,7 @@
 	const lists = writable<List[]>([]);
 	const cards = writable<{ [listId: string]: any[] }>({});
 	let board_favorited = writable(false);
+	let common_error: string | null = $state(null);
 
 	// Track which list is currently adding a new card
 	const addingCard = writable<{ [listId: string]: boolean }>({});
@@ -43,6 +44,10 @@
 	let CalendarListID: string | null = $state(null);
 
 	function showError(msg: string) {
+		if (common_error) {
+			return;
+		}
+
 		toast({
 			title: "Something failed",
 			desc: msg,
@@ -78,8 +83,19 @@
 				},
 				body: JSON.stringify({ id })
 			});
-			if (!res.ok) throw new Error(`HTTP ${res.status}`);
 			const data = await res.json();
+			if (!res.ok) {
+				if (data && data.error === "Board not found") {
+					common_error = "Board doesn't exist.";
+				}
+
+				if (data && data.error === "Not board member") {
+					common_error = "You are not an board member! Ask the owner for access.";
+				}
+
+				throw new Error(`HTTP ${res.status}`);
+			}
+
 			boardMeta.set(data);
 		} catch (e) {
 			console.warn(e);
@@ -445,6 +461,12 @@
 	<p class="loading-text">Loading board {$boardMeta?.name ?? id}.</p>
 	<Loader />
 	<p>Getting things ready.</p>
+{:else if common_error}
+	<Icon size="3rem;" color="var(--token-color-text-danger);" icon="crisis_alert" />
+	<p class="loading-text">{common_error}</p>
+	<LinkButton appearance="primary" href="/">My boards</LinkButton>
+	<Space height="var(--token-space-3);"/>
+	<Button onClick={() => {history.back();}}>Back</Button>
 {:else}
 	<div class="board" style="background-image: url({$boardMeta?.background_url});">
 		<nav id="board-nav">
