@@ -39,11 +39,14 @@
 	let newidentfierconnection: string | undefined = $state(undefined);
 	let viewinvites: boolean = $state(false);
 
-	// --- Modal state for removing member ---
 	let showRemoveMemberModal = $state(false);
 	let memberToRemove: any = $state(null);
 
-	async function fetchProfile(id: number) {
+	async function fetchProfile(id: number | undefined) {
+		if (!id || isNaN(id)) {
+			console.warn("fetchProfile received invalid id:", id);
+			throw new Error("Invalid user ID");
+		}
 		let created_on: string;
 		const token = get(accessToken);
 		try {
@@ -58,14 +61,7 @@
 			});
 
 			if (!res.ok) {
-				toast({
-					title: "Profile load error",
-					desc: "Some profile(s) could not be loaded.",
-					icon: "crisis_alert",
-					appearance: "danger",
-					position: "top-center",
-					autoDismiss: 5000
-				});
+				throw new Error(`Profile fetch failed with status ${res.status}`);
 			}
 
 			const data = await res.json();
@@ -82,27 +78,29 @@
 				position: "top-center",
 				autoDismiss: 5000
 			});
+			throw err;
 		}
 	}
+
 	async function loadMembers() {
 		try {
 			const result = await authFetch(`${kanbanapiurl}board/get_board_members`, { board_id: boardId });
 			console.log(result);
 
-			// fetch profiles for each member
 			const enriched = await Promise.all(
 				(result || []).map(async (member: any) => {
+					const userId = typeof member === "number" ? member : member.user_id;
 					try {
-						const profile = await fetchProfile(member.user_id);
+						const profile = await fetchProfile(userId);
 						return {
-							...member,
+							...(typeof member === "object" ? member : { user_id: userId }),
 							display_name: profile?.profile.display_name ?? "Unknown",
 							username: profile?.profile.username ?? "unknown",
 							avatar_url: profile?.profile.avatar_url ?? "https://account.davidnet.net/placeholder.png"
 						};
 					} catch {
 						return {
-							...member,
+							...(typeof member === "object" ? member : { user_id: userId }),
 							display_name: "Unknown",
 							username: "unknown",
 							avatar_url: "https://account.davidnet.net/placeholder.png"
@@ -129,22 +127,20 @@
 		try {
 			const invites = await authFetch(`${kanbanapiurl}invite/board`, { board_id: boardId });
 
-			// invites = [12, 35, 3, 34] ← assume they're user IDs
-
 			const enriched = await Promise.all(
-				(invites || []).map(async (userId: number) => {
+				(invites || []).map(async (invite: any) => {
+					const userId = typeof invite === "number" ? invite : invite.invitee_user_id;
 					try {
 						const profile = await fetchProfile(userId);
 						return {
-							invitee_user_id: userId,
+							...(typeof invite === "object" ? invite : { invitee_user_id: userId }),
 							display_name: profile?.profile.display_name ?? "Unknown",
 							username: profile?.profile.username ?? "unknown",
 							avatar_url: profile?.profile.avatar_url ?? "https://account.davidnet.net/placeholder.png"
 						};
-					} catch (err) {
-						console.error(`Failed to fetch profile for userId ${userId}`, err);
+					} catch {
 						return {
-							invitee_user_id: userId,
+							...(typeof invite === "object" ? invite : { invitee_user_id: userId }),
 							display_name: "Unknown",
 							username: "unknown",
 							avatar_url: "https://account.davidnet.net/placeholder.png"
@@ -172,7 +168,6 @@
 		await loadMembers();
 		await loadInvites();
 
-		// Get connections
 		const connectionsres = await sesauthfetch(authapiurl + "connections/", correlationID);
 		if (connectionsres.ok) {
 			const connectionsreq = await connectionsres.json();
@@ -268,7 +263,6 @@
 		}
 	}
 
-	// --- Remove member with confirmation modal ---
 	function confirmRemoveMember(user_id: number, display_name: string) {
 		memberToRemove = { user_id, display_name };
 		showRemoveMemberModal = true;
@@ -304,6 +298,7 @@
 		}
 	}
 </script>
+
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <!-- Overlay -->
