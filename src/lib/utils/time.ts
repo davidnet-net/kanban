@@ -22,11 +22,26 @@ export function formatDateWithUTCOffset(date: Date): string {
 }
 
 export async function formatDate_PREFERREDTIME(
-  date: Date | string,
+  date: Date | string | undefined | null,
   correlationID: string
 ): Promise<string> {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  if (isNaN(d.getTime())) return 'Invalid date';
+  // Check if the input is valid
+  if (!date) {
+    console.warn("formatDate_PREFERREDTIME: Date is null or undefined");
+    return "Invalid date";
+  }
+
+  let d: Date;
+  try {
+    d = typeof date === 'string' ? new Date(date) : date;
+    if (isNaN(d.getTime())) {
+      console.warn("formatDate_PREFERREDTIME: Invalid date object", date);
+      return "Invalid date";
+    }
+  } catch (err) {
+    console.error("formatDate_PREFERREDTIME: Error parsing date", err);
+    return "Invalid date";
+  }
 
   let timezone = 'UTC';
   let dateFormat = 'DD-MM-YYYY HH:mm';
@@ -42,37 +57,45 @@ export async function formatDate_PREFERREDTIME(
       dateFormat = session.preferences.dateFormat || dateFormat;
     }
   } catch (err) {
-    // Any error -> fallback to default UTC
-    console.warn('Failed to get session preferences, using defaults', err);
+    console.warn('formatDate_PREFERREDTIME: Failed to get session preferences, using defaults', err);
   }
 
-  // Format the date using Intl API
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: timezone,
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  })
-    .formatToParts(d)
-    .reduce((acc: any, part) => {
-      acc[part.type] = part.value;
-      return acc;
-    }, {});
+  try {
+    // Format the date using Intl API
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    })
+      .formatToParts(d)
+      .reduce((acc: any, part) => {
+        acc[part.type] = part.value;
+        return acc;
+      }, {});
 
-  const { day, month, year, hour, minute } = parts;
+    const day = parts.day ?? "??";
+    const month = parts.month ?? "??";
+    const year = parts.year ?? "????";
+    const hour = parts.hour ?? "??";
+    const minute = parts.minute ?? "??";
 
-  switch (dateFormat) {
-    case 'DD-MM-YYYY HH:mm':
-      return `${day}-${month}-${year} ${hour}:${minute}`;
-    case 'MM-DD-YYYY HH:mm':
-      return `${month}-${day}-${year} ${hour}:${minute}`;
-    case 'YYYY-MM-DD HH:mm':
-      return `${year}-${month}-${day} ${hour}:${minute}`;
-    default:
-      return `${day}-${month}-${year} ${hour}:${minute}`;
+    switch (dateFormat) {
+      case 'DD-MM-YYYY HH:mm':
+        return `${day}-${month}-${year} ${hour}:${minute}`;
+      case 'MM-DD-YYYY HH:mm':
+        return `${month}-${day}-${year} ${hour}:${minute}`;
+      case 'YYYY-MM-DD HH:mm':
+        return `${year}-${month}-${day} ${hour}:${minute}`;
+      default:
+        return `${day}-${month}-${year} ${hour}:${minute}`;
+    }
+  } catch (err) {
+    console.error("formatDate_PREFERREDTIME: Error formatting date", err);
+    return "Invalid date";
   }
 }
 
