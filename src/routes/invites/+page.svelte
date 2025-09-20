@@ -204,6 +204,7 @@
 								</FlexWrapper>
 							{/if}
 						</div>
+						<Space width="var(--token-space-3);" />
 						<FlexWrapper direction="row" gap="var(--token-space-2)">
 							<Button appearance="primary" onClick={() => acceptInvite(invite.invite_id)}>Accept</Button>
 							<Button appearance="danger" onClick={() => denyInvite(invite.invite_id)}>Deny</Button>
