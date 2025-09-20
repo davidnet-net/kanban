@@ -537,7 +537,6 @@
 						appearance="subtle"
 						icon="more_horiz"
 						alt="More actions."
-						disabled={!is_owner}
 						actions={[
 							{
 								label: "Leave board",
