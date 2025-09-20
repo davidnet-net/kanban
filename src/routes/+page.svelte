@@ -37,8 +37,6 @@
 		try {
 			const res = await authFetch(`${kanbanapiurl}boards/list`, correlationID, { method: "GET" });
 			boards = await res.json();
-			zeroboards = boards.length === 0;
-			shared_boards = [];
 
 			const favorite_boards_res = await authFetch(`${kanbanapiurl}boards/favorites`, correlationID, { method: "GET" });
 			favorite_boards = await favorite_boards_res.json();
@@ -48,6 +46,8 @@
 
 			const shared_boards_res = await authFetch(`${kanbanapiurl}boards/shared_with_me`, correlationID, { method: "GET" });
 			shared_boards = await shared_boards_res.json();
+
+			zeroboards = boards.length === 0 && shared_boards.length === 0;
 
 			await wait(200);
 			loading = false;
