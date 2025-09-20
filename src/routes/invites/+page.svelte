@@ -3,7 +3,7 @@
 	import { get } from "svelte/store";
 	import { authapiurl, kanbanapiurl } from "$lib/config";
 	import { accessToken, refreshAccessToken, authFetch as sesauthfetch } from "$lib/session";
-	import { FlexWrapper, Button, Loader, toast } from "@davidnet/svelte-ui";
+	import { FlexWrapper, Button, Loader, toast, Space } from "@davidnet/svelte-ui";
 	import type { ProfileResponse, UserProfile } from "$lib/types";
 
 	interface Invite {
@@ -87,7 +87,6 @@
 
 	async function loadInvites() {
 		try {
-			await refreshAccessToken("");
 			const result: Invite[] = await authFetch(`${kanbanapiurl}invite/my`, {}, "GET");
 			// fetch profiles in parallel
 			const enriched = await Promise.all(
@@ -185,11 +184,20 @@
 					<div class="invite-item">
 						<div class="invite-info">
 							<strong>{invite.board_name}</strong>
+							<Space width="var(--token-space-4);"/>
 							{#if invite.inviter}
 								invited by
 								<a href={`https://account.davidnet.net/profile/${invite.inviter.id}`}>
 									{invite.inviter.display_name || invite.inviter.username} (@{invite.inviter.username})
 								</a>
+								<Space width="var(--token-space-4);"/>
+								<FlexWrapper direction="row" gap="var(--token-space-3);">
+									<img src={invite.inviter.avatar_url || "https://account.davidnet.net/placeholder.png"} alt="profile" />
+									<a href={`https://account.davidnet.net/profile/${invite.inviter.id}`}>
+										{invite.inviter.display_name}
+										<span class="secondary">@{invite.inviter.username}</span>
+									</a>
+								</FlexWrapper>
 							{/if}
 						</div>
 						<FlexWrapper direction="row" gap="var(--token-space-2)">
