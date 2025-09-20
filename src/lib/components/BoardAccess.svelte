@@ -69,7 +69,8 @@
 			}
 
 			const data = await res.json();
-			created_on = await formatDate_PREFERREDTIME(data.profile.created_at, correlationID);
+			console.log(data);
+			created_on = await formatDate_PREFERREDTIME(data.created_on, correlationID);
 			return data;
 		} catch (err) {
 			console.error("fetchProfile error:", err);
