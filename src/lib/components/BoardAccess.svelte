@@ -168,7 +168,7 @@
 		}
 
 		try {
-			await authFetch(`${kanbanapiurl}invite/send`, { board_id: boardId, invitee_id: userID });
+			await authFetch(`${kanbanapiurl}invite/send`, { board_id: boardId, user_id: userID });
 			toast({
 				title: "Invite sent",
 				desc: identifier,
