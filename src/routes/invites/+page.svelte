@@ -174,7 +174,13 @@
 	</FlexWrapper>
 {:else}
 	<div class="invite-page">
-		<Button appearance="subtle" onClick={()=>{history.back();}} iconbefore="arrow_back">Back</Button>
+		<Button
+			appearance="subtle"
+			onClick={() => {
+				history.back();
+			}}
+			iconbefore="arrow_back">Back</Button
+		>
 		<h2>My Board Invitations</h2>
 
 		{#if invites.length === 0}
@@ -185,15 +191,15 @@
 					<div class="invite-item">
 						<div class="invite-info">
 							<strong>{invite.board_name}</strong>
-							<Space width="var(--token-space-4);"/>
+							<Space width="var(--token-space-4);" />
 							{#if invite.inviter}
 								invited by
 								<a href={`https://account.davidnet.net/profile/${invite.inviter.id}`}>
 									{invite.inviter.display_name || invite.inviter.username} (@{invite.inviter.username})
 								</a>
-								<Space width="var(--token-space-4);"/>
+								<Space width="var(--token-space-4);" />
 								<FlexWrapper direction="row" gap="var(--token-space-3);">
-									<img src={invite.inviter.avatar_url || "https://account.davidnet.net/placeholder.png"} alt="profile" />
+									<img class="pp" src={invite.inviter.avatar_url || "https://account.davidnet.net/placeholder.png"} alt="profile" />
 									<a href={`https://account.davidnet.net/profile/${invite.inviter.id}`}>
 										{invite.inviter.display_name}
 										<span class="secondary">@{invite.inviter.username}</span>
@@ -241,7 +247,18 @@
 		text-decoration: none;
 		margin-left: 0.25rem;
 	}
+
 	.invite-info a:hover {
+		color: var(--token-color-text-default-tertiary);
+	}
+
+	.secondary {
 		color: var(--token-color-text-default-secondary);
+	}
+
+	.pp {
+		border-radius: 50%;
+		height: 1.5rem;
+		width: 1.5rem;
 	}
 </style>
