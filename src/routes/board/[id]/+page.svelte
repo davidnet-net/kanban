@@ -222,22 +222,24 @@
 
 		eventSource.addEventListener("update", (e: MessageEvent) => {
 			try {
-			const payload = JSON.parse(e.data);
+				const payload = JSON.parse(e.data);
+				console.log("Received SSE");
+				console.log(payload);
 
-			switch (payload.type) {
-				case "list_update":
-				lists.set(payload.lists);
-				break;
+				switch (payload.type) {
+					case "list_update":
+						lists.set(payload.lists);
+						break;
 
-				case "card_update":
-				cards.update((c) => ({ ...c, [payload.listId]: payload.cards }));
-				break;
+					case "card_update":
+						cards.update((c) => ({ ...c, [payload.listId]: payload.cards }));
+						break;
 
-				default:
-				console.log("Unknown SSE payload", payload);
-			}
+					default:
+						console.log("Unknown SSE payload", payload);
+				}
 			} catch (err) {
-			console.error("Failed to parse SSE data", err);
+				console.error("Failed to parse SSE data", err);
 			}
 		});
 
