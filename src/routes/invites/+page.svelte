@@ -194,9 +194,6 @@
 							<Space width="var(--token-space-4);" />
 							{#if invite.inviter}
 								invited by
-								<a href={`https://account.davidnet.net/profile/${invite.inviter.id}`}>
-									{invite.inviter.display_name || invite.inviter.username} (@{invite.inviter.username})
-								</a>
 								<Space width="var(--token-space-4);" />
 								<FlexWrapper direction="row" gap="var(--token-space-3);">
 									<img class="pp" src={invite.inviter.avatar_url || "https://account.davidnet.net/placeholder.png"} alt="profile" />
@@ -234,6 +231,13 @@
 		flex-direction: column;
 		gap: 1rem;
 	}
+
+	.invite-info {
+		display: flex;
+		flex-direction: column;
+		line-height: 1.1;
+	}
+
 	.invite-item {
 		display: flex;
 		justify-content: space-between;
