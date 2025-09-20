@@ -237,6 +237,7 @@
 		display: flex;
 		flex-direction: column;
 		line-height: 1.1;
+		gap: var(--token-space-3);
 	}
 
 	.invite-item {
