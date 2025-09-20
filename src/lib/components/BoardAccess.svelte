@@ -87,6 +87,7 @@
 	async function loadMembers() {
 		try {
 			const result = await authFetch(`${kanbanapiurl}board/get_board_members`, { board_id: boardId });
+			console.log(result);
 
 			// fetch profiles for each member
 			const enriched = await Promise.all(
