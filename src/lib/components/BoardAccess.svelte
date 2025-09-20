@@ -272,7 +272,7 @@
 		if (!memberToRemove) return;
 
 		try {
-			await authFetch(`${kanbanapiurl}board/remove_member`, { board_id: boardId, user_id: memberToRemove.user_id });
+			await authFetch(`${kanbanapiurl}board/remove_member`, { board_id: boardId, member_id: memberToRemove.user_id });
 			toast({
 				title: "Member removed",
 				desc: memberToRemove.display_name,
