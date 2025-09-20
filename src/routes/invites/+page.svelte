@@ -174,6 +174,7 @@
 	</FlexWrapper>
 {:else}
 	<div class="invite-page">
+		<Button appearance="subtle" onClick={()=>{history.back();}} iconbefore="arrow_back">Back</Button>
 		<h2>My Board Invitations</h2>
 
 		{#if invites.length === 0}
