@@ -163,7 +163,7 @@
 	}
 
 	onMount(async () => {
-		await refreshAccessToken("", false, true);
+		await refreshAccessToken(crypto.randomUUID(), false, true);
 		token = String(get(accessToken));
 		await loadInvites();
 	});
