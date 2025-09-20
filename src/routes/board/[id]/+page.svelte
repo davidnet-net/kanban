@@ -500,7 +500,7 @@
 					/>
 				{/if}
 
-				<Button appearance="discover" iconbefore="group_add" onClick={() => {BoardAccessOverlayOpen = true;}}>Share</Button>
+				<Button appearance="discover" iconbefore="group_add" onClick={() => {BoardAccessOverlayOpen = true;}} disabled={!is_owner}>Share</Button>
 				<IconDropdown
 					appearance="subtle"
 					icon="more_horiz"
@@ -698,7 +698,7 @@
 {/if}
 
 {#if BoardAccessOverlayOpen }
-	<BoardAccess closeOverlay={()=>{BoardAccessOverlayOpen = false;}} {correlationID} boardOwner={$boardMeta?.owner}/>
+	<BoardAccess closeOverlay={()=>{BoardAccessOverlayOpen = false;}} {correlationID} boardOwner={$boardMeta?.owner} boardId={Number(id)}/>
 {/if}
 
 <style>
