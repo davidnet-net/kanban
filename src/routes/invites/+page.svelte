@@ -10,7 +10,7 @@
 		invite_id: number;
 		board_id: number;
 		board_name: string;
-		inviter_user_id: number;
+		inviter_id: number;
 		// will enrich these manually
 		inviter?: UserProfile;
 	}
@@ -91,7 +91,7 @@
 			// fetch profiles in parallel
 			const enriched = await Promise.all(
 				result.map(async (invite) => {
-					const profile = await fetchProfile(invite.inviter_user_id);
+					const profile = await fetchProfile(invite.inviter_id);
 					return { ...invite, inviter: profile ?? undefined };
 				})
 			);
