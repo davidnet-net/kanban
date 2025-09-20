@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { authapiurl, kanbanapiurl } from "$lib/config";
-	import { accessToken, authFetch as sesauthfetch } from "$lib/session";
+	import { accessToken, refreshAccessToken, authFetch as sesauthfetch } from "$lib/session";
 	import type { ProfileResponse } from "$lib/types";
 	import { formatDate_PREFERREDTIME } from "$lib/utils/time";
 	import { Button, Dropdown, FlexWrapper, Icon, IconButton, Loader, Space, TextField, toast, Modal } from "@davidnet/svelte-ui";
@@ -119,6 +119,7 @@
 	}
 
 	onMount(async () => {
+		await refreshAccessToken("", false, true);
 		owner = await fetchProfile(boardOwner);
 		await Promise.all([loadMembers(), loadInvites()]);
 
