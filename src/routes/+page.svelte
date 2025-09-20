@@ -143,7 +143,7 @@
 				{#if shared_boards.length > 0}
 					<div class="boards-grid">
 						{#each shared_boards as board}
-							<a href={"/board/" + board.id}>
+							<a href={"/board/" + board.id} class="board-link">
 								<div class="board-card">
 									<img src={board.background_url} alt="Board background" aria-hidden="true" />
 									<div class="board-info">
