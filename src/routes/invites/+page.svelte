@@ -4,23 +4,24 @@
 	import { authapiurl, kanbanapiurl } from "$lib/config";
 	import { accessToken, refreshAccessToken, authFetch as sesauthfetch } from "$lib/session";
 	import { FlexWrapper, Button, Loader, toast } from "@davidnet/svelte-ui";
+	import type { ProfileResponse, UserProfile } from "$lib/types";
 
 	interface Invite {
 		invite_id: number;
 		board_id: number;
 		board_name: string;
 		inviter_user_id: number;
-		inviter_display_name: string;
-		inviter_username: string;
+		// will enrich these manually
+		inviter?: UserProfile;
 	}
 
 	let invites: Invite[] = [];
 	let loaded = false;
-    let token: string;
+	let token: string;
 
 	async function authFetch(url: string, body: any, method: "POST" | "GET" = "POST") {
 		let res;
-        if (method === "POST") {
+		if (method === "POST") {
 			res = await fetch(url, {
 				method: "POST",
 				credentials: "include",
@@ -45,10 +46,56 @@
 		return res.json();
 	}
 
+	async function fetchProfile(id: number): Promise<UserProfile | null> {
+		try {
+			const res = await fetch(`${authapiurl}profile/${id}`, {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`
+				},
+				credentials: "include"
+			});
+
+			if (!res.ok) {
+				toast({
+					title: "Profile load error",
+					desc: "Some profile(s) could not be loaded.",
+					icon: "crisis_alert",
+					appearance: "danger",
+					position: "top-center",
+					autoDismiss: 5000
+				});
+				return null;
+			}
+
+			const data: ProfileResponse = await res.json();
+			return data.profile;
+		} catch (err) {
+			console.error("fetchProfile error:", err);
+			toast({
+				title: "Network Error",
+				desc: "Something went wrong while fetching the profile.",
+				icon: "crisis_alert",
+				appearance: "danger",
+				position: "top-center",
+				autoDismiss: 5000
+			});
+			return null;
+		}
+	}
+
 	async function loadInvites() {
 		try {
-			const result = await authFetch(`${kanbanapiurl}invite/my`, {}, "GET");
-			invites = result || [];
+			const result: Invite[] = await authFetch(`${kanbanapiurl}invite/my`, {}, "GET");
+			// fetch profiles in parallel
+			const enriched = await Promise.all(
+				result.map(async (invite) => {
+					const profile = await fetchProfile(invite.inviter_user_id);
+					return { ...invite, inviter: profile ?? undefined };
+				})
+			);
+			invites = enriched;
 		} catch (err) {
 			console.error("Failed to load invites:", err);
 			toast({
@@ -115,8 +162,8 @@
 	}
 
 	onMount(async () => {
-        await refreshAccessToken("", false, true);
-	    token = String(get(accessToken));
+		await refreshAccessToken("", false, true);
+		token = String(get(accessToken));
 		await loadInvites();
 	});
 </script>
@@ -136,10 +183,13 @@
 				{#each invites as invite (invite.invite_id)}
 					<div class="invite-item">
 						<div class="invite-info">
-							<strong>{invite.board_name}</strong> invited by
-							<a href={`https://account.davidnet.net/profile/${invite.inviter_user_id}`}>
-								{invite.inviter_display_name} (@{invite.inviter_username})
-							</a>
+							<strong>{invite.board_name}</strong>
+							{#if invite.inviter}
+								invited by
+								<a href={`https://account.davidnet.net/profile/${invite.inviter.id}`}>
+									{invite.inviter.display_name || invite.inviter.username} (@{invite.inviter.username})
+								</a>
+							{/if}
 						</div>
 						<FlexWrapper direction="row" gap="var(--token-space-2)">
 							<Button appearance="primary" onClick={() => acceptInvite(invite.invite_id)}>Accept</Button>
