@@ -87,6 +87,7 @@
 
 	async function loadInvites() {
 		try {
+			await refreshAccessToken("");
 			const result: Invite[] = await authFetch(`${kanbanapiurl}invite/my`, {}, "GET");
 			// fetch profiles in parallel
 			const enriched = await Promise.all(
