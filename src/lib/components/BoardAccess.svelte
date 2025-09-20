@@ -129,6 +129,8 @@
 		try {
 			const invites = await authFetch(`${kanbanapiurl}invite/board`, { board_id: boardId });
 
+			// invites = [12, 35, 3, 34] ← assume they're user IDs
+
 			const enriched = await Promise.all(
 				(invites || []).map(async (userId: number) => {
 					try {
@@ -139,7 +141,8 @@
 							username: profile?.profile.username ?? "unknown",
 							avatar_url: profile?.profile.avatar_url ?? "https://account.davidnet.net/placeholder.png"
 						};
-					} catch {
+					} catch (err) {
+						console.error(`Failed to fetch profile for userId ${userId}`, err);
 						return {
 							invitee_user_id: userId,
 							display_name: "Unknown",
