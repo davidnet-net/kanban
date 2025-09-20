@@ -166,7 +166,6 @@
 	}
 
 	onMount(async () => {
-		await refreshAccessToken("", false, true);
 		owner = await fetchProfile(boardOwner);
 		await loadMembers();
 		await loadInvites();
