@@ -5,7 +5,20 @@
 	import { writable, get } from "svelte/store";
 	import { kanbanapiurl } from "$lib/config";
 	import { accessToken, getSessionInfo, isAuthenticated, refreshAccessToken } from "$lib/session";
-	import { Button, Dropdown, FlexWrapper, Icon, IconButton, IconDropdown, LinkButton, Loader, Modal, Space, SplitButton, toast } from "@davidnet/svelte-ui";
+	import {
+		Button,
+		Dropdown,
+		FlexWrapper,
+		Icon,
+		IconButton,
+		IconDropdown,
+		LinkButton,
+		Loader,
+		Modal,
+		Space,
+		SplitButton,
+		toast
+	} from "@davidnet/svelte-ui";
 	import type { Card, SessionInfo, BoardMeta } from "$lib/types";
 	import { goto } from "$app/navigation";
 	import CardOverlay from "$lib/components/CardOverlay.svelte";
@@ -15,7 +28,7 @@
 	let view: "kanban" | "calendar" = $state("kanban");
 
 	let loading = $state(true);
-	
+
 	const boardMeta = writable<BoardMeta | null>(null);
 	type List = { id: string; name: string; [key: string]: any };
 	const lists = writable<List[]>([]);
@@ -36,6 +49,7 @@
 
 	// Modals
 	let showBoardDelModal = $state(false);
+	let showBoardLeaveModal = $state(false);
 	let authencated = $state(false);
 	let can_edit = $state(false);
 	let is_owner = $state(false);
@@ -384,6 +398,20 @@
 		}
 	}
 
+	async function LeaveBoard() {
+		await authFetch(`${kanbanapiurl}board/leave`, { board_id: id });
+		toast({
+			title: "Left board",
+			desc: $boardMeta?.name ?? id,
+			icon: "door_open",
+			appearance: "success",
+			position: "bottom-left",
+			autoDismiss: 5000
+		});
+		showBoardLeaveModal = false;
+		goto("/");
+	}
+
 	async function deleteList(list_id: number, list_name: string) {
 		try {
 			await authFetch(`${kanbanapiurl}list/delete`, { board_id: id, list_id });
@@ -459,8 +487,12 @@
 	<Icon size="3rem;" color="var(--token-color-text-danger);" icon="crisis_alert" />
 	<p class="loading-text">{common_error}</p>
 	<LinkButton appearance="primary" href="/">My boards</LinkButton>
-	<Space height="var(--token-space-3);"/>
-	<Button onClick={() => {history.back();}}>Back</Button>
+	<Space height="var(--token-space-3);" />
+	<Button
+		onClick={() => {
+			history.back();
+		}}>Back</Button
+	>
 {:else}
 	<div class="board" style="background-image: url({$boardMeta?.background_url});">
 		<nav id="board-nav">
@@ -500,33 +532,57 @@
 					/>
 				{/if}
 
-				<Button appearance="discover" iconbefore="group_add" onClick={() => {BoardAccessOverlayOpen = true;}} disabled={!is_owner}>Share</Button>
-				<IconDropdown
-					appearance="subtle"
-					icon="more_horiz"
-					alt="More actions."
-					disabled={!is_owner}
-					actions={[
-						{
-							label: "Delete board",
-							onClick: () => {
-								showBoardDelModal = true;
+				{#if can_edit && !is_owner}
+					<IconDropdown
+						appearance="subtle"
+						icon="more_horiz"
+						alt="More actions."
+						disabled={!is_owner}
+						actions={[
+							{
+								label: "Leave board",
+								onClick: () => {
+									showBoardLeaveModal = true;
+								}
 							}
-						},
-						{
-							label: "Edit board",
-							onClick: () => {
-								goto("/board/" + id + "/edit");
+						]}
+					/>
+				{:else}
+					<Button
+						appearance="discover"
+						iconbefore="group_add"
+						onClick={() => {
+							BoardAccessOverlayOpen = true;
+						}}
+						disabled={!is_owner}>Share</Button
+					>
+					<IconDropdown
+						appearance="subtle"
+						icon="more_horiz"
+						alt="More actions."
+						disabled={!is_owner}
+						actions={[
+							{
+								label: "Delete board",
+								onClick: () => {
+									showBoardDelModal = true;
+								}
+							},
+							{
+								label: "Edit board",
+								onClick: () => {
+									goto("/board/" + id + "/edit");
+								}
+							},
+							{
+								label: "Change background",
+								onClick: () => {
+									// goto("/board/" + id + "/background")
+								}
 							}
-						},
-						{
-							label: "Change background",
-							onClick: () => {
-								// goto("/board/" + id + "/background")
-							}
-						}
-					]}
-				/>
+						]}
+					/>
+				{/if}
 			</div>
 		</nav>
 		{#if view === "kanban"}
@@ -551,7 +607,7 @@
 								appearance="subtle"
 								icon="more_horiz"
 								alt="More actions."
-								disabled={!is_owner}
+								disabled={!can_edit}
 								actions={[
 									{
 										label: "Delete list",
@@ -588,7 +644,15 @@
 							onfinalize={(e) => moveCard(e, list.id)}
 						>
 							{#each $cards[list.id] ?? [] as card (card.id)}
-								<div class="card" data-id={card.id} Onclick={() => {openedCard = card;}}>{card.name}</div>
+								<div
+									class="card"
+									data-id={card.id}
+									Onclick={() => {
+										openedCard = card;
+									}}
+								>
+									{card.name}
+								</div>
 							{/each}
 
 							{#if $addingCard[list.id]}
@@ -652,7 +716,7 @@
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							{#each $cards[CalendarListID] ?? [] as card (card.id)}
 								<!-- svelte-ignore a11y_click_events_have_key_events -->
-								<div class="card" >
+								<div class="card">
 									{card.name}
 								</div>
 							{/each}
@@ -693,12 +757,43 @@
 	/>
 {/if}
 
-{#if openedCard}
-	<CardOverlay closeOverlay={()=>{openedCard = null;}} {openedCard} {correlationID} />
+{#if showBoardLeaveModal}
+	<Modal
+		title="Leave board {$boardMeta?.name ?? id}?"
+		titleIcon="door_open"
+		desc="You cannot come back until the owner invites you again."
+		hasCloseBtn
+		on:close={() => (showBoardLeaveModal = false)}
+		options={[
+			{
+				appearance: "subtle",
+				content: "Cancel",
+				onClick: () => (showBoardLeaveModal = false)
+			},
+			{ appearance: "danger", content: "Leave board", onClick: LeaveBoard }
+		]}
+	/>
 {/if}
 
-{#if BoardAccessOverlayOpen }
-	<BoardAccess closeOverlay={()=>{BoardAccessOverlayOpen = false;}} {correlationID} boardOwner={$boardMeta?.owner} boardId={Number(id)}/>
+{#if openedCard}
+	<CardOverlay
+		closeOverlay={() => {
+			openedCard = null;
+		}}
+		{openedCard}
+		{correlationID}
+	/>
+{/if}
+
+{#if BoardAccessOverlayOpen}
+	<BoardAccess
+		closeOverlay={() => {
+			BoardAccessOverlayOpen = false;
+		}}
+		{correlationID}
+		boardOwner={$boardMeta?.owner}
+		boardId={Number(id)}
+	/>
 {/if}
 
 <style>
