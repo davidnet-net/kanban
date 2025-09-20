@@ -83,11 +83,33 @@
 			});
 		}
 	}
-
 	async function loadMembers() {
 		try {
 			const result = await authFetch(`${kanbanapiurl}board/get_board_members`, { board_id: boardId });
-			members = result || [];
+
+			// fetch profiles for each member
+			const enriched = await Promise.all(
+				(result || []).map(async (member: any) => {
+					try {
+						const profile = await fetchProfile(member.user_id);
+						return {
+							...member,
+							display_name: profile?.profile.display_name ?? "Unknown",
+							username: profile?.profile.username ?? "unknown",
+							avatar_url: profile?.profile.avatar_url ?? "https://account.davidnet.net/placeholder.png"
+						};
+					} catch {
+						return {
+							...member,
+							display_name: "Unknown",
+							username: "unknown",
+							avatar_url: "https://account.davidnet.net/placeholder.png"
+						};
+					}
+				})
+			);
+
+			members = enriched;
 		} catch (err) {
 			console.error("loadMembers error:", err);
 			toast({
