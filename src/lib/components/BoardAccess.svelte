@@ -168,7 +168,8 @@
 	onMount(async () => {
 		await refreshAccessToken("", false, true);
 		owner = await fetchProfile(boardOwner);
-		await Promise.all([loadMembers(), loadInvites()]);
+		await loadMembers();
+		await loadInvites();
 
 		// Get connections
 		const connectionsres = await sesauthfetch(authapiurl + "connections/", correlationID);
