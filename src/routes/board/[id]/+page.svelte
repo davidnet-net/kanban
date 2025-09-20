@@ -105,8 +105,7 @@
 				}
 
 				if (data && data.error === "Not board member") {
-					common_error = `You are not an board member!
-Ask the owner for access.`;
+					common_error = `You are not an board member! Ask the owner for access.`;
 				}
 
 				throw new Error(`HTTP ${res.status}`);
