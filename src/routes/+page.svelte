@@ -65,12 +65,13 @@
 				<Icon icon="iframe_off" size="5rem" color="var(--token-color-text-warning)" />
 				<p>You don't have any boards yet.<br />Create one to get started!</p>
 				<LinkButton appearance="primary" href="/board/create">Create Board</LinkButton>
+				<LinkButton appearance="subtle" href="/invites">Your invites</LinkButton>
 			</div>
 		{:else}
 			<Space height="var(--token-space-6)" />
 			<div class="section">
 				<LinkButton appearance="primary" href="/board/create">Create Board</LinkButton>
-				<LinkButton appearance="subtle" href="https://account.davidnet.net/account/settings/">Settings</LinkButton>
+				<LinkButton appearance="subtle" href="/invites">Invites</LinkButton>
 			</div>
 
 			<div class="section">
