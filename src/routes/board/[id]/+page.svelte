@@ -26,6 +26,7 @@
 
 	const id = page.params.id;
 	let view: "kanban" | "calendar" = $state("kanban");
+	let eventSource: EventSource | null = null;
 
 	let loading = $state(true);
 
@@ -209,10 +210,41 @@
 					showError(String(e));
 				}
 			}
+
+			await setupSSE();
 		} finally {
 			loading = false;
 		}
 	});
+
+	async function setupSSE() {
+		eventSource = new EventSource(`${kanbanapiurl}board/live/${id}`);
+
+		eventSource.addEventListener("update", (e: MessageEvent) => {
+			try {
+			const payload = JSON.parse(e.data);
+
+			switch (payload.type) {
+				case "list_update":
+				lists.set(payload.lists);
+				break;
+
+				case "card_update":
+				cards.update((c) => ({ ...c, [payload.listId]: payload.cards }));
+				break;
+
+				default:
+				console.log("Unknown SSE payload", payload);
+			}
+			} catch (err) {
+			console.error("Failed to parse SSE data", err);
+			}
+		});
+
+		eventSource.addEventListener("error", (err) => {
+			console.error("SSE error:", err);
+		});
+	}
 
 	// --- Local add card ---
 	function addCard(listId: string) {
