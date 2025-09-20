@@ -129,20 +129,19 @@
 		try {
 			const invites = await authFetch(`${kanbanapiurl}invite/board`, { board_id: boardId });
 
-			// fetch profiles for each invitee
 			const enriched = await Promise.all(
-				(invites || []).map(async (invite: any) => {
+				(invites || []).map(async (userId: number) => {
 					try {
-						const profile = await fetchProfile(invite.invitee_user_id);
+						const profile = await fetchProfile(userId);
 						return {
-							...invite,
+							invitee_user_id: userId,
 							display_name: profile?.profile.display_name ?? "Unknown",
 							username: profile?.profile.username ?? "unknown",
 							avatar_url: profile?.profile.avatar_url ?? "https://account.davidnet.net/placeholder.png"
 						};
 					} catch {
 						return {
-							...invite,
+							invitee_user_id: userId,
 							display_name: "Unknown",
 							username: "unknown",
 							avatar_url: "https://account.davidnet.net/placeholder.png"
