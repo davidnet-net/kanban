@@ -8,8 +8,8 @@
 	import { get } from "svelte/store";
 	import { marked } from "marked";
 
-	let { closeCard, openedCard, correlationID } = $props<{
-		closeCard: () => void;
+	let { closeOverlay, openedCard, correlationID } = $props<{
+		closeOverlay: () => void;
 		openedCard: Card;
 		correlationID: string;
 	}>();
@@ -100,7 +100,7 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
-<div class="blanket" onclick={(e) => e.target === e.currentTarget && closeCard()} tabindex="-1" aria-modal="true">
+<div class="blanket" onclick={(e) => e.target === e.currentTarget && closeOverlay()} tabindex="-1" aria-modal="true">
 	<div class="content">
 		{#if loaded}
 			<header class="header">
@@ -108,7 +108,7 @@
 				<div>
 					<IconButton icon="help" disabled appearance="subtle" onClick={() => {}} alt="About cards." />
 					<IconButton icon="delete_forever" appearance="danger" onClick={() => {}} alt="Delete card." />
-					<IconButton icon="close" appearance="primary" onClick={closeCard} alt="Close." />
+					<IconButton icon="close" appearance="primary" onClick={closeOverlay} alt="Close." />
 				</div>
 			</header>
 
@@ -155,7 +155,7 @@
 				<div class="activity-container">
 					<h3>Activity & Comments</h3>
 					<div class="activity">
-						<img src="https://account.davidnet.net/placeholder.png" alt="test" />
+						<img src="https://account.davidnet.net/placeholder.png" aria-hidden="true" alt=""/>
 						<a href="https://account.davidnet.net/profile/{openedCard.owner}">{owner!.profile.display_name}</a>Created card on<br
 						/>{creation_date}
 					</div>

@@ -78,3 +78,5 @@ export interface Board {
     is_public: boolean;
     background_url: string;
 }
+
+export type BoardMeta = { name?: string; background_url?: string; [key: string]: any };

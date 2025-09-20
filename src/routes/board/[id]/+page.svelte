@@ -6,15 +6,16 @@
 	import { kanbanapiurl } from "$lib/config";
 	import { accessToken, getSessionInfo, isAuthenticated, refreshAccessToken } from "$lib/session";
 	import { Button, Dropdown, FlexWrapper, Icon, IconButton, IconDropdown, LinkButton, Loader, Modal, Space, SplitButton, toast } from "@davidnet/svelte-ui";
-	import type { Card, SessionInfo } from "$lib/types";
+	import type { Card, SessionInfo, BoardMeta } from "$lib/types";
 	import { goto } from "$app/navigation";
 	import CardOverlay from "$lib/components/CardOverlay.svelte";
+	import BoardAccess from "$lib/components/BoardAccess.svelte";
 
 	const id = page.params.id;
 	let view: "kanban" | "calendar" = $state("kanban");
 
 	let loading = $state(true);
-	type BoardMeta = { name?: string; background_url?: string; [key: string]: any };
+	
 	const boardMeta = writable<BoardMeta | null>(null);
 	type List = { id: string; name: string; [key: string]: any };
 	const lists = writable<List[]>([]);
@@ -447,14 +448,7 @@
 	}
 
 	let openedCard: Card | null = $state(null);
-
-	function openCard(card: any) {
-		openedCard = card;
-	}
-
-	function closeCard() {
-		openedCard = null;
-	}
+	let BoardAccessOverlayOpen: boolean = $state(false);
 </script>
 
 {#if loading}
@@ -506,7 +500,7 @@
 					/>
 				{/if}
 
-				<Button appearance="discover" iconbefore="group_add" onClick={() => {}}>Share</Button>
+				<Button appearance="discover" iconbefore="group_add" onClick={() => {BoardAccessOverlayOpen = true;}}>Share</Button>
 				<IconDropdown
 					appearance="subtle"
 					icon="more_horiz"
@@ -594,7 +588,7 @@
 							onfinalize={(e) => moveCard(e, list.id)}
 						>
 							{#each $cards[list.id] ?? [] as card (card.id)}
-								<div class="card" data-id={card.id} Onclick={() => openCard(card)}>{card.name}</div>
+								<div class="card" data-id={card.id} Onclick={() => {openedCard = card;}}>{card.name}</div>
 							{/each}
 
 							{#if $addingCard[list.id]}
@@ -658,7 +652,7 @@
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							{#each $cards[CalendarListID] ?? [] as card (card.id)}
 								<!-- svelte-ignore a11y_click_events_have_key_events -->
-								<div class="card" onclick={() => openCard(card)}>
+								<div class="card" >
 									{card.name}
 								</div>
 							{/each}
@@ -700,7 +694,11 @@
 {/if}
 
 {#if openedCard}
-	<CardOverlay {closeCard} {openedCard} {correlationID} />
+	<CardOverlay closeOverlay={()=>{openedCard = null;}} {openedCard} {correlationID} />
+{/if}
+
+{#if BoardAccessOverlayOpen }
+	<BoardAccess closeOverlay={()=>{BoardAccessOverlayOpen = false;}} {correlationID} boardOwner={$boardMeta?.owner}/>
 {/if}
 
 <style>
