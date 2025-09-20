@@ -104,7 +104,30 @@
 	async function loadInvites() {
 		try {
 			const invites = await authFetch(`${kanbanapiurl}invite/board`, { board_id: boardId });
-			pendingInvites = invites || [];
+
+			// fetch profiles for each invitee
+			const enriched = await Promise.all(
+				(invites || []).map(async (invite: any) => {
+					try {
+						const profile = await fetchProfile(invite.invitee_user_id);
+						return {
+							...invite,
+							display_name: profile?.profile.display_name ?? "Unknown",
+							username: profile?.profile.username ?? "unknown",
+							avatar_url: profile?.profile.avatar_url ?? "https://account.davidnet.net/placeholder.png"
+						};
+					} catch {
+						return {
+							...invite,
+							display_name: "Unknown",
+							username: "unknown",
+							avatar_url: "https://account.davidnet.net/placeholder.png"
+						};
+					}
+				})
+			);
+
+			pendingInvites = enriched;
 		} catch (err) {
 			console.error("loadInvites error:", err);
 			toast({
@@ -390,12 +413,18 @@
 				titleIcon="person_remove"
 				desc={`Are you sure you want to remove ${memberToRemove.display_name} from the board? This cannot be undone.`}
 				hasCloseBtn
-				on:close={() => { showRemoveMemberModal = false; memberToRemove = null; }}
+				on:close={() => {
+					showRemoveMemberModal = false;
+					memberToRemove = null;
+				}}
 				options={[
 					{
 						appearance: "subtle",
 						content: "Cancel",
-						onClick: () => { showRemoveMemberModal = false; memberToRemove = null; }
+						onClick: () => {
+							showRemoveMemberModal = false;
+							memberToRemove = null;
+						}
 					},
 					{
 						appearance: "danger",
