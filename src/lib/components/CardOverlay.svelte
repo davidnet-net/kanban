@@ -256,7 +256,7 @@
 	.card-body {
 		width: 50%;
 		gap: 1rem;
-		height: 400px;
+		height: 500px;
 		overflow-y: scroll;
 	}
 
