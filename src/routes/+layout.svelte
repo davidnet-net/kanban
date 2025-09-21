@@ -58,7 +58,7 @@
 			}
 
 			authed = true;
-			setInterval(refreshAccessToken(correlationID, true, false), 12 * 60 * 1000);
+			setInterval(()=>{refreshAccessToken(correlationID, true, false)}, 12 * 60 * 1000);
 		} catch (e) {
 			console.error("Session error:", e);
 		}
