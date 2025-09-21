@@ -13,7 +13,7 @@
 	import favicon from "$lib/assets/favicon.svg";
 	import { onMount } from "svelte";
 	import type { SessionInfo } from "$lib/types";
-	import { getSessionInfo, isAuthenticated } from "$lib/session";
+	import { getSessionInfo, isAuthenticated, refreshAccessToken } from "$lib/session";
 	import { page } from "$app/state";
 
 	let { children } = $props();
@@ -58,6 +58,7 @@
 			}
 
 			authed = true;
+			setInterval(refreshAccessToken(correlationID, true, false), 12 * 60 * 1000);
 		} catch (e) {
 			console.error("Session error:", e);
 		}
