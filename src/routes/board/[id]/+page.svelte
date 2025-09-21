@@ -236,17 +236,22 @@
 						lists.set(payload.lists);
 						break;
 
+					case "card_created":
+						lists.set(payload.lists);
+						break;
+
 					case "card_update":
 						cards.update((c) => {
 							const newState = { ...c };
 
-							// Remove card from previous list(s)
+							// Step 1: Remove updated/moved cards from any list
 							for (const listId in newState) {
 								newState[listId] = newState[listId].filter((card) => !payload.cards.some((updated: any) => updated.id === card.id));
 							}
 
-							// Add/update card(s) in the new list
-							newState[payload.newListId] = payload.cards;
+							// Step 2: Merge updated cards into the target list
+							const targetListId = String(payload.newListId);
+							newState[targetListId] = [...(newState[targetListId] || []), ...payload.cards];
 
 							return newState;
 						});
