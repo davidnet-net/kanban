@@ -221,6 +221,7 @@
 		eventSource = new EventSource(`${kanbanapiurl}board/live/${id}`);
 
 		eventSource.addEventListener("update", (e: MessageEvent) => {
+			console.log("Default SSE message:", e.data);
 			try {
 				const payload = JSON.parse(e.data);
 				console.log("Received SSE");
