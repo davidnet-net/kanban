@@ -18,7 +18,7 @@
 	let owner: ProfileResponse | null = $state(null);
 	let loaded = $state(false);
 	let addchecklist: string | undefined = $state(undefined);
-	
+
 	onMount(async () => {
 		creation_date = await formatDate_PREFERREDTIME(openedCard.created_at, correlationID);
 		owner = await fetchProfile(openedCard.owner);
@@ -97,7 +97,7 @@
 	async function saveDescription() {
 		console.log("Saving description:", description);
 		try {
-			await authFetch(kanbanapiurl + "/card/change-description", { card_id: openedCard.id, description: description });
+			await authFetch(kanbanapiurl + "card/change-description", { card_id: openedCard.id, description: description });
 			toast({
 				title: "Card updated",
 				desc: "Description saved successfully.",
