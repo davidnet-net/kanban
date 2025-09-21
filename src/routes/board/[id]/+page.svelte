@@ -211,21 +211,24 @@
 				}
 			}
 
-			await setupSSE();
+			await setupWS(Number(id));
 		} finally {
 			loading = false;
 		}
 	});
 
-	async function setupSSE() {
-		eventSource = new EventSource(`${kanbanapiurl}board/live/${id}`);
+	let socket: WebSocket;
+	function setupWS(boardId: number) {
+		const wsProtocol = kanbanapiurl.startsWith("https") ? "wss" : "ws";
+		const wsUrl = `${wsProtocol}://${kanbanapiurl.replace(/^https?:\/\//, "")}board/live/${boardId}`;
+		socket = new WebSocket(wsUrl);
 
-		eventSource.addEventListener("update", (e: MessageEvent) => {
-			console.log("Default SSE message:", e.data);
+		socket.onopen = () => console.log("WebSocket connected to board", boardId);
+
+		socket.onmessage = (e) => {
 			try {
 				const payload = JSON.parse(e.data);
-				console.log("Received SSE");
-				console.log(payload);
+				console.log("Received WS update:", payload);
 
 				switch (payload.type) {
 					case "list_update":
@@ -240,16 +243,15 @@
 						break;
 
 					default:
-						console.log("Unknown SSE payload", payload);
+						console.log("Unknown payload", payload);
 				}
 			} catch (err) {
-				console.error("Failed to parse SSE data", err);
+				console.error("Failed to parse WS message", err);
 			}
-		});
+		};
 
-		eventSource.addEventListener("error", (err) => {
-			console.error("SSE error:", err);
-		});
+		socket.onerror = (err) => console.error("WebSocket error", err);
+		socket.onclose = () => console.log("WebSocket closed");
 	}
 
 	// --- Local add card ---
