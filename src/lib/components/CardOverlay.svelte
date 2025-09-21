@@ -190,6 +190,7 @@
 								bind:value={addchecklist}
 								invalid={false}
 								invalidMessage="Invalid."
+								width="85%"
 							/>
 							<IconButton icon="add" onClick={() => {}} alt="Add checklist item" appearance="primary" />
 						</div>
