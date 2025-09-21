@@ -236,10 +236,6 @@
 						lists.set(payload.lists);
 						break;
 
-					case "card_created":
-						lists.set(payload.lists);
-						break;
-
 					case "card_update":
 						cards.update((c) => {
 							const newState = { ...c };

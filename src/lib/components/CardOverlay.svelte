@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { authapiurl } from "$lib/config";
+	import { authapiurl, kanbanapiurl } from "$lib/config";
 	import { accessToken } from "$lib/session";
 	import type { Card, ProfileResponse } from "$lib/types";
 	import { formatDate_PREFERREDTIME } from "$lib/utils/time";
@@ -31,6 +31,21 @@
 
 		loaded = true;
 	});
+
+	const token = String(get(accessToken));
+	async function authFetch(url: string, body: any) {
+		const res = await fetch(url, {
+			method: "POST",
+			credentials: "include",
+			headers: {
+				"Content-Type": "application/json",
+				...(token ? { Authorization: `Bearer ${token}` } : {})
+			},
+			body: JSON.stringify(body)
+		});
+		if (!res.ok) throw new Error(`HTTP ${res.status}`);
+		return res.json();
+	}
 
 	async function fetchProfile(id: number) {
 		let created_on: string;
@@ -77,17 +92,30 @@
 	let editing = $state(false);
 	let description = $state(openedCard.description ?? "");
 
-	function saveDescription() {
+	async function saveDescription() {
 		console.log("Saving description:", description);
+		try {
+			await authFetch(kanbanapiurl + "/card/change-description", {card_id: openedCard.id, description: description})
+			toast({
+				title: "Card updated",
+				desc: "Description saved successfully.",
+				icon: "check",
+				appearance: "success",
+				position: "bottom-left",
+				autoDismiss: 3000
+			});
+		} catch {
+			toast({
+				title: "Card update failed",
+				desc: "Could not update description.",
+				icon: "crisis_alert",
+				appearance: "danger",
+				position: "top-center",
+				autoDismiss: 3000
+			});
+		}
 		editing = false;
-		toast({
-			title: "Card updated",
-			desc: "Description saved successfully.",
-			icon: "check",
-			appearance: "success",
-			position: "bottom-left",
-			autoDismiss: 3000
-		});
+
 	}
 
 	function handleKey(e: KeyboardEvent) {
@@ -155,7 +183,7 @@
 				<div class="activity-container">
 					<h3>Activity & Comments</h3>
 					<div class="activity">
-						<img src="https://account.davidnet.net/placeholder.png" aria-hidden="true" alt=""/>
+						<img src="https://account.davidnet.net/placeholder.png" aria-hidden="true" alt="" />
 						<a href="https://account.davidnet.net/profile/{openedCard.owner}">{owner!.profile.display_name}</a>Created card on<br
 						/>{creation_date}
 					</div>
