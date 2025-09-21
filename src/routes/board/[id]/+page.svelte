@@ -233,7 +233,10 @@
 						break;
 
 					case "card_update":
-						cards.update((c) => ({ ...c, [payload.listId]: payload.cards }));
+						cards.update((c) => ({
+							...c,
+							[payload.newListId]: payload.cards
+						}));
 						break;
 
 					default:
