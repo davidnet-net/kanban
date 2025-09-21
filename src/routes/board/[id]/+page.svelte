@@ -238,28 +238,15 @@
 
 					case "card_update":
 						cards.update((c) => {
-							const newState: Record<string, any[]> = { ...c };
+							const newState = { ...c };
 
-							payload.cards.forEach((card: any) => {
-								// Remove the card from any list it's currently in, except the target list
-								for (const listId in newState) {
-									if (listId !== String(payload.newListId)) {
-										newState[listId] = newState[listId].filter((c) => c.id !== card.id);
-									}
-								}
+							// Remove card from previous list(s)
+							for (const listId in newState) {
+								newState[listId] = newState[listId].filter((card) => !payload.cards.some((updated: any) => updated.id === card.id));
+							}
 
-								// Add or replace the card in the target list
-								const targetList = newState[payload.newListId] || [];
-								const exists = targetList.findIndex((c) => c.id === card.id);
-								if (exists >= 0) {
-									// Replace existing card
-									targetList[exists] = card;
-								} else {
-									// Add new card at the end
-									targetList.push(card);
-								}
-								newState[payload.newListId] = targetList;
-							});
+							// Add/update card(s) in the new list
+							newState[payload.newListId] = payload.cards;
 
 							return newState;
 						});
