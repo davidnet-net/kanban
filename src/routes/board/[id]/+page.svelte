@@ -244,13 +244,15 @@
 						cards.update((c) => {
 							const newState = { ...c };
 
+							// Use either newListId or listId from payload
+							const targetListId = String(payload.newListId ?? payload.listId);
+
 							// Step 1: Remove updated/moved cards from any list
 							for (const listId in newState) {
 								newState[listId] = newState[listId].filter((card) => !payload.cards.some((updated: any) => updated.id === card.id));
 							}
 
 							// Step 2: Merge updated cards into the target list
-							const targetListId = String(payload.newListId);
 							newState[targetListId] = [...(newState[targetListId] || []), ...payload.cards];
 
 							return newState;
