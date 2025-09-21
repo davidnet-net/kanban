@@ -211,7 +211,7 @@
 				}
 			}
 
-			await setupWS(Number(id));
+			setupWS(Number(id));
 		} finally {
 			loading = false;
 		}
@@ -221,6 +221,7 @@
 	function setupWS(boardId: number) {
 		const wsProtocol = kanbanapiurl.startsWith("https") ? "wss" : "ws";
 		const wsUrl = `${wsProtocol}://${kanbanapiurl.replace(/^https?:\/\//, "")}board/live/${boardId}`;
+
 		socket = new WebSocket(wsUrl);
 
 		socket.onopen = () => console.log("WebSocket connected to board", boardId);
@@ -251,7 +252,11 @@
 		};
 
 		socket.onerror = (err) => console.error("WebSocket error", err);
-		socket.onclose = () => console.log("WebSocket closed");
+
+		socket.onclose = () => {
+			console.log("WebSocket closed. Reconnecting in 2s...");
+			setTimeout(() => setupWS(boardId), 2000);
+		};
 	}
 
 	// --- Local add card ---
