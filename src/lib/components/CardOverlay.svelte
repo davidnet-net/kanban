@@ -3,7 +3,7 @@
 	import { accessToken } from "$lib/session";
 	import type { Card, ProfileResponse } from "$lib/types";
 	import { formatDate_PREFERREDTIME } from "$lib/utils/time";
-	import { Button, FlexWrapper, IconButton, Loader, Space, toast } from "@davidnet/svelte-ui";
+	import { Button, FlexWrapper, IconButton, Loader, Space, TextField, toast } from "@davidnet/svelte-ui";
 	import { onMount } from "svelte";
 	import { get } from "svelte/store";
 	import { marked } from "marked";
@@ -17,6 +17,8 @@
 	let creation_date: string = $state("");
 	let owner: ProfileResponse | null = $state(null);
 	let loaded = $state(false);
+	let addchecklist: string | undefined = $state(undefined);
+	
 	onMount(async () => {
 		creation_date = await formatDate_PREFERREDTIME(openedCard.created_at, correlationID);
 		owner = await fetchProfile(openedCard.owner);
@@ -95,7 +97,7 @@
 	async function saveDescription() {
 		console.log("Saving description:", description);
 		try {
-			await authFetch(kanbanapiurl + "/card/change-description", {card_id: openedCard.id, description: description})
+			await authFetch(kanbanapiurl + "/card/change-description", { card_id: openedCard.id, description: description });
 			toast({
 				title: "Card updated",
 				desc: "Description saved successfully.",
@@ -115,7 +117,6 @@
 			});
 		}
 		editing = false;
-
 	}
 
 	function handleKey(e: KeyboardEvent) {
@@ -179,6 +180,20 @@
 							</div>
 						{/if}
 					</div>
+					<div>
+						<h4>Checklist</h4>
+						<div class="checklist-adder">
+							<TextField
+								label="Checklist Item:"
+								type="text"
+								placeholder="Add an item."
+								bind:value={addchecklist}
+								invalid={false}
+								invalidMessage="Invalid."
+							/>
+							<IconButton icon="add" onClick={() => {}} alt="Add checklist item" appearance="primary" />
+						</div>
+					</div>
 				</div>
 				<div class="activity-container">
 					<h3>Activity & Comments</h3>
@@ -231,6 +246,8 @@
 		width: 50%;
 		gap: 1rem;
 		min-height: 400px;
+		min-height: 500px;
+		overflow-y: scroll;
 	}
 
 	.activity-container {
