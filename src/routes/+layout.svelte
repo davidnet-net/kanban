@@ -53,7 +53,7 @@
 			}
 
 			if (!si || si.email_verified === 0) {
-				window.location.href = "https://davidnet.net/verify/email/check/" + si?.email;
+				window.location.href = "https://account.davidnet.net/verify/email/check/" + si?.email;
 				return;
 			}
 
