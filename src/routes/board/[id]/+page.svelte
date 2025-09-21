@@ -237,10 +237,19 @@
 						break;
 
 					case "card_update":
-						cards.update((c) => ({
-							...c,
-							[payload.newListId]: payload.cards
-						}));
+						cards.update((c) => {
+							const newState = { ...c };
+
+							// Remove card from previous list(s)
+							for (const listId in newState) {
+								newState[listId] = newState[listId].filter((card) => !payload.cards.some((updated: any) => updated.id === card.id));
+							}
+
+							// Add/update card(s) in the new list
+							newState[payload.newListId] = payload.cards;
+
+							return newState;
+						});
 						break;
 
 					default:
