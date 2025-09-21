@@ -240,16 +240,21 @@
 						cards.update((c) => {
 							const newState = { ...c };
 
-							// Remove card from previous list(s)
-							for (const listId in newState) {
-								newState[listId] = newState[listId].filter((card) => !payload.cards.some((updated: any) => updated.id === card.id));
-							}
+							payload.cards.forEach((card: any) => {
+								// Remove the card only if it already exists in another list
+								for (const listId in newState) {
+									if (listId !== String(payload.newListId)) {
+										newState[listId] = newState[listId].filter((c) => c.id !== card.id);
+									}
+								}
 
-							// Add/update card(s) in the new list
-							newState[payload.newListId] = payload.cards;
+								// Add or replace in the target list
+								newState[payload.newListId] = [...(newState[payload.newListId] || []).filter((c) => c.id !== card.id), card];
+							});
 
 							return newState;
 						});
+
 						break;
 
 					default:
