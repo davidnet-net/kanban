@@ -18,6 +18,7 @@
 	let owner: ProfileResponse | null = $state(null);
 	let loaded = $state(false);
 	let addchecklist: string | undefined = $state(undefined);
+	let showchecklist = $state(false);
 
 	onMount(async () => {
 		creation_date = await formatDate_PREFERREDTIME(openedCard.created_at, correlationID);
@@ -146,7 +147,12 @@
 					<div class="action-bar">
 						<Button onClick={() => {}} iconbefore="new_label">Add label</Button>
 						<Button onClick={() => {}} iconbefore="calendar_clock">Dates</Button>
-						<Button onClick={() => {}} iconbefore="checklist">Add checklist</Button>
+						<Button
+							onClick={() => {
+								showchecklist = true;
+							}}
+							iconbefore="checklist">Add checklist</Button
+						>
 						<Button onClick={() => {}} iconbefore="attach_file_add">Add attachment</Button>
 					</div>
 					<div class="meta-bar">
@@ -180,21 +186,25 @@
 							</div>
 						{/if}
 					</div>
-					<div>
-						<h4>Checklist</h4>
-						<div class="checklist-adder">
-							<TextField
-								label="Checklist Item:"
-								type="text"
-								placeholder="Add an item."
-								bind:value={addchecklist}
-								invalid={false}
-								invalidMessage="Invalid."
-								width="85%"
-							/>
-							<IconButton icon="add" onClick={() => {}} alt="Add checklist item" appearance="primary" />
+					{#if showchecklist}
+						<div>
+							<h4>Checklist</h4>
+							<div class="checklist-adder">
+								<FlexWrapper direction="row" gap="var(--token-space-3);">
+									<TextField
+										label="Checklist Item:"
+										type="text"
+										placeholder="Add an item."
+										bind:value={addchecklist}
+										invalid={false}
+										invalidMessage="Invalid."
+										width="85%"
+									/>
+									<IconButton icon="add" onClick={() => {}} alt="Add checklist item" appearance="primary" />
+								</FlexWrapper>
+							</div>
 						</div>
-					</div>
+					{/if}
 				</div>
 				<div class="activity-container">
 					<h3>Activity & Comments</h3>
@@ -246,8 +256,7 @@
 	.card-body {
 		width: 50%;
 		gap: 1rem;
-		min-height: 400px;
-		min-height: 500px;
+		height: 400px;
 		overflow-y: scroll;
 	}
 
@@ -361,6 +370,8 @@
 		font-size: 0.9rem;
 		cursor: pointer;
 		padding: 0.25rem 0;
+		margin: 0px;
+		height: fit-content;
 	}
 
 	.actions {
