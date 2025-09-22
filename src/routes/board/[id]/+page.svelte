@@ -255,18 +255,24 @@
 						});
 						break;
 
-					case "card_delete":
+					case "card_delete": {
 						const deletedCardId = String(payload.card_id);
-						console.log(deletedCardId);
+						console.log("card_delete payload:", payload);
+
 						cards.update((currentCards) => {
-							const updatedCards = { ...currentCards };
-							for (const listId in updatedCards) {
-								updatedCards[listId] = updatedCards[listId].filter((card) => card.id !== deletedCardId);
-								console.log(updatedCards[listId].filter((card) => card.id !== deletedCardId));
+							const updatedCards: { [k: string]: any[] } = {};
+
+							for (const listId of Object.keys(currentCards)) {
+								const listCards = currentCards[listId] || [];
+								// normalize card.id to string for comparison
+								updatedCards[listId] = listCards.filter((card) => String(card.id) !== deletedCardId);
 							}
+
 							return updatedCards;
 						});
+
 						break;
+					}
 
 					default:
 						console.log("Unknown payload", payload);
