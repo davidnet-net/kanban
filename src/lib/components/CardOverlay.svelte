@@ -132,6 +132,7 @@ async function deletecard() {
 				position: "bottom-left",
 				autoDismiss: 3000
 			});
+			closeOverlay();
 		} catch {
 			toast({
 				title: "Card deletion failed",
