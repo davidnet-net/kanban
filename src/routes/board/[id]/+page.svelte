@@ -255,6 +255,10 @@
 						});
 						break;
 
+					case "card_delete":
+						const deleted_card_id = String(payload.card_id)
+						break
+						
 					default:
 						console.log("Unknown payload", payload);
 				}
