@@ -120,7 +120,7 @@
 		editing = false;
 	}
 
-async function saveDescription() {
+async function deletecard() {
 		try {
 			await authFetch(kanbanapiurl + "card/delete", { card_id: openedCard.id });
 			toast({
