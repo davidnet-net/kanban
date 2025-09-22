@@ -8,10 +8,11 @@
 	import { get } from "svelte/store";
 	import { marked } from "marked";
 
-	let { closeOverlay, openedCard, correlationID } = $props<{
+	let { closeOverlay, openedCard, correlationID, board_id } = $props<{
 		closeOverlay: () => void;
 		openedCard: Card;
 		correlationID: string;
+		board_id: number;
 	}>();
 
 	let creation_date: string = $state("");
@@ -122,7 +123,7 @@
 
 async function deletecard() {
 		try {
-			await authFetch(kanbanapiurl + "card/delete", { card_id: openedCard.id });
+			await authFetch(kanbanapiurl + "card/delete", { card_id: openedCard.id, board_id: board_id });
 			toast({
 				title: "Card deleted",
 				desc: "",

@@ -838,6 +838,7 @@
 		}}
 		{openedCard}
 		{correlationID}
+		board_id={Number(id)}
 	/>
 {/if}
 
