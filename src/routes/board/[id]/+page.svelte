@@ -257,10 +257,12 @@
 
 					case "card_delete":
 						const deletedCardId = String(payload.card_id);
+						console.log(deletedCardId);
 						cards.update((currentCards) => {
 							const updatedCards = { ...currentCards };
 							for (const listId in updatedCards) {
 								updatedCards[listId] = updatedCards[listId].filter((card) => card.id !== deletedCardId);
+								console.log(updatedCards[listId].filter((card) => card.id !== deletedCardId));
 							}
 							return updatedCards;
 						});
