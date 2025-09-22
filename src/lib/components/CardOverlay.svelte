@@ -120,6 +120,29 @@
 		editing = false;
 	}
 
+async function saveDescription() {
+		try {
+			await authFetch(kanbanapiurl + "card/delete", { card_id: openedCard.id });
+			toast({
+				title: "Card deleted",
+				desc: "",
+				icon: "delete_forever",
+				appearance: "success",
+				position: "bottom-left",
+				autoDismiss: 3000
+			});
+		} catch {
+			toast({
+				title: "Card deletion failed",
+				desc: "Could not delete card.",
+				icon: "crisis_alert",
+				appearance: "danger",
+				position: "top-center",
+				autoDismiss: 3000
+			});
+		}
+	}
+
 	function handleKey(e: KeyboardEvent) {
 		if (e.key === "Enter" && !e.shiftKey) {
 			e.preventDefault();
@@ -137,7 +160,7 @@
 				<h2>{openedCard.name}</h2>
 				<div>
 					<IconButton icon="help" disabled appearance="subtle" onClick={() => {}} alt="About cards." />
-					<IconButton icon="delete_forever" appearance="danger" onClick={() => {}} alt="Delete card." />
+					<IconButton icon="delete_forever" appearance="danger" onClick={deletecard} alt="Delete card." />
 					<IconButton icon="close" appearance="primary" onClick={closeOverlay} alt="Close." />
 				</div>
 			</header>
