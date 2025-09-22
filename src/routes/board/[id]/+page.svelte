@@ -256,9 +256,16 @@
 						break;
 
 					case "card_delete":
-						const deleted_card_id = String(payload.card_id)
-						break
-						
+						const deletedCardId = String(payload.card_id);
+						cards.update((currentCards) => {
+							const updatedCards = { ...currentCards };
+							for (const listId in updatedCards) {
+								updatedCards[listId] = updatedCards[listId].filter((card) => card.id !== deletedCardId);
+							}
+							return updatedCards;
+						});
+						break;
+
 					default:
 						console.log("Unknown payload", payload);
 				}
