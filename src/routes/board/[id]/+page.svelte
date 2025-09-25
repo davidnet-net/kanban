@@ -23,6 +23,7 @@
 	import { goto } from "$app/navigation";
 	import CardOverlay from "$lib/components/CardOverlay.svelte";
 	import BoardAccess from "$lib/components/BoardAccess.svelte";
+	import Calendar from "$lib/components/Calendar.svelte";
 
 	const id = page.params.id;
 	let view: "kanban" | "calendar" = $state("kanban");
@@ -337,6 +338,11 @@
 		}
 	}
 
+	function getIsoDate(year: number, month: number, day: number) {
+		const date = new Date(year, month, day);
+		return date.toISOString().split("T")[0];
+	}
+
 	// --- Add list ---
 	async function confirmNewList() {
 		const name = get(newListName)?.trim();
@@ -553,6 +559,62 @@
 
 	let openedCard: Card | null = $state(null);
 	let BoardAccessOverlayOpen: boolean = $state(false);
+
+	// Calendar
+	const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+	let year: number = new Date().getFullYear();
+	let month: number = new Date().getMonth();
+
+	function isLeapYear(year: number) {
+		return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+	}
+
+	function getDaysInMonth(year: number, monthIndex: number) {
+		const monthLengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+		if (monthIndex === 1 && isLeapYear(year)) return 29;
+		return monthLengths[monthIndex];
+	}
+
+	function buildMonthGrid(year: number, monthIndex: number) {
+		const daysInMonth = getDaysInMonth(year, monthIndex);
+		const firstDay = new Date(year, monthIndex, 1).getDay();
+
+		const weeks: (number | null)[][] = [];
+		let currentWeek: (number | null)[] = new Array(7).fill(null);
+
+		for (let d = 0; d < daysInMonth; d++) {
+			const dayOfWeek = (firstDay + d) % 7;
+			currentWeek[dayOfWeek] = d + 1;
+
+			if (dayOfWeek === 6 || d === daysInMonth - 1) {
+				weeks.push(currentWeek);
+				currentWeek = new Array(7).fill(null);
+			}
+		}
+
+		return weeks;
+	}
+
+	let grid = $state(buildMonthGrid(year, month));
+	const calendarEvents = writable<{ [isoDate: string]: any[] }>({});
+
+	function prevMonth() {
+		if (month === 0) {
+			month = 11;
+			year -= 1;
+		} else month -= 1;
+		grid = buildMonthGrid(year, month);
+	}
+
+	function nextMonth() {
+		if (month === 11) {
+			month = 0;
+			year += 1;
+		} else month += 1;
+		grid = buildMonthGrid(year, month);
+	}
 </script>
 
 {#if loading}
@@ -777,6 +839,7 @@
 		{:else if view === "calendar"}
 			<div class="lists">
 				{#if CalendarListID}
+					<!-- Select which list to display on calendar -->
 					<div class="list">
 						<FlexWrapper width="100%">
 							<Dropdown
@@ -787,25 +850,106 @@
 									: [{ label: "No lists available", value: null }]}
 							/>
 						</FlexWrapper>
-						<div class="cards">
-							<!-- svelte-ignore a11y_no_static_element_interactions -->
+
+						<!-- List cards (DnD enabled to move to calendar) -->
+						<div
+							class="cards"
+							use:dndzone={{
+								items: $cards[CalendarListID] ?? [],
+								type: "card",
+								dropFromOthersDisabled: false,
+								flipDurationMs: 200,
+								dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" }
+							}}
+							onfinalize={(e) => {
+								const isoDate = getIsoDate(year, month, 1);
+								const movedCards = e.detail.items;
+
+								// Update calendar events first
+								calendarEvents.update((evts) => ({
+									...evts,
+									[isoDate]: movedCards
+								}));
+
+								// Delay removal from the original list
+								setTimeout(() => {
+									const movedCardIds = new Set(movedCards.map((c) => c.id));
+									cards.update((c) => ({
+										...c,
+										[String(CalendarListID)]: (c[String(CalendarListID)] ?? []).filter((card) => !movedCardIds.has(card.id))
+									}));
+								}, 0);
+							}}
+						>
 							{#each $cards[CalendarListID] ?? [] as card (card.id)}
-								<!-- svelte-ignore a11y_click_events_have_key_events -->
-								<div class="card">
-									{card.name}
+								<div class="card">{card.name}</div>
+							{/each}
+						</div>
+					</div>
+
+					<!-- Calendar Grid -->
+					<div class="calendar">
+						<FlexWrapper direction="row" width="100%" gap="var(--token-space-3)">
+							<IconButton icon="chevron_backward" onClick={prevMonth} alt="Previous month" />
+							<h2>{MONTHS[month]} {year}</h2>
+							<IconButton icon="chevron_forward" onClick={nextMonth} alt="Next month" />
+						</FlexWrapper>
+
+						<div class="calendar-grid-header">
+							{#each DAYS as day}
+								<div class="cell-header">{day}</div>
+							{/each}
+						</div>
+
+						<div class="calendar-grid-container">
+							{#each grid as week}
+								<div class="calendar-grid">
+									{#each week as day}
+										<div class="cell">
+											{#if day !== null}
+												<div
+													class="cell-content"
+													use:dndzone={{
+														items: $calendarEvents[getIsoDate(year, month, day)] ?? [],
+														type: "card",
+														dropFromOthersDisabled: false,
+														flipDurationMs: 200,
+														dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" }
+													}}
+													onfinalize={(e) => {
+														const isoDate = getIsoDate(year, month, day);
+														const movedCardIds = new Set(e.detail.items.map((c) => c.id));
+
+														// Remove moved cards from main list
+														cards.update((c) => ({
+															...c,
+															[String(CalendarListID)]: (c[String(CalendarListID)] ?? []).filter(
+																(card) => !movedCardIds.has(card.id)
+															)
+														}));
+
+														// Update calendar events
+														calendarEvents.update((evts) => {
+															evts[isoDate] = e.detail.items;
+															return evts;
+														});
+													}}
+												>
+													<div class="cell-date">{day}</div>
+													{#each $calendarEvents[getIsoDate(year, month, day)] ?? [] as card (card.id)}
+														<div class="example-event">{card.name}</div>
+													{/each}
+												</div>
+											{:else}
+												<div class="cell"><div class="cell-content"></div></div>
+											{/if}
+										</div>
+									{/each}
 								</div>
 							{/each}
 						</div>
 					</div>
-				{:else}
-					<p>Please select a list to view its cards.</p>
 				{/if}
-				<div class="list">
-					<FlexWrapper width="100%">
-						<h1>Loading Calendar</h1>
-						<Loader />
-					</FlexWrapper>
-				</div>
 			</div>
 		{:else}
 			<h1>Unhandled view.</h1>
@@ -1019,5 +1163,115 @@
 	}
 	.card-footer {
 		padding-top: var(--token-space-2);
+	}
+
+	.calendar {
+		width: 80%;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		background: var(--token-color-surface-sunken-normal);
+		padding: 1rem;
+		border-radius: 1rem;
+		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+		box-sizing: border-box;
+	}
+
+	h2 {
+		text-align: center;
+		margin-bottom: 1rem;
+		font-weight: 600;
+		color: var(--token-color-text-default);
+	}
+
+	.calendar-grid-header {
+		display: grid;
+		grid-template-columns: repeat(7, 1fr);
+		text-align: center;
+		margin-bottom: 0.5rem;
+	}
+
+	.cell-header {
+		font-weight: 600;
+		padding: 0.5rem 0;
+		border-bottom: 2px solid #ddd;
+		color: var(--token-color-text-default);
+	}
+
+	.calendar-grid-container {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		overflow-y: auto;
+	}
+
+	.calendar-grid {
+		display: grid;
+		grid-template-columns: repeat(7, 1fr);
+		flex: 1;
+		gap: 0.5rem;
+	}
+
+	.cell {
+		display: flex;
+		flex-direction: column;
+		min-height: 100px;
+		background: var(--token-color-surface-raised-normal);
+		border-radius: 0.5rem;
+		padding: 0.5rem;
+		box-sizing: border-box;
+		transition:
+			transform 0.15s ease,
+			box-shadow 0.15s ease;
+		cursor: pointer;
+	}
+
+	.cell:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+	}
+
+	.cell-date {
+		font-weight: 600;
+		margin-bottom: 0.4rem;
+		color: var(--token-color-text-default);
+		display: flex;
+		flex-direction: row;
+		width: 100%;
+		justify-content: center;
+	}
+
+	.cell-content {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.example-event {
+		background: #e3f2fd;
+		color: #0d47a1;
+		padding: 0.25rem 0.5rem;
+		border-radius: 0.3rem;
+		font-size: 0.75rem;
+		text-align: center;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	/* Scrollbar style for better look */
+	.calendar-grid-container::-webkit-scrollbar {
+		width: 8px;
+	}
+
+	.calendar-grid-container::-webkit-scrollbar-thumb {
+		background: rgba(0, 0, 0, 0.2);
+		border-radius: 4px;
+	}
+
+	.calendar-grid-container::-webkit-scrollbar-track {
+		background: transparent;
 	}
 </style>
