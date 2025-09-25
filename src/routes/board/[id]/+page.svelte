@@ -305,6 +305,11 @@
 			return;
 		}
 
+		if (text.length > 100) {
+			showError("Title is too long!");
+			return;
+		}
+
 		const tempId = crypto.randomUUID();
 
 		// Optimistically add card locally at the end
@@ -1127,6 +1132,9 @@
 		min-height: 1vh;
 		padding-bottom: 2rem;
 		padding-top: 1.5rem;
+		max-width: 250px;
+		text-wrap: normal;
+		word-break: break-all;
 	}
 	.card {
 		background-color: var(--token-color-surface-raised-normal);
