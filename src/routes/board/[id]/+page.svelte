@@ -300,7 +300,10 @@
 	async function confirmNewCard(listId: string) {
 		const t = get(newCardText);
 		const text = t[listId]?.trim();
+
+		// Remove input if empty
 		if (!text) {
+			addingCard.update((a) => ({ ...a, [listId]: false }));
 			newCardText.update((t) => ({ ...t, [listId]: "" }));
 			return;
 		}
@@ -312,10 +315,10 @@
 
 		const tempId = crypto.randomUUID();
 
-		// Optimistically add card locally at the end
+		// Optimistically add card locally
 		cards.update((c) => ({
 			...c,
-			[listId]: [...(c[listId] || []), { id: tempId, name: text, isLoading: true }].sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+			[listId]: [...(c[listId] || []), { id: tempId, name: text, isLoading: true }]
 		}));
 
 		addingCard.update((a) => ({ ...a, [listId]: false }));
@@ -330,7 +333,7 @@
 			// Replace the temporary card with the real one
 			cards.update((c) => ({
 				...c,
-				[listId]: c[listId].map((card) => (card.id === tempId ? newCard : card)).sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+				[listId]: c[listId].map((card) => (card.id === tempId ? newCard : card))
 			}));
 		} catch (err) {
 			console.error(err);
