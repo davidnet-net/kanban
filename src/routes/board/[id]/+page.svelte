@@ -572,8 +572,8 @@
 	const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 	const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-	let year: number = new Date().getFullYear();
-	let month: number = new Date().getMonth();
+	let year: number = $state(new Date().getFullYear());
+	let month: number = $state(new Date().getMonth());
 
 	function isLeapYear(year: number) {
 		return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
@@ -605,7 +605,7 @@
 		return weeks;
 	}
 
-	let grid = $state(buildMonthGrid(year, month));
+	let grid = $derived(buildMonthGrid(year, month));
 	const calendarEvents = writable<{ [isoDate: string]: any[] }>({});
 
 	function prevMonth() {
