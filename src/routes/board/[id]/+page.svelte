@@ -870,23 +870,32 @@
 								dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" }
 							}}
 							onfinalize={(e) => {
+								console.log($cards);
+								console.log($cards[CalendarListID ?? 0]);
+
+								// items is already the single moved card
+								const movedCard = e.detail.items.filter((i) => i.id === Number(e.detail.info.id));
+								console.log(movedCard);
+
 								const isoDate = getIsoDate(year, month, 1);
-								const movedCards = e.detail.items;
 
-								// Update calendar events first
-								calendarEvents.update((evts) => ({
-									...evts,
-									[isoDate]: movedCards
-								}));
+								// Update calendar events with the single card
+								calendarEvents.update((evts) => {
+									const currentCards = evts[isoDate] || [];
 
-								// Delay removal from the original list
-								setTimeout(() => {
-									const movedCardIds = new Set(movedCards.map((c) => c.id));
-									cards.update((c) => ({
-										...c,
-										[String(CalendarListID)]: (c[String(CalendarListID)] ?? []).filter((card) => !movedCardIds.has(card.id))
-									}));
-								}, 0);
+									const newCards = [...currentCards];
+
+									movedCard.forEach((card) => {
+										if (!newCards.find((c) => c.id === card.id)) {
+											newCards.push(card); // alleen toevoegen als nog niet aanwezig
+										}
+									});
+
+									return {
+										...evts,
+										[isoDate]: newCards
+									};
+								});
 							}}
 						>
 							{#each $cards[CalendarListID] ?? [] as card (card.id)}
@@ -925,22 +934,7 @@
 														dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" }
 													}}
 													onfinalize={(e) => {
-														const isoDate = getIsoDate(year, month, day);
-														const movedCardIds = new Set(e.detail.items.map((c) => c.id));
 
-														// Remove moved cards from main list
-														cards.update((c) => ({
-															...c,
-															[String(CalendarListID)]: (c[String(CalendarListID)] ?? []).filter(
-																(card) => !movedCardIds.has(card.id)
-															)
-														}));
-
-														// Update calendar events
-														calendarEvents.update((evts) => {
-															evts[isoDate] = e.detail.items;
-															return evts;
-														});
 													}}
 												>
 													<div class="cell-date">{day}</div>
