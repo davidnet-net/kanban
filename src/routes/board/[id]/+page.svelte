@@ -871,33 +871,25 @@
 								dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" }
 							}}
 							onfinalize={(e) => {
-								console.log($cards);
-								console.log($cards[CalendarListID ?? 0]);
-								console.log("CHD: " + currentHoverDate);
+								if (!currentHoverDate) return;
 
-								// items is already the single moved card
-								const movedCard = e.detail.items.filter((i) => i.id === Number(e.detail.info.id));
-								console.log(movedCard);
-
-								const isoDate = getIsoDate(year, month, 1);
-
-								// Update calendar events with the single card
+								const movedCard = e.detail.items[0]; // the moved card
 								calendarEvents.update((evts) => {
-									const currentCards = evts[isoDate] || [];
-
-									const newCards = [...currentCards];
-
-									movedCard.forEach((card) => {
-										if (!newCards.find((c) => c.id === card.id)) {
-											newCards.push(card); // alleen toevoegen als nog niet aanwezig
-										}
-									});
-
+									const currentCards = evts[String(currentHoverDate)] ?? [];
 									return {
 										...evts,
-										[isoDate]: newCards
+										[String(currentHoverDate)]: [...currentCards, movedCard]
 									};
 								});
+
+								// Optional: remove from source list if needed
+								const sourceListId = e.detail.items[0].listId;
+								if (sourceListId) {
+									cards.update((c) => ({
+										...c,
+										[sourceListId]: c[sourceListId].filter((card) => card.id !== movedCard.id)
+									}));
+								}
 							}}
 						>
 							{#each $cards[CalendarListID] ?? [] as card (card.id)}
@@ -930,9 +922,9 @@
 												<div
 													class="cell-content"
 													data-iso={getIsoDate(year, month, day)}
-													onmouseenter={() => currentHoverDate = getIsoDate(year, month, day)}
+													onmouseenter={() => (currentHoverDate = getIsoDate(year, month, day))}
 													use:dndzone={{
-															items: $calendarEvents[getIsoDate(year, month, day)] ?? [],
+														items: $calendarEvents[getIsoDate(year, month, day)] ?? [],
 														type: "card",
 														dropFromOthersDisabled: false,
 														flipDurationMs: 200,
