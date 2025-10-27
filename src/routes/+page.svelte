@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { kanbanapiurl } from "$lib/config";
 	import { authFetch, getSessionInfo } from "$lib/session";
-	import { FlexWrapper, Icon, LinkButton, Loader, Space, toast } from "@davidnet/svelte-ui";
+	import { FlexWrapper, Icon, LinkButton, LinkIconButton, Loader, Space, toast } from "@davidnet/svelte-ui";
 	import type { Board, SessionInfo } from "$lib/types";
 	import { onMount } from "svelte";
 	import { wait } from "$lib/utils/time";
@@ -75,6 +75,7 @@
 			<div class="section">
 				<LinkButton appearance="primary" href="/board/create">Create Board</LinkButton>
 				<LinkButton appearance="subtle" href="/invites">Invites</LinkButton>
+				<LinkIconButton icon="source_notes" appearance="subtle" href="https://github.com/davidnet-net/kanban/commits/main/" alt="Update history" />
 			</div>
 
 			<div class="section">
