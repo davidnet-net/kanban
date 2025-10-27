@@ -607,6 +607,7 @@
 
 	let grid = $derived(buildMonthGrid(year, month));
 	const calendarEvents = writable<{ [isoDate: string]: any[] }>({});
+	let currentHoverDate: string | null = null;
 
 	function prevMonth() {
 		if (month === 0) {
@@ -872,6 +873,7 @@
 							onfinalize={(e) => {
 								console.log($cards);
 								console.log($cards[CalendarListID ?? 0]);
+								console.log("CHD: " + currentHoverDate);
 
 								// items is already the single moved card
 								const movedCard = e.detail.items.filter((i) => i.id === Number(e.detail.info.id));
@@ -924,17 +926,17 @@
 									{#each week as day}
 										<div class="cell">
 											{#if day !== null}
+												<!-- svelte-ignore a11y_no_static_element_interactions -->
 												<div
 													class="cell-content"
+													data-iso={getIsoDate(year, month, day)}
+													onmouseenter={() => currentHoverDate = getIsoDate(year, month, day)}
 													use:dndzone={{
-														items: $calendarEvents[getIsoDate(year, month, day)] ?? [],
+															items: $calendarEvents[getIsoDate(year, month, day)] ?? [],
 														type: "card",
 														dropFromOthersDisabled: false,
 														flipDurationMs: 200,
 														dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" }
-													}}
-													onfinalize={(e) => {
-
 													}}
 												>
 													<div class="cell-date">{day}</div>
