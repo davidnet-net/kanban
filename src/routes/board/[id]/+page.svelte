@@ -901,10 +901,14 @@
 					<!-- Calendar Grid -->
 					<div class="calendar">
 						<FlexWrapper direction="row" width="100%" gap="var(--token-space-3)">
-							<IconButton icon="chevron_backward" onClick={prevMonth} alt="Previous month" />
-							<h2>{MONTHS[month]} {year}</h2>
-							<IconButton icon="chevron_forward" onClick={nextMonth} alt="Next month" />
+							<FlexWrapper direction="row" width="100%" gap="var(--token-space-3)">
+								<IconButton icon="chevron_backward" onClick={prevMonth} alt="Previous month" />
+								<h2>{MONTHS[month]} {year}</h2>
+								<IconButton icon="chevron_forward" onClick={nextMonth} alt="Next month" />
+							</FlexWrapper>
+							<Button onClick={() => { const today = new Date(); year = today.getFullYear(); month = today.getMonth(); grid = buildMonthGrid(year, month)}} appearance="subtle">Today</Button>
 						</FlexWrapper>
+						
 
 						<div class="calendar-grid-header">
 							{#each DAYS as day}
