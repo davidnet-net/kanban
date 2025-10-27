@@ -873,7 +873,9 @@
 							onfinalize={(e) => {
 								if (!currentHoverDate) return;
 
-								const movedCard = e.detail.items[0]; // the moved card
+								const movedCard = e.detail.items[0];
+								console.log(e.detail.info.id);
+
 								calendarEvents.update((evts) => {
 									const currentCards = evts[String(currentHoverDate)] ?? [];
 									return {
@@ -882,8 +884,7 @@
 									};
 								});
 
-								// Optional: remove from source list if needed
-								const sourceListId = e.detail.items[0].listId;
+								const sourceListId = movedCard.listId;
 								if (sourceListId) {
 									cards.update((c) => ({
 										...c,
@@ -906,9 +907,16 @@
 								<h2>{MONTHS[month]} {year}</h2>
 								<IconButton icon="chevron_forward" onClick={nextMonth} alt="Next month" />
 							</FlexWrapper>
-							<Button onClick={() => { const today = new Date(); year = today.getFullYear(); month = today.getMonth(); grid = buildMonthGrid(year, month)}} appearance="subtle">Today</Button>
+							<Button
+								onClick={() => {
+									const today = new Date();
+									year = today.getFullYear();
+									month = today.getMonth();
+									grid = buildMonthGrid(year, month);
+								}}
+								appearance="subtle">Today</Button
+							>
 						</FlexWrapper>
-						
 
 						<div class="calendar-grid-header">
 							{#each DAYS as day}
