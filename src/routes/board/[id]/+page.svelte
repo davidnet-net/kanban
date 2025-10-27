@@ -23,11 +23,9 @@
 	import { goto } from "$app/navigation";
 	import CardOverlay from "$lib/components/CardOverlay.svelte";
 	import BoardAccess from "$lib/components/BoardAccess.svelte";
-	import Calendar from "$lib/components/Calendar.svelte";
 
 	const id = page.params.id;
 	let view: "kanban" | "calendar" = $state("kanban");
-	let eventSource: EventSource | null = null;
 
 	let loading = $state(true);
 
