@@ -68,6 +68,7 @@
 			recent_boards = [];
 			toast({
 				title: "Recent boards cleared",
+				icon: "auto_delete",
 				appearance: "success",
 				position: "top-center",
 				autoDismiss: 3000
