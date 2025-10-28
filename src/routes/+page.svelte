@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { kanbanapiurl } from "$lib/config";
 	import { authFetch, getSessionInfo } from "$lib/session";
-	import { FlexWrapper, Icon, LinkButton, LinkIconButton, Loader, Space, toast } from "@davidnet/svelte-ui";
+	import { FlexWrapper, Icon, IconButton, LinkButton, LinkIconButton, Loader, Modal, Space, toast } from "@davidnet/svelte-ui";
 	import type { Board, SessionInfo } from "$lib/types";
 	import { onMount } from "svelte";
 	import { wait } from "$lib/utils/time";
@@ -56,6 +56,27 @@
 			showError(String(e));
 		}
 	});
+
+	let showClearResetBoardsModal = $state(false);
+	async function clearrecentboards() {
+		showClearResetBoardsModal = false;
+
+		try {
+			const res = await authFetch(`${kanbanapiurl}boards/clear_recent`, correlationID, { method: "POST" });
+			if (!res.ok) throw new Error(`Server responded with ${res.status}`);
+
+			recent_boards = [];
+			toast({
+				title: "Recent boards cleared",
+				appearance: "success",
+				position: "top-center",
+				autoDismiss: 3000
+			});
+		} catch (e) {
+			console.warn(e);
+			showError(String(e));
+		}
+	}
 </script>
 
 {#if loading}
@@ -76,6 +97,7 @@
 				<LinkButton appearance="primary" href="/board/create">Create Board</LinkButton>
 				<LinkButton appearance="subtle" href="/invites">Invites</LinkButton>
 				<LinkIconButton icon="source_notes" appearance="subtle" href="https://github.com/davidnet-net/kanban/commits/main/" alt="Update history" />
+				<IconButton icon="auto_delete" appearance="subtle" alt="Delete recent boards" onClick={()=>{showClearResetBoardsModal = true}}/>
 			</div>
 
 			<div class="section">
@@ -161,6 +183,25 @@
 		{/if}
 	</FlexWrapper>
 {/if}
+
+{#if showClearResetBoardsModal}
+	<Modal
+		title="Clear recent boards list?"
+		titleIcon="auto_delete"
+		desc="This cannot be undone?"
+		hasCloseBtn
+		on:close={() => (showClearResetBoardsModal = false)}
+		options={[
+			{
+				appearance: "subtle",
+				content: "Cancel",
+				onClick: () => (showClearResetBoardsModal = false)
+			},
+			{ appearance: "danger", content: "Clear recent boards", onClick: clearrecentboards }
+		]}
+	/>
+{/if}
+
 
 <style>
 	/* Sections */
