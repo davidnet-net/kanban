@@ -299,7 +299,6 @@
 	}
 </script>
 
-
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <!-- Overlay -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -325,7 +324,11 @@
 								{#each pendingInvites as invite}
 									<div class="member">
 										<FlexWrapper direction="row" gap="var(--token-space-3);">
-											<img src={invite.avatar_url || "https://account.davidnet.net/placeholder.png"} alt="profile" />
+											<img
+												crossorigin="anonymous"
+												src={invite.avatar_url || "https://account.davidnet.net/placeholder.png"}
+												alt="profile"
+											/>
 											<a href={`https://account.davidnet.net/profile/${invite.invitee_user_id}`}>
 												{invite.display_name}
 												<span class="secondary">@{invite.username}</span>
@@ -348,7 +351,7 @@
 							<h4>Members</h4>
 							<div class="member">
 								<FlexWrapper direction="row" gap="var(--token-space-3);">
-									<img src={owner?.profile.avatar_url} alt="profile" />
+									<img crossorigin="anonymous" src={owner?.profile.avatar_url} alt="profile" />
 									<a href={`https://account.davidnet.net/profile/${boardOwner}`}>
 										{owner?.profile.display_name}
 										<span class="secondary">@{owner?.profile.username}</span>
