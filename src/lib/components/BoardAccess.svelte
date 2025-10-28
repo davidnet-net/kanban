@@ -363,7 +363,11 @@
 							{#each members as member (member.user_id)}
 								<div class="member">
 									<FlexWrapper direction="row" gap="var(--token-space-3);">
-										<img src={member.avatar_url || "https://account.davidnet.net/placeholder.png"} alt="profile" />
+										<img
+											crossorigin="anonymous"
+											src={member.avatar_url || "https://account.davidnet.net/placeholder.png"}
+											alt="profile"
+										/>
 										<a href={`https://account.davidnet.net/profile/${member.user_id}`}>
 											{member.display_name || "Unknown"}
 											<span class="secondary">@{member.username || "unknown"}</span>
