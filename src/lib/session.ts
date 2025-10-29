@@ -96,7 +96,7 @@ export async function getSessionInfo(correlationID: string, refresh?: boolean): 
     let token = get(accessToken);
 
     if (!token && refresh) {
-        const refreshed = await refreshAccessToken(correlationID);
+        const refreshed = await refreshAccessToken(correlationID, false, true);
         if (!refreshed) return null;
         token = get(accessToken);
         if (!token) return null;
