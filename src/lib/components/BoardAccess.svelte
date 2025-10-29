@@ -1,9 +1,20 @@
 <script lang="ts">
 	import { authapiurl, kanbanapiurl } from "$lib/config";
-	import { accessToken, refreshAccessToken, authFetch as sesauthfetch } from "$lib/session";
 	import type { ProfileResponse } from "$lib/types";
-	import { formatDate_PREFERREDTIME } from "$lib/utils/time";
-	import { Button, Dropdown, FlexWrapper, Icon, IconButton, Loader, Space, TextField, toast, Modal } from "@davidnet/svelte-ui";
+	import {
+		Button,
+		Dropdown,
+		FlexWrapper,
+		Icon,
+		IconButton,
+		Loader,
+		Space,
+		TextField,
+		toast,
+		Modal,
+		accessToken,
+		authFetch as sesauthfetch
+	} from "@davidnet/svelte-ui";
 	import { onMount } from "svelte";
 	import { get } from "svelte/store";
 
@@ -15,6 +26,7 @@
 	}>();
 
 	const token = String(get(accessToken));
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	async function authFetch(url: string, body: any) {
 		const res = await fetch(url, {
 			method: "POST",
@@ -30,16 +42,19 @@
 	}
 
 	let loaded = $state(false);
+	/* eslint-disable @typescript-eslint/no-explicit-any */
 	let owner: ProfileResponse | null = $state(null);
 	let connections: Array<any> = $state([]);
 	let members: Array<any> = $state([]);
 	let pendingInvites: Array<any> = $state([]);
+	/* eslint-enable @typescript-eslint/no-explicit-any */
 
 	let newidentfier: string | undefined = $state(undefined);
 	let newidentfierconnection: string | undefined = $state(undefined);
 	let viewinvites: boolean = $state(false);
 
 	let showRemoveMemberModal = $state(false);
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let memberToRemove: any = $state(null);
 
 	async function fetchProfile(id: number | undefined) {
@@ -47,7 +62,7 @@
 			console.warn("fetchProfile received invalid id:", id);
 			throw new Error("Invalid user ID");
 		}
-		let created_on: string;
+
 		const token = get(accessToken);
 		try {
 			const res = await fetch(`${authapiurl}profile/${id}`, {
@@ -66,7 +81,6 @@
 
 			const data = await res.json();
 			console.log(data);
-			created_on = await formatDate_PREFERREDTIME(data.created_on, correlationID);
 			return data;
 		} catch (err) {
 			console.error("fetchProfile error:", err);
@@ -88,6 +102,7 @@
 			console.log(result);
 
 			const enriched = await Promise.all(
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				(result || []).map(async (member: any) => {
 					const userId = typeof member === "number" ? member : member.user_id;
 					try {
@@ -128,6 +143,7 @@
 			const invites = await authFetch(`${kanbanapiurl}invite/board`, { board_id: boardId });
 
 			const enriched = await Promise.all(
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				(invites || []).map(async (invite: any) => {
 					const userId = typeof invite === "number" ? invite : invite.invitee_user_id;
 					try {
@@ -321,7 +337,7 @@
 							{#if pendingInvites.length === 0}
 								<p style="color: var(--token-color-text-default-secondary);">No pending invites.</p>
 							{:else}
-								{#each pendingInvites as invite}
+								{#each pendingInvites as invite (invite.invite_id)}
 									<div class="member">
 										<FlexWrapper direction="row" gap="var(--token-space-3);">
 											<img

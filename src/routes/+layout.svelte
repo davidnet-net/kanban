@@ -7,13 +7,14 @@
 		FlexWrapper,
 		Avatar,
 		Loader,
-		IconButton,
-		LinkIconButton
+		LinkIconButton,
+		getSessionInfo,
+		isAuthenticated,
+		refreshAccessToken
 	} from "@davidnet/svelte-ui";
 	import favicon from "$lib/assets/favicon.svg";
 	import { onMount } from "svelte";
 	import type { SessionInfo } from "$lib/types";
-	import { getSessionInfo, isAuthenticated, refreshAccessToken } from "$lib/session";
 	import { page } from "$app/state";
 
 	let { children } = $props();
@@ -39,7 +40,6 @@
 
 			const pathname = page.url.pathname;
 
-			
 			// Match only /board/<numeric-id>
 			const boardRegex = /^\/board\/\d+$/;
 			if (boardRegex.test(pathname)) {
@@ -58,9 +58,18 @@
 			}
 
 			authed = true;
-			setInterval(()=>{refreshAccessToken(correlationID, true, false)}, 12 * 60 * 1000);
+			setInterval(
+				() => {
+					refreshAccessToken(correlationID, true, false);
+				},
+				12 * 60 * 1000
+			);
 		} catch (e) {
 			console.error("Session error:", e);
+		}
+
+		if (!authed) {
+			window.location.href = "https://account.davidnet.net/login?redirect=" + encodeURIComponent(page.url.toString());
 		}
 	});
 </script>
@@ -81,7 +90,7 @@
 		<div class="nav-center">Davidnet</div>
 		<div class="nav-right">
 			<ThemeMenu />
-			<Avatar id={String(si?.userId)} owner name={si?.display_name} presence="online" src={si?.profilePicture}/>
+			<Avatar id={String(si?.userId)} owner name={si?.display_name} presence="online" src={si?.profilePicture} />
 		</div>
 	</nav>
 {/if}

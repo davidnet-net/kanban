@@ -2,8 +2,7 @@
 	import { onMount } from "svelte";
 	import { get } from "svelte/store";
 	import { authapiurl, kanbanapiurl } from "$lib/config";
-	import { accessToken, refreshAccessToken, authFetch as sesauthfetch } from "$lib/session";
-	import { FlexWrapper, Button, Loader, toast, Space } from "@davidnet/svelte-ui";
+	import { FlexWrapper, Button, Loader, toast, Space, accessToken, refreshAccessToken, authFetch as sesauthfetch } from "@davidnet/svelte-ui";
 	import type { ProfileResponse, UserProfile } from "$lib/types";
 
 	interface Invite {

@@ -2,8 +2,7 @@
 	import { goto } from "$app/navigation";
 	import { page } from "$app/state";
 	import { kanbanapiurl } from "$lib/config";
-	import { authFetch } from "$lib/session";
-	import { Button, Dropdown, FlexWrapper, Space, TextField, toast } from "@davidnet/svelte-ui";
+	import { Button, Dropdown, FlexWrapper, Space, TextField, toast, authFetch } from "@davidnet/svelte-ui";
 	import { onMount } from "svelte";
 
 	let boardId = Number(page.params.id);
@@ -112,8 +111,8 @@
 </script>
 
 <div class="background">
-	<h2 style="text-align: center; margin: 0.5rem;">Edit board: <br> {initialName}.</h2>
-    <h4 style="text-align: center; margin: 0px; color: var(--token-color-text-default-secondary);">These are your current settings.</h4>
+	<h2 style="text-align: center; margin: 0.5rem;">Edit board: <br /> {initialName}.</h2>
+	<h4 style="text-align: center; margin: 0px; color: var(--token-color-text-default-secondary);">These are your current settings.</h4>
 	<Space height="var(--token-space-4)" />
 	<TextField
 		label="Name:"

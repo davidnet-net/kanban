@@ -4,7 +4,6 @@
 	import { page } from "$app/state";
 	import { writable, get } from "svelte/store";
 	import { kanbanapiurl } from "$lib/config";
-	import { accessToken, getSessionInfo, isAuthenticated, refreshAccessToken } from "$lib/session";
 	import {
 		Button,
 		Dropdown,
@@ -17,7 +16,11 @@
 		Modal,
 		Space,
 		SplitButton,
-		toast
+		toast,
+		accessToken,
+		getSessionInfo,
+		isAuthenticated,
+		refreshAccessToken
 	} from "@davidnet/svelte-ui";
 	import type { Card, SessionInfo, BoardMeta } from "$lib/types";
 	import { goto } from "$app/navigation";
@@ -30,8 +33,10 @@
 	let loading = $state(true);
 
 	const boardMeta = writable<BoardMeta | null>(null);
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	type List = { id: string; name: string; [key: string]: any };
 	const lists = writable<List[]>([]);
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const cards = writable<{ [listId: string]: any[] }>({});
 	let board_favorited = writable(false);
 	let common_error: string | null = $state(null);
@@ -73,6 +78,7 @@
 		});
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	async function authFetch(url: string, body: any) {
 		const res = await fetch(url, {
 			method: "POST",
@@ -146,6 +152,7 @@
 	async function fetchCardsForAllLists() {
 		const allLists = get(lists);
 		await Promise.all(
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			allLists.map(async (list: any) => {
 				try {
 					const res = await fetch(`${kanbanapiurl}list/cards`, {
@@ -160,6 +167,7 @@
 					if (!res.ok) throw new Error(`HTTP ${res.status}`);
 					const data = await res.json();
 					// Sort cards by position
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					data.sort((a: any, b: any) => (a.position ?? 0) - (b.position ?? 0));
 					cards.update((c) => ({ ...c, [list.id]: data }));
 				} catch (e) {
@@ -244,6 +252,7 @@
 
 							// Step 1: Remove updated/moved cards from any list
 							for (const listId in newState) {
+								// eslint-disable-next-line @typescript-eslint/no-explicit-any
 								newState[listId] = newState[listId].filter((card) => !payload.cards.some((updated: any) => updated.id === card.id));
 							}
 

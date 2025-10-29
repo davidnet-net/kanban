@@ -1,9 +1,7 @@
 <script lang="ts">
 	import { authapiurl, kanbanapiurl } from "$lib/config";
-	import { accessToken } from "$lib/session";
 	import type { Card, ProfileResponse } from "$lib/types";
-	import { formatDate_PREFERREDTIME } from "$lib/utils/time";
-	import { Button, FlexWrapper, IconButton, Loader, Space, TextField, toast } from "@davidnet/svelte-ui";
+	import { Button, FlexWrapper, IconButton, Loader, TextField, toast, accessToken, formatDate_PREFERREDTIME } from "@davidnet/svelte-ui";
 	import { onMount } from "svelte";
 	import { get } from "svelte/store";
 	import { marked } from "marked";
@@ -37,6 +35,7 @@
 	});
 
 	const token = String(get(accessToken));
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	async function authFetch(url: string, body: any) {
 		const res = await fetch(url, {
 			method: "POST",
@@ -52,7 +51,6 @@
 	}
 
 	async function fetchProfile(id: number) {
-		let created_on: string;
 		const token = get(accessToken);
 		try {
 			const res = await fetch(`${authapiurl}profile/${id}`, {
@@ -78,7 +76,6 @@
 
 			const data = await res.json();
 			console.log(data);
-			created_on = await formatDate_PREFERREDTIME(data.profile.created_at, correlationID);
 			return data;
 		} catch (err) {
 			console.error("fetchProfile error:", err);
@@ -121,7 +118,7 @@
 		editing = false;
 	}
 
-async function deletecard() {
+	async function deletecard() {
 		try {
 			await authFetch(kanbanapiurl + "card/delete", { card_id: openedCard.id, board_id: board_id });
 			toast({
@@ -207,6 +204,7 @@ async function deletecard() {
 							</div>
 						{:else}
 							<div class="description-preview" onclick={() => (editing = true)}>
+								<!-- eslint-disable-line svelte/no-at-html-tags -->
 								{@html marked(description || "_Add a more detailed description..._")}
 							</div>
 						{/if}

@@ -1,7 +1,7 @@
 services:
-  sveltekit:
-    build: .
-    container_name: kanban-frontend
-    ports:
-      - "2001:3000"
-    restart: unless-stopped
+    sveltekit:
+        build: .
+        container_name: kanban-frontend
+        ports:
+            - "2001:3000"
+        restart: unless-stopped

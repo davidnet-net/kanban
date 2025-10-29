@@ -1,10 +1,21 @@
 <script lang="ts">
 	import { kanbanapiurl } from "$lib/config";
-	import { authFetch, getSessionInfo } from "$lib/session";
-	import { FlexWrapper, Icon, IconButton, LinkButton, LinkIconButton, Loader, Modal, Space, toast } from "@davidnet/svelte-ui";
+	import {
+		FlexWrapper,
+		Icon,
+		IconButton,
+		LinkButton,
+		LinkIconButton,
+		Loader,
+		Modal,
+		Space,
+		toast,
+		wait,
+		authFetch,
+		getSessionInfo
+	} from "@davidnet/svelte-ui";
 	import type { Board, SessionInfo } from "$lib/types";
 	import { onMount } from "svelte";
-	import { wait } from "$lib/utils/time";
 
 	let loading = $state(true);
 	let correlationID = crypto.randomUUID();
@@ -97,15 +108,27 @@
 			<div class="section">
 				<LinkButton appearance="primary" href="/board/create">Create Board</LinkButton>
 				<LinkButton appearance="subtle" href="/invites">Invites</LinkButton>
-				<LinkIconButton icon="source_notes" appearance="subtle" href="https://github.com/davidnet-net/kanban/commits/main/" alt="Update history" />
-				<IconButton icon="auto_delete" appearance="subtle" alt="Delete recent boards" onClick={()=>{showClearResetBoardsModal = true}}/>
+				<LinkIconButton
+					icon="source_notes"
+					appearance="subtle"
+					href="https://github.com/davidnet-net/kanban/commits/main/"
+					alt="Update history"
+				/>
+				<IconButton
+					icon="auto_delete"
+					appearance="subtle"
+					alt="Delete recent boards"
+					onClick={() => {
+						showClearResetBoardsModal = true;
+					}}
+				/>
 			</div>
 
 			<div class="section">
 				<h2 class="section-title">Recent boards:</h2>
 				{#if recent_boards.length > 0}
 					<div class="boards-grid">
-						{#each recent_boards as board}
+						{#each recent_boards as board (board.id)}
 							<a href={"/board/" + board.id} class="board-link">
 								<div class="board-card">
 									<img src={board.background_url} alt="Board background" aria-hidden="true" />
@@ -125,7 +148,7 @@
 				<h2 class="section-title">Favorite boards:</h2>
 				{#if favorite_boards.length > 0}
 					<div class="boards-grid">
-						{#each favorite_boards as board}
+						{#each favorite_boards as board (board.id)}
 							<a href={"/board/" + board.id} class="board-link">
 								<div class="board-card">
 									<img src={board.background_url} alt="Board background" aria-hidden="true" />
@@ -145,7 +168,7 @@
 				<h2 class="section-title">Your boards:</h2>
 				{#if boards.length > 0}
 					<div class="boards-grid">
-						{#each boards as board}
+						{#each boards as board (board.id)}
 							<a href={"/board/" + board.id} class="board-link">
 								<div class="board-card">
 									<img src={board.background_url} alt="Board background" aria-hidden="true" />
@@ -166,7 +189,7 @@
 				<h2 class="section-title">Boards shared with you:</h2>
 				{#if shared_boards.length > 0}
 					<div class="boards-grid">
-						{#each shared_boards as board}
+						{#each shared_boards as board (board.id)}
 							<a href={"/board/" + board.id} class="board-link">
 								<div class="board-card">
 									<img src={board.background_url} alt="Board background" aria-hidden="true" />
@@ -202,7 +225,6 @@
 		]}
 	/>
 {/if}
-
 
 <style>
 	/* Sections */

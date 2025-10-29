@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import { kanbanapiurl } from "$lib/config";
-	import { authFetch } from "$lib/session";
-	import { Button, Dropdown, FlexWrapper, Space, TextField, toast } from "@davidnet/svelte-ui";
+	import { Button, Dropdown, FlexWrapper, Space, TextField, toast, authFetch } from "@davidnet/svelte-ui";
 	let boardname: string = "";
 	let visibility = "private";
 
@@ -17,14 +16,15 @@
 	let busy = false;
 
 	async function createboard() {
-        boardname_invalid = !boardname || boardname.trim().length === 0 || boardname.length > 20 || /[^a-zA-Z0-9 ]/.test(boardname);
+		boardname_invalid = !boardname || boardname.trim().length === 0 || boardname.length > 20 || /[^a-zA-Z0-9 ]/.test(boardname);
 		busy = true;
 
-        if (boardname_invalid) {
+		if (boardname_invalid) {
 			busy = false;
-            return;
-        }visibility
-        boardname_invalid = false;
+			return;
+		}
+		visibility;
+		boardname_invalid = false;
 
 		try {
 			const res = await authFetch(`${kanbanapiurl}board/create`, correlationID, {
@@ -35,7 +35,8 @@
 				body: JSON.stringify({
 					name: boardname,
 					is_public: visibility === "public",
-					background_url: "https://trello-backgrounds.s3.amazonaws.com/SharedBackground/480x320/90a5611273ca04096a9b9145d68847c0/photo-1742845918430-c6093f93f740.webp" //TODO
+					background_url:
+						"https://trello-backgrounds.s3.amazonaws.com/SharedBackground/480x320/90a5611273ca04096a9b9145d68847c0/photo-1742845918430-c6093f93f740.webp" //TODO
 				})
 			});
 
@@ -85,7 +86,7 @@
 		label="Name of the new board."
 		type="text"
 		placeholder="Enter new board name"
-        bind:value={boardname}
+		bind:value={boardname}
 		invalid={boardname_invalid}
 		invalidMessage="Name should be max 20 characters. And may not contain special characters."
 	/>
