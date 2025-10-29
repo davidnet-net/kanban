@@ -232,7 +232,7 @@
 				<div class="activity-container">
 					<h3>Activity & Comments</h3>
 					<div class="activity">
-						<img src="https://account.davidnet.net/placeholder.png" aria-hidden="true" alt="" />
+						<img crossorigin="anonymous" src="https://account.davidnet.net/placeholder.png" aria-hidden="true" alt="" />
 						<a href="https://account.davidnet.net/profile/{openedCard.owner}">{owner!.profile.display_name}</a>Created card on<br
 						/>{creation_date}
 					</div>
