@@ -70,7 +70,7 @@
 				title: "Recent boards cleared",
 				icon: "auto_delete",
 				appearance: "success",
-				position: "top-center",
+				position: "bottom-left",
 				autoDismiss: 3000
 			});
 		} catch (e) {
