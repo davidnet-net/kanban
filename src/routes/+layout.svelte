@@ -12,10 +12,11 @@
 		isAuthenticated,
 		refreshAccessToken
 	} from "@davidnet/svelte-ui";
-	import favicon from "$lib/assets/favicon.svg";
 	import { onMount } from "svelte";
 	import type { SessionInfo } from "$lib/types";
 	import { page } from "$app/state";
+	import "$lib/i18n/i18n";
+	import { isLocaleLoaded } from "$lib/i18n/i18n";
 
 	let { children } = $props();
 
@@ -33,6 +34,9 @@
 	}
 
 	onMount(async () => {
+		while (!isLocaleLoaded) {
+			await new Promise((r) => setTimeout(r, 50)); // Load translations.
+		}
 		const initloader = document.getElementById("initloader");
 		if (initloader) initloader.remove();
 		try {

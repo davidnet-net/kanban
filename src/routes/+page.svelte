@@ -17,6 +17,8 @@
 	import type { Board, SessionInfo } from "$lib/types";
 	import { onMount } from "svelte";
 
+	import {_} from 'svelte-i18n';
+	
 	let loading = $state(true);
 	let correlationID = crypto.randomUUID();
 	let si: SessionInfo | null = $state(null);
@@ -93,7 +95,7 @@
 
 {#if loading}
 	<Loader />
-	<p>Getting your Kanban boards, {si?.display_name}.</p>
+	<p>{$_('kanban.loading', { values: { display_name: si?.display_name}})}</p>
 {:else}
 	<FlexWrapper justifycontent="flex-start" alignitems="flex-start" direction="column" gap="var(--token-space-2)" width="100%" height="100%">
 		{#if zeroboards}

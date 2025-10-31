@@ -11,7 +11,8 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"fmt": "prettier --write .",
-		"lint": "prettier --check . && eslint ."
+		"lint": "prettier --check . && eslint .",
+		"extract": "svelte-i18n extract \"src/**/*.svelte\" src/lib/i18n/lang/en.json"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
@@ -34,6 +35,7 @@
 	"dependencies": {
 		"@davidnet/svelte-ui": "^1.13.6",
 		"marked": "^16.2.1",
-		"svelte-dnd-action": "^0.9.65"
+		"svelte-dnd-action": "^0.9.65",
+		"svelte-i18n": "^4.0.1"
 	}
 }
