@@ -17,63 +17,66 @@
 	import { page } from "$app/state";
 	import "$lib/i18n/i18n";
 	import { isLocaleLoaded } from "$lib/i18n/i18n";
+	import { get } from "svelte/store";
 
 	let { children } = $props();
 
 	let correlationID = crypto.randomUUID();
-	let authed = $state(false);
+	let authed = false;
 	let si: SessionInfo | null = $state(null);
-
 	let fontsLoaded = $state(false);
 
-	// This will run only in the browser
+	// Load fonts in browser
 	if (typeof window !== "undefined") {
-		document.fonts.ready.then(() => {
-			fontsLoaded = true;
-		});
+		document.fonts.ready.then(() => (fontsLoaded = true));
 	}
 
 	onMount(async () => {
-		while (!isLocaleLoaded) {
-			await new Promise((r) => setTimeout(r, 50)); // Load translations.
+		// Wait for locale to load
+		while (!get(isLocaleLoaded)) {
+			await new Promise((r) => setTimeout(r, 50));
 		}
+
 		const initloader = document.getElementById("initloader");
 		if (initloader) initloader.remove();
+
 		try {
 			si = await getSessionInfo(correlationID, true);
 
 			const pathname = page.url.pathname;
-
-			// Match only /board/<numeric-id>
 			const boardRegex = /^\/board\/\d+$/;
 			if (boardRegex.test(pathname)) {
-				authed = true; // Due public boards
+				authed = true; // Public boards
 				return;
 			}
 
 			if (!(await isAuthenticated(correlationID)) || !si) {
-				window.location.href = "https://account.davidnet.net/login?redirect=" + encodeURIComponent(page.url.toString());
+				window.location.href =
+					"https://account.davidnet.net/login?redirect=" +
+					encodeURIComponent(page.url.toString());
 				return;
 			}
 
 			if (!si || si.email_verified === 0) {
-				window.location.href = "https://account.davidnet.net/verify/email/check/" + si?.email;
+				window.location.href =
+					"https://account.davidnet.net/verify/email/check/" +
+					si?.email;
 				return;
 			}
 
 			authed = true;
-			setInterval(
-				() => {
-					refreshAccessToken(correlationID, true, false);
-				},
-				12 * 60 * 1000
-			);
+
+			setInterval(() => {
+				refreshAccessToken(correlationID, true, false);
+			}, 12 * 60 * 1000);
 		} catch (e) {
 			console.error("Session error:", e);
 		}
 
 		if (!authed) {
-			window.location.href = "https://account.davidnet.net/login?redirect=" + encodeURIComponent(page.url.toString());
+			window.location.href =
+				"https://account.davidnet.net/login?redirect=" +
+				encodeURIComponent(page.url.toString());
 		}
 	});
 </script>
@@ -85,18 +88,36 @@
 {#if fontsLoaded}
 	<nav id="main-nav">
 		<div class="nav-left">
-			<LinkIconButton icon="apps" alt="Davidnet Home" href="https://home.davidnet.net" appearance="subtle" /><a href="/">Kanban</a>
+			<LinkIconButton
+				icon="apps"
+				alt="Davidnet Home"
+				href="https://home.davidnet.net"
+				appearance="subtle"
+			/>
+			<a href="/">Kanban</a>
 		</div>
 		<div class="nav-center">Davidnet</div>
 		<div class="nav-right">
 			<ThemeMenu />
-			<Avatar id={String(si?.userId)} owner name={si?.display_name} presence="online" src={si?.profilePicture} />
+			<Avatar
+				id={String(si?.userId)}
+				owner
+				name={si?.display_name}
+				presence="online"
+				src={si?.profilePicture}
+			/>
 		</div>
 	</nav>
 {/if}
 
-<FlexWrapper direction="column" height="calc(100vh - 48px);" width="100%;" justifycontent="center" alignitems="center">
-	{#if fontsLoaded && isLocaleLoaded}
+<FlexWrapper
+	direction="column"
+	height="calc(100vh - 48px);"
+	width="100%;"
+	justifycontent="center"
+	alignitems="center"
+>
+	{#if fontsLoaded && $isLocaleLoaded}
 		{@render children?.()}
 	{:else}
 		<Loader />
