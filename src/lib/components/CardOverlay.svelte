@@ -235,7 +235,7 @@
 					<div class="activity">
 						<img crossorigin="anonymous" src="https://account.davidnet.net/placeholder.png" aria-hidden="true" alt="" />
 						<a href="https://account.davidnet.net/profile/{openedCard.owner}">{owner!.profile.display_name}</a>
-						{$_('kanban.components.cardoverlay.text.created_card_on'), {values: {date: creation_date}}}<br />
+						{$_('kanban.components.cardoverlay.text.created_card_on', {values: {date: creation_date}})}<br />
 					</div>
 				</div>
 			</div>
