@@ -1067,7 +1067,7 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: 0 1.5rem;
-		z-index: 5;
+		z-index: 2;
 	}
 
 	#board-nav > div {
