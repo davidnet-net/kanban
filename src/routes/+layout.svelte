@@ -96,7 +96,7 @@
 {/if}
 
 <FlexWrapper direction="column" height="calc(100vh - 48px);" width="100%;" justifycontent="center" alignitems="center">
-	{#if fontsLoaded}
+	{#if fontsLoaded && isLocaleLoaded}
 		{@render children?.()}
 	{:else}
 		<Loader />
