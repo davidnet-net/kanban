@@ -1,6 +1,6 @@
 import { browser } from '$app/environment';
 import { derived } from 'svelte/store';
-import { init, register, locale } from 'svelte-i18n';
+import { init, register, locale, waitLocale } from 'svelte-i18n';
 
 // --- Base languages ---
 register('en', () => import('./lang/en.json'));
@@ -8,7 +8,7 @@ register('de', () => import('./lang/de.json'));
 register('nl', () => import('./lang/nl.json'));
 
 // --- Region variants (reuse base language files) ---
-const regionAliases = {
+const regionAliases: Record<string, string> = {
 	'en-US': 'en',
 	'en-GB': 'en',
 	'en-CA': 'en',
@@ -18,20 +18,17 @@ const regionAliases = {
 	'de-CH': 'de',
 	'nl-NL': 'nl',
 	'nl-BE': 'nl',
-    'nl': 'nl',
-    'en': 'en',
-    'de': 'de'
+	'nl': 'nl',
+	'en': 'en',
+	'de': 'de'
 };
 
-for (const [region, base] of Object.entries(regionAliases)) {
-	register(region, () => import(`./lang/${base}.json`));
-}
-
 // --- Determine browser language ---
-export let language = 'en';
+let language = 'en';
 if (browser) {
-	const browserLang = window.navigator.language;
-	language = regionAliases[browserLang as keyof typeof regionAliases] || browserLang.split('-')[0] || 'en';
+	const browserLang = window.navigator.language || 'en';
+	const normalizedLang = regionAliases[browserLang] || regionAliases[browserLang.toLowerCase()] || browserLang.split('-')[0] || 'en';
+	language = normalizedLang;
 }
 console.log('Using language:', language);
 
@@ -41,11 +38,19 @@ init({
 	fallbackLocale: 'en'
 });
 
+// --- Ensure locale is loaded before using $t ---
+if (browser) {
+	// Wait until the JSON file for the initial locale is loaded
+	waitLocale().then(() => {
+		console.log('Locale loaded:', language);
+	});
+}
+
 // --- Utils ---
 export const isLocaleLoaded = derived(locale, ($locale) => typeof $locale === 'string');
 
 export const escapeHtml = (unsafe: string): string => {
-	const replacements: { [key: string]: string } = {
+	const replacements: Record<string, string> = {
 		'&': '&amp;',
 		'<': '&lt;',
 		'>': '&gt;',
