@@ -17,7 +17,10 @@ const regionAliases = {
 	'de-AT': 'de',
 	'de-CH': 'de',
 	'nl-NL': 'nl',
-	'nl-BE': 'nl'
+	'nl-BE': 'nl',
+    'nl': 'nl',
+    'en': 'en',
+    'de': 'de'
 };
 
 for (const [region, base] of Object.entries(regionAliases)) {
