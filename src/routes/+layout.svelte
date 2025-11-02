@@ -119,7 +119,7 @@
 >
 	{#if fontsLoaded && $isLocaleLoaded}
 		{@render children?.()}
-	{:else}
+	{:else}z-index
 		<Loader />
 	{/if}
 </FlexWrapper>
@@ -139,7 +139,7 @@
 		font-size: 0.9rem;
 		position: sticky;
 		top: 0;
-		z-index: 2;
+		z-index: 4;
 	}
 
 	#main-nav > div {
