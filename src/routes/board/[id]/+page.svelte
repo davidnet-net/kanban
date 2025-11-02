@@ -26,6 +26,7 @@
 	import { goto } from "$app/navigation";
 	import CardOverlay from "$lib/components/CardOverlay.svelte";
 	import BoardAccess from "$lib/components/BoardAccess.svelte";
+	import { _ } from "svelte-i18n";
 
 	const id = page.params.id;
 	let view: "kanban" | "calendar" = $state("kanban");
@@ -69,7 +70,7 @@
 		}
 
 		toast({
-			title: "Something failed",
+			title: $_("kanban.board.id.error.something_failed"),
 			desc: msg,
 			icon: "crisis_alert",
 			appearance: "danger",
@@ -107,11 +108,11 @@
 			const data = await res.json();
 			if (!res.ok) {
 				if (data && data.error === "Board not found") {
-					common_error = "Board doesn't exist.";
+					common_error = $_("kanban.board.id.error.board_not_found");
 				}
 
 				if (data && data.error === "Not board member") {
-					common_error = `You are not an board member! Ask the owner for access.`;
+					common_error = $_("kanban.board.id.error.not_member");
 				}
 
 				throw new Error(`HTTP ${res.status}`);
@@ -172,7 +173,7 @@
 					cards.update((c) => ({ ...c, [list.id]: data }));
 				} catch (e) {
 					console.warn(e);
-					showError(`Failed to load cards for list ${list.name}`);
+					showError($_("kanban.board.id.error.list_cards_failed_load", { values: { list_name: list.name } }));
 				}
 			})
 		);
@@ -316,7 +317,7 @@
 		}
 
 		if (text.length > 100) {
-			showError("Title is too long!");
+			showError($_("kanban.board.id.error.card_title_too_long"));
 			return;
 		}
 
@@ -378,7 +379,7 @@
 		} catch (err) {
 			console.error(err);
 			lists.update((l) => l.filter((list) => list.id !== tempId));
-			showError(`Failed to create list: ${err}`);
+			showError($_("kanban.board.id.error.create_list_failed"));
 		}
 	}
 
@@ -407,7 +408,7 @@
 			});
 		} catch (err) {
 			console.error("Failed to move lists:", err);
-			showError("Failed to update list order on server.");
+			showError($_("kanban.board.id.error.move_list_failed"));
 
 			// Reset
 			await fetchLists();
@@ -433,7 +434,7 @@
 			);
 		} catch (err) {
 			console.error("Failed to move cards:", err);
-			showError("Failed to update card positions on server.");
+			showError($_("kanban.board.id.error.card_move_failed"));
 
 			// Reset cards from backend
 			await fetchCardsForAllLists();
@@ -446,7 +447,7 @@
 				await authFetch(`${kanbanapiurl}board/favorite`, { board_id: id });
 				board_favorited.set(toggleto);
 				toast({
-					title: "Favorited board",
+					title: $_("kanban.board.id.toast.favorited_board.title"),
 					desc: $boardMeta?.name ?? id,
 					icon: "family_star",
 					appearance: "success",
@@ -462,7 +463,7 @@
 				await authFetch(`${kanbanapiurl}board/unfavorite`, { board_id: id });
 				board_favorited.set(toggleto);
 				toast({
-					title: "Unfavorited board",
+					title: $_("kanban.board.id.toast.unfavorited_board.title"),
 					desc: $boardMeta?.name ?? id,
 					icon: "kid_star",
 					appearance: "success",
@@ -480,7 +481,7 @@
 		try {
 			await authFetch(`${kanbanapiurl}board/delete`, { board_id: id });
 			toast({
-				title: "Deleted board",
+				title: $_("kanban.board.id.toast.deleted_board.title"),
 				desc: $boardMeta?.name ?? id,
 				icon: "delete_forever",
 				appearance: "success",
@@ -498,7 +499,7 @@
 	async function LeaveBoard() {
 		await authFetch(`${kanbanapiurl}board/leave`, { board_id: id });
 		toast({
-			title: "Left board",
+			title: $_("kanban.board.id.toast.left_board.title"),
 			desc: $boardMeta?.name ?? id,
 			icon: "door_open",
 			appearance: "success",
@@ -513,7 +514,7 @@
 		try {
 			await authFetch(`${kanbanapiurl}list/delete`, { board_id: id, list_id });
 			toast({
-				title: "Deleted list",
+				title: $_("kanban.board.id.toast.deleted_board.title"),
 				desc: list_name,
 				icon: "delete_forever",
 				appearance: "success",
@@ -544,7 +545,7 @@
 				});
 			} catch (err) {
 				console.error("Failed to move list left:", err);
-				showError("Failed to move list left on server.");
+				showError($_("kanban.board.id.error.move_list_failed"));
 				await fetchLists();
 			}
 		}
@@ -566,7 +567,7 @@
 				});
 			} catch (err) {
 				console.error("Failed to move list right:", err);
-				showError("Failed to move list right on server.");
+				showError($_("kanban.board.id.error.move_list_failed"));
 				await fetchLists();
 			}
 		}
@@ -576,8 +577,30 @@
 	let BoardAccessOverlayOpen: boolean = $state(false);
 
 	// Calendar
-	const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-	const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+	const MONTHS = [
+		$_("kanban.dates.month.january"),
+		$_("kanban.dates.month.february"),
+		$_("kanban.dates.month.march"),
+		$_("kanban.dates.month.april"),
+		$_("kanban.dates.month.may"),
+		$_("kanban.dates.month.june"),
+		$_("kanban.dates.month.july"),
+		$_("kanban.dates.month.august"),
+		$_("kanban.dates.month.september"),
+		$_("kanban.dates.month.october"),
+		$_("kanban.dates.month.november"),
+		$_("kanban.dates.month.december")
+	];
+
+	const DAYS = [
+		$_("kanban.dates.day.mon"),
+		$_("kanban.dates.day.tue"),
+		$_("kanban.dates.day.wed"),
+		$_("kanban.dates.day.thu"),
+		$_("kanban.dates.day.fri"),
+		$_("kanban.dates.day.sat"),
+		$_("kanban.dates.day.sun")
+	];
 
 	let year: number = $state(new Date().getFullYear());
 	let month: number = $state(new Date().getMonth());
@@ -634,18 +657,18 @@
 </script>
 
 {#if loading}
-	<p class="loading-text">Loading board {$boardMeta?.name ?? id}.</p>
+	<p class="loading-text">{$_('kanban.board.id.title.loading', { values: { board_name: $boardMeta?.name ?? id}})}</p>
 	<Loader />
-	<p>Getting things ready.</p>
+	<p>{$_('kanban.board.id.title.getting_ready')}</p>
 {:else if common_error}
 	<Icon size="3rem;" color="var(--token-color-text-danger);" icon="crisis_alert" />
 	<p class="loading-text">{common_error}</p>
-	<LinkButton appearance="primary" href="/">My boards</LinkButton>
+	<LinkButton appearance="primary" href="/">{$_('kanban.board.id.btn.my_boards')}</LinkButton>
 	<Space height="var(--token-space-3);" />
 	<Button
 		onClick={() => {
 			history.back();
-		}}>Back</Button
+		}}>{$_('kanban.board.id.btn.back')}</Button
 	>
 {:else}
 	<div class="board" style="background-image: url({$boardMeta?.background_url});">
@@ -657,13 +680,13 @@
 					iconbefore="view_kanban"
 					actions={[
 						{ label: "Kanban", value: "kanban" },
-						{ label: "Calendar", value: "calendar" }
+						{ label: $_('kanban.board.id.dropdown.view.calendar'), value: "calendar" }
 					]}
 					bind:value={view}
 					appearance="subtle"
 					alwaysshowslot
 				>
-					View
+					{$_('kanban.board.id.dropdown.view.label')}
 				</Dropdown>
 			</div>
 			<div class="nav-center"></div>
@@ -671,7 +694,7 @@
 				{#if $board_favorited}
 					<IconButton
 						appearance="warning"
-						alt="Remove board from favorites."
+						alt={$_('kanban.board.id.btn.remove_favorite')}
 						onClick={() => toggleFav(false)}
 						icon="star_shine"
 						disabled={!authencated}
@@ -679,7 +702,7 @@
 				{:else}
 					<IconButton
 						appearance="subtle"
-						alt="Add board to favorites."
+						alt={$_('kanban.board.id.btn.add_favorite')}
 						onClick={() => toggleFav(true)}
 						icon="star"
 						disabled={!authencated}
@@ -690,10 +713,10 @@
 					<IconDropdown
 						appearance="subtle"
 						icon="more_horiz"
-						alt="More actions."
+						alt={$_('kanban.board.id.dropdown.board_more_actions.label')}
 						actions={[
 							{
-								label: "Leave board",
+								label: $_('kanban.board.id.dropdown.board_more_actions.leave_board'),
 								onClick: () => {
 									showBoardLeaveModal = true;
 								}
@@ -707,30 +730,30 @@
 						onClick={() => {
 							BoardAccessOverlayOpen = true;
 						}}
-						disabled={!is_owner}>Share</Button
+						disabled={!is_owner}>{$_('kanban.board.id.btn.share')}</Button
 					>
 					<IconDropdown
 						appearance="subtle"
 						icon="more_horiz"
-						alt="More actions."
+						alt={$_('kanban.board.id.dropdown.board_more_actions.label')}
 						disabled={!is_owner}
 						actions={[
 							{
-								label: "Delete board",
+								label: $_('kanban.board.id.dropdown.board_more_actions.delete_board'),
 								onClick: () => {
 									showBoardDelModal = true;
 								}
 							},
 							{
-								label: "Edit board",
+								label: $_('kanban.board.id.dropdown.board_more_actions.edit_board'),
 								onClick: () => {
 									goto("/board/" + id + "/edit");
 								}
 							},
 							{
-								label: "Change background",
+								label: $_('kanban.board.id.dropdown.board_more_actions.change_background'),
 								onClick: () => {
-									// goto("/board/" + id + "/background")
+									goto("/board/" + id + "/background")
 								}
 							}
 						]}
@@ -759,23 +782,23 @@
 							<IconDropdown
 								appearance="subtle"
 								icon="more_horiz"
-								alt="More actions."
+								alt={$_('kanban.board.id.dropdown.list_more_actions.label')}
 								disabled={!can_edit}
 								actions={[
 									{
-										label: "Delete list",
+										label: $_('kanban.board.id.dropdown.list_more_actions.delete_list'),
 										onClick: () => {
 											deleteList(Number(list.id), list.name);
 										}
 									},
 									{
-										label: "Move left",
+										label: $_('kanban.board.id.dropdown.list_more_actions.move_left'),
 										onClick: () => {
 											moveListLeft(Number(list.id));
 										}
 									},
 									{
-										label: "Move right",
+										label: $_('kanban.board.id.dropdown.list_more_actions.move_right'),
 										onClick: () => {
 											moveListRight(Number(list.id));
 										}
@@ -812,7 +835,7 @@
 								<input
 									class="card new-card-input"
 									bind:value={$newCardText[list.id]}
-									placeholder="Enter card title..."
+									placeholder={$_('kanban.board.id.field.new_card.placeholder')}
 									onkeydown={(e) => e.key === "Enter" && confirmNewCard(list.id)}
 									onblur={() => confirmNewCard(list.id)}
 									use:autoFocus
@@ -830,7 +853,7 @@
 										{ label: "Option B", onClick: () => {} }
 									]}
 								>
-									Add new card
+									{$_('kanban.board.id.btn.add_new_card')}
 								</SplitButton>
 							</FlexWrapper>
 						</div>
@@ -842,13 +865,13 @@
 						<input
 							bind:value={$newListName}
 							class="new-list-input"
-							placeholder="Enter list name..."
+							placeholder={$_('kanban.board.id.field.new_list.placeholder')}
 							onkeydown={(e) => e.key === "Enter" && confirmNewList()}
 							onblur={confirmNewList}
 							use:autoFocusInput
 						/>
 					{:else}
-						<Button appearance="subtle" onClick={() => addingList.set(true)}>Add list</Button>
+						<Button appearance="subtle" onClick={() => addingList.set(true)}>{$_('kanban.board.id.btn.add_new_list')}</Button>
 					{/if}
 				</div>
 			</div>
@@ -863,7 +886,7 @@
 								bind:value={CalendarListID}
 								actions={$lists.length > 0
 									? $lists.map((l) => ({ label: l.name, value: l.id }))
-									: [{ label: "No lists available", value: null }]}
+									: [{ label: $_('kanban.board.id.error.no_lists'), value: null }]}
 							/>
 						</FlexWrapper>
 
@@ -910,18 +933,17 @@
 					<div class="calendar">
 						<FlexWrapper direction="row" width="100%" gap="var(--token-space-3)">
 							<FlexWrapper direction="row" width="100%" gap="var(--token-space-3)">
-								<IconButton icon="chevron_backward" onClick={prevMonth} alt="Previous month" />
+								<IconButton icon="chevron_backward" onClick={prevMonth} alt={$_('kanban.board.id.btn.previous_month')} />
 								<h2>{MONTHS[month]} {year}</h2>
-								<IconButton icon="chevron_forward" onClick={nextMonth} alt="Next month" />
+								<IconButton icon="chevron_forward" onClick={nextMonth} alt={$_('kanban.board.id.btn.next_month')} />
 							</FlexWrapper>
 							<Button
 								onClick={() => {
 									const today = new Date();
 									year = today.getFullYear();
 									month = today.getMonth();
-									grid = buildMonthGrid(year, month);
 								}}
-								appearance="subtle">Today</Button
+								appearance="subtle">{$_('kanban.board.id.btn.today')}</Button
 							>
 						</FlexWrapper>
 
@@ -967,7 +989,7 @@
 				{/if}
 			</div>
 		{:else}
-			<h1>Unhandled view.</h1>
+			<h1>{$_('kanban.board.id.title.unhandled_view')}</h1>
 			<Loader />
 		{/if}
 	</div>
@@ -975,36 +997,36 @@
 
 {#if showBoardDelModal}
 	<Modal
-		title="Delete board {$boardMeta?.name ?? id}?"
+		title={$_('kanban.board.id.modal.BoardDelModal.title', { values: { board_name: $boardMeta?.name ?? id}})}
 		titleIcon="delete_forever"
-		desc="This cannot be undone?"
+		desc={$_('kanban.board.id.modal.BoardDelModal.desc')}
 		hasCloseBtn
 		on:close={() => (showBoardDelModal = false)}
 		options={[
 			{
 				appearance: "subtle",
-				content: "Cancel",
+				content: $_('kanban.board.id.modal.BoardDelModal.cancel'),
 				onClick: () => (showBoardDelModal = false)
 			},
-			{ appearance: "danger", content: "Delete board", onClick: DeleteBoard }
+			{ appearance: "danger", content: $_('kanban.board.id.modal.BoardDelModal.delete_board'), onClick: DeleteBoard }
 		]}
 	/>
 {/if}
 
 {#if showBoardLeaveModal}
 	<Modal
-		title="Leave board {$boardMeta?.name ?? id}?"
+		title={$_('kanban.board.id.modal.BoardLeaveModal.title', { values: { board_name: $boardMeta?.name ?? id}})}
 		titleIcon="door_open"
-		desc="You cannot come back until the owner invites you again."
+		desc={$_('kanban.board.id.modal.BoardLeaveModal.desc')}
 		hasCloseBtn
 		on:close={() => (showBoardLeaveModal = false)}
 		options={[
 			{
 				appearance: "subtle",
-				content: "Cancel",
+				content: $_('kanban.board.id.modal.BoardLeaveModal.cancel'),
 				onClick: () => (showBoardLeaveModal = false)
 			},
-			{ appearance: "danger", content: "Leave board", onClick: LeaveBoard }
+			{ appearance: "danger", content: $_('kanban.board.id.modal.BoardLeaveModal.leave'), onClick: LeaveBoard }
 		]}
 	/>
 {/if}

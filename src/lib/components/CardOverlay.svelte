@@ -5,6 +5,7 @@
 	import { onMount } from "svelte";
 	import { get } from "svelte/store";
 	import { marked } from "marked";
+	import { _ } from "svelte-i18n";
 
 	let { closeOverlay, openedCard, correlationID, board_id } = $props<{
 		closeOverlay: () => void;
@@ -65,8 +66,8 @@
 
 			if (!res.ok) {
 				toast({
-					title: "Profile load error",
-					desc: "Some profile(s) could not be loaded.",
+					title: $_('kanban.components.cardoverlay.error.profile_load_error_title'),
+					desc: $_('kanban.components.cardoverlay.error.profile_load_error_desc'),
 					icon: "crisis-alert",
 					appearance: "danger",
 					position: "top-center",
@@ -75,13 +76,12 @@
 			}
 
 			const data = await res.json();
-			console.log(data);
 			return data;
 		} catch (err) {
 			console.error("fetchProfile error:", err);
 			toast({
-				title: "Network Error",
-				desc: "Something went wrong while fetching the profile.",
+				title: $_('kanban.components.cardoverlay.error.network_error_title'),
+				desc: $_('kanban.components.cardoverlay.error.network_error_desc'),
 				icon: "crisis-alert",
 				appearance: "danger",
 				position: "top-center",
@@ -94,12 +94,11 @@
 	let description = $state(openedCard.description ?? "");
 
 	async function saveDescription() {
-		console.log("Saving description:", description);
 		try {
 			await authFetch(kanbanapiurl + "card/change-description", { card_id: openedCard.id, description: description });
 			toast({
-				title: "Card updated",
-				desc: "Description saved successfully.",
+				title: $_('kanban.components.cardoverlay.toast.card_updated_title'),
+				desc: $_('kanban.components.cardoverlay.toast.card_updated_desc'),
 				icon: "check",
 				appearance: "success",
 				position: "bottom-left",
@@ -107,8 +106,8 @@
 			});
 		} catch {
 			toast({
-				title: "Card update failed",
-				desc: "Could not update description.",
+				title: $_('kanban.components.cardoverlay.toast.card_update_failed_title'),
+				desc: $_('kanban.components.cardoverlay.toast.card_update_failed_desc'),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "top-center",
@@ -122,7 +121,7 @@
 		try {
 			await authFetch(kanbanapiurl + "card/delete", { card_id: openedCard.id, board_id: board_id });
 			toast({
-				title: "Card deleted",
+				title: $_('kanban.components.cardoverlay.toast.card_deleted_title'),
 				desc: "",
 				icon: "delete_forever",
 				appearance: "success",
@@ -132,8 +131,8 @@
 			closeOverlay();
 		} catch {
 			toast({
-				title: "Card deletion failed",
-				desc: "Could not delete card.",
+				title: $_('kanban.components.cardoverlay.toast.card_deletion_failed_title'),
+				desc: $_('kanban.components.cardoverlay.toast.card_deletion_failed_desc'),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "top-center",
@@ -158,83 +157,85 @@
 			<header class="header">
 				<h2>{openedCard.name}</h2>
 				<div>
-					<IconButton icon="help" disabled appearance="subtle" onClick={() => {}} alt="About cards." />
-					<IconButton icon="delete_forever" appearance="danger" onClick={deletecard} alt="Delete card." />
-					<IconButton icon="close" appearance="primary" onClick={closeOverlay} alt="Close." />
+					<IconButton icon="help" disabled appearance="subtle" onClick={() => {}} alt={$_('kanban.components.cardoverlay.alt.about_cards')} />
+					<IconButton icon="delete_forever" appearance="danger" onClick={deletecard} alt={$_('kanban.components.cardoverlay.alt.delete_card')} />
+					<IconButton icon="close" appearance="primary" onClick={closeOverlay} alt={$_('kanban.components.cardoverlay.alt.close')} />
 				</div>
 			</header>
 
 			<div class="container">
 				<div class="card-body">
 					<div class="action-bar">
-						<Button onClick={() => {}} iconbefore="new_label">Add label</Button>
-						<Button onClick={() => {}} iconbefore="calendar_clock">Dates</Button>
+						<Button onClick={() => {}} iconbefore="new_label">{$_('kanban.components.cardoverlay.btn.add_label')}</Button>
+						<Button onClick={() => {}} iconbefore="calendar_clock">{$_('kanban.components.cardoverlay.btn.dates')}</Button>
 						<Button
 							onClick={() => {
 								showchecklist = true;
 							}}
-							iconbefore="checklist">Add checklist</Button
-						>
-						<Button onClick={() => {}} iconbefore="attach_file_add">Add attachment</Button>
+							iconbefore="checklist">{$_('kanban.components.cardoverlay.btn.add_checklist')}</Button>
+						<Button onClick={() => {}} iconbefore="attach_file_add">{$_('kanban.components.cardoverlay.btn.add_attachment')}</Button>
 					</div>
+
 					<div class="meta-bar">
-						<div><bold>Created at:</bold><br />{creation_date}</div>
+						<div><bold>{$_('kanban.components.cardoverlay.label.created_at')}</bold><br />{creation_date}</div>
 
 						{#if owner!.profile.display_name === owner!.profile.username}
-							<div><bold>Created by:</bold><br />@{owner!.profile.username}</div>
+							<div><bold>{$_('kanban.components.cardoverlay.label.created_by')}</bold><br />@{owner!.profile.username}</div>
 						{:else}
 							<div>
-								<bold>Created by:</bold><br />{owner!.profile.display_name} <span class="secondary">@{owner!.profile.username}</span>
+								<bold>{$_('kanban.components.cardoverlay.label.created_by')}</bold><br />{owner!.profile.display_name} <span class="secondary">@{owner!.profile.username}</span>
 							</div>
 						{/if}
 					</div>
+
 					<div class="description">
-						<h4>Description</h4>
+						<h4>{$_('kanban.components.cardoverlay.section.description')}</h4>
 						{#if editing}
 							<textarea
 								bind:value={description}
 								onkeydown={handleKey}
 								class="description-input"
-								placeholder="Write a description..."
+								placeholder={$_('kanban.components.cardoverlay.placeholder.write_description')}
 								rows="4"
 							></textarea>
 							<div class="actions">
-								<Button appearance="primary" onClick={saveDescription}>Save</Button>
-								<Button appearance="subtle" onClick={() => (editing = false)}>Cancel</Button>
+								<Button appearance="primary" onClick={saveDescription}>{$_('kanban.components.cardoverlay.btn.save')}</Button>
+								<Button appearance="subtle" onClick={() => (editing = false)}>{$_('kanban.components.cardoverlay.btn.cancel')}</Button>
 							</div>
 						{:else}
 							<div class="description-preview" onclick={() => (editing = true)}>
-								<!-- eslint-disable-line svelte/no-at-html-tags -->
-								{@html marked(description || "_Add a more detailed description..._")}
+								{@html marked(description || $_('kanban.components.cardoverlay.placeholder.add_detailed_description'))}
 							</div>
 						{/if}
 					</div>
+
 					{#if showchecklist}
 						<div>
-							<h4>Checklist</h4>
+							<h4>{$_('kanban.components.cardoverlay.section.checklist')}</h4>
 							<div class="checklist-adder">
 								<FlexWrapper direction="row" gap="var(--token-space-3);">
 									<TextField
-										label="Checklist Item:"
+										label={$_('kanban.components.cardoverlay.field.checklist_item_label')}
 										type="text"
-										placeholder="Add an item."
+										placeholder={$_('kanban.components.cardoverlay.field.checklist_item_placeholder')}
 										bind:value={addchecklist}
 										invalid={false}
-										invalidMessage="Invalid."
+										invalidMessage={$_('kanban.components.cardoverlay.field.checklist_item_invalid')}
 										width="85%"
 									/>
-									<IconButton icon="add" onClick={() => {}} alt="Add checklist item" appearance="primary" />
+									<IconButton icon="add" onClick={() => {}} alt={$_('kanban.components.cardoverlay.alt.add_checklist_item')} appearance="primary" />
 								</FlexWrapper>
 							</div>
 						</div>
 					{/if}
 				</div>
+
 				<div class="activity-container">
-					<h3>Activity & Comments</h3>
+					<h3>{$_('kanban.components.cardoverlay.section.activity_comments')}</h3>
 					<div class="activity">
 						<img crossorigin="anonymous" src="https://account.davidnet.net/placeholder.png" aria-hidden="true" alt="" />
-						<a href="https://account.davidnet.net/profile/{openedCard.owner}">{owner!.profile.display_name}</a>Created card on<br
-						/>{creation_date}
+						<a href="https://account.davidnet.net/profile/{openedCard.owner}">{owner!.profile.display_name}</a>
+						{$_('kanban.components.cardoverlay.text.created_card_on')}<br />{creation_date}
 					</div>
 				</div>
 			</div>
@@ -245,6 +246,7 @@
 		{/if}
 	</div>
 </div>
+
 
 <style>
 	.blanket {

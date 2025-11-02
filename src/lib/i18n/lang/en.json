@@ -1,5 +1,373 @@
 {
   "kanban": {
-    "loading": "Getting your Kanban boards, {display_name}."
+    "index": {
+      "btn": {
+        "create_board": "Create Board",
+        "your_invites": "Your invites",
+        "invites": "Invites",
+        "alt": {
+          "update_history": "Update history",
+          "delete_recent_boards": "Delete recent boards"
+        }
+      },
+      "title": {
+        "loading": "Getting your Kanban boards, {display_name}.",
+        "no_boards": "You don't have any boards yet.",
+        "no_boards_cta": "Create one to get started!",
+        "recent_boards": "Recent boards:",
+        "no_recently_visited_boards": "You did not visit a board recently.",
+        "favorite_boards": "Favorite boards:",
+        "no_favorited_boards": "You have not yet favorited a board.",
+        "your_boards": "Your boards:",
+        "no_created_boards": "You have not created any boards yet.",
+        "boards_shared_with_you": "Boards shared with you:",
+        "no_boards_shared_with_you": "No boards are shared with you."
+      },
+      "images": {
+        "alt": {
+          "board_background": "Board background"
+        }
+      },
+      "modal": {
+        "ClearResetBoardsModal": {
+          "title": "Clear recent boards list?",
+          "desc": "This cannot be undone!",
+          "cancel": "Cancel",
+          "clear_recent_boards": "Clear recent boards"
+        }
+      },
+      "error": {
+        "something_failed": "Something failed!",
+        "session_invalid": "Session invalid"
+      },
+      "toast": {
+        "recent_boards_cleared": {
+          "title": "Recent boards cleared!"
+        }
+      }
+    },
+    "invites": {
+      "error": {
+        "profiles_failed_to_load": {
+          "title": "Loading profile failed!",
+          "desc": "Some profile(s) could not be loaded."
+        },
+        "network_error": {
+          "title": "Network error!",
+          "desc": "Something went wrong while fetching the profile."
+        },
+        "failed_to_load_invites": {
+          "title": "Failed to load invites.",
+          "desc": "Could not fetch your invites."
+        },
+        "failed_to_accept_invite": {
+          "title": "Failed to accept invite.",
+          "desc": "Failed to join board."
+        },
+        "invite_declined_failed": {
+          "title": "Failed to deny invite",
+          "desc": "Could not deny invitation."
+        }
+      },
+      "toast": {
+        "invite_accepted": {
+          "title": "Invite accepted!",
+          "desc": "You are now part of the board."
+        },
+        "invite_declined": {
+          "title": "Invite declined",
+          "desc": "You have declined the invitation."
+        }
+      },
+      "btn": {
+        "back": "Back",
+        "accept": "Accept",
+        "deny": "Deny"
+      },
+      "title": {
+        "my_board_invites": "My board invites",
+        "you_have_no_pending_board_invites": "You have no pending board invites.",
+        "invited_by": "invited by"
+      }
+    },
+    "create": {
+      "option": {
+        "private": "Private",
+        "public": "Public"
+      },
+      "error": {
+        "something_failed": {
+          "title": "Something failed!"
+        }
+      },
+      "toast": {
+        "board_created": {
+          "title": "Board created!",
+          "desc": "Board {board_name} created."
+        }
+      },
+      "title": {
+        "create_an_new_board": "Create a new board",
+        "board_visibility": "Board visibility"
+      },
+      "field": {
+        "name_of_the_new_board": {
+          "label": "Name of the new board:",
+          "placeholder": "Enter new board name.",
+          "rules": "Name should be max 20 characters. And may not contain special characters."
+        }
+      },
+      "btn": {
+        "cancel": "Cancel",
+        "create_new_board": "Create new board"
+      }
+    },
+    "board": {
+      "id": {
+        "edit": {
+          "option": {
+            "private": "Private",
+            "public": "Public"
+          },
+          "error": {
+            "something_failed": "Something failed!",
+            "update_failed": "Update failed!"
+          },
+          "toast": {
+            "board_update_successfull": {
+              "title": "Board updated!",
+              "desc": "Board {board_name} updated."
+            }
+          },
+          "title": {
+            "edit_board": "Edit board:",
+            "current_settings": "These are your current settings!",
+            "board_visibility": "Board visibility:"
+          },
+          "field": {
+            "board_name": {
+              "label": "Name:",
+              "placeholder": "Enter new board name.",
+              "invalid": "Name should be max 20 characters. And may not contain special characters."
+            }
+          },
+          "btn": {
+            "cancel": "Cancel",
+            "edit_board": "Edit board"
+          }
+        },
+        "error": {
+          "something_failed": "Something failed!",
+          "board_not_found": "Board doesn't exist!",
+          "not_member": "You are not a board member. Ask the owner for access.",
+          "list_cards_failed_load": "Couldn't load cards for list {list_name}",
+          "card_title_too_long": "Card title is too long.",
+          "create_list_failed": "Create list failed!",
+          "move_list_failed": "List move failed!",
+          "card_move_failed": "Card move failed!",
+          "no_lists": "No lists available."
+        },
+        "toast": {
+          "favorited_board": {
+            "title": "Favorited board:"
+          },
+          "unfavorited_board": {
+            "title": "Unfavorited board:"
+          },
+          "deleted_board": {
+            "title": "Deleted board:"
+          },
+          "left_board": {
+            "title": "Left board:"
+          }
+        },
+        "title": {
+          "loading": "Loading board {board_name}.",
+          "getting_ready": "Getting things ready.",
+          "unhandled_view": "Unhandled view."
+        },
+        "btn": {
+          "my_boards": "My boards",
+          "back": "Back",
+          "remove_favorite": "Remove board from favorites.",
+          "add_favorite": "Add board to favorites.",
+          "share": "Share",
+          "add_new_card": "Add new card",
+          "add_new_list": "Add new list",
+          "previous_month": "Previous month",
+          "next_month": "Next month",
+          "today": "Today"
+        },
+        "dropdown": {
+          "view": {
+            "calendar": "Calendar",
+            "label": "View"
+          },
+          "board_more_actions": {
+            "label": "More actions.",
+            "leave_board": "Leave board",
+            "delete_board": "Delete board",
+            "edit_board": "Edit board",
+            "change_background": "Change board background"
+          },
+          "list_more_actions": {
+            "label": "More actions.",
+            "delete_list": "Delete list",
+            "move_left": "Move left",
+            "move_right": "Move right"
+          }
+        },
+        "field": {
+          "new_card": {
+            "placeholder": "New card title."
+          },
+          "new_list": {
+            "placeholder": "New list title."
+          }
+        },
+        "modal": {
+          "BoardDelModal": {
+            "cancel": "Cancel",
+            "delete_board": "Delete board",
+            "title": "Are you sure you want to delete {board_name}?",
+            "desc": "This cannot be undone!"
+          },
+          "BoardLeaveModal": {
+            "title": "Are you sure you want to leave {board_name}?",
+            "desc": "You cannot come back until the owner invites you again.",
+            "cancel": "Cancel",
+            "leave": "Leave board"
+          }
+        }
+      }
+    },
+    "dates": {
+      "month": {
+        "january": "January",
+        "february": "February",
+        "march": "March",
+        "april": "April",
+        "may": "May",
+        "june": "June",
+        "july": "July",
+        "august": "August",
+        "september": "September",
+        "october": "October",
+        "november": "November",
+        "december": "December"
+      },
+      "day": {
+        "mon": "Monday",
+        "tue": "Tuesday",
+        "wed": "Wednesday",
+        "thu": "Thursday",
+        "fri": "Friday",
+        "sat": "Saturday",
+        "sun": "Sunday"
+      }
+    },
+    "components": {
+      "boardaccess": {
+        "error": {
+          "network": "Network error",
+          "failed_load_board_members": "Failed to load board members.",
+          "failed_to_load_invites": "Failed to load board invites.",
+          "user_not_found": "User not found.",
+          "user_already_in_board": "User already part of board.",
+          "could_not_send_invite": "Could not send invite.",
+          "cancel_invite_failed": "Could not cancel invite.",
+          "remove_failed": "Failed to remove member.",
+          "remove_failed_desc": "Something went wrong while trying to remove this member."
+        },
+        "toast": {
+          "invite_send": {
+            "title": "Invite sent!"
+          },
+          "invite_canceled": {
+            "title": "Invite canceled!"
+          },
+          "member_removed": {
+            "title": "Member removed!"
+          }
+        },
+        "title": "Board access",
+        "about_alt": "About board access",
+        "close_alt": "Close board access",
+        "section": {
+          "invites": "Invites",
+          "members": "Members"
+        },
+        "no_pending_invites": "No pending invites.",
+        "cancel_invite_alt": "Cancel invite",
+        "view_members": "View members",
+        "remove_member_alt": "Remove member",
+        "view_invites": "View invites",
+        "invite": {
+          "title": "Invite user",
+          "quick_connections": "Quick connections",
+          "button": "Send invite",
+          "enter_user_label": "Enter username or email",
+          "placeholder": "Search for a user..."
+        },
+        "modal": {
+          "remove_title": "Remove member?",
+          "remove_desc": "Are you sure you want to remove {user_name} from this board?",
+          "cancel": "Cancel",
+          "remove": "Remove"
+        }
+      },
+      "cardoverlay": {
+        "error": {
+          "profile_load_error_title": "Failed to load profile!",
+          "profile_load_error_desc": "Could not load the profile of the card creator.",
+          "network_error_title": "Network error!",
+          "network_error_desc": "Something went wrong while fetching card data."
+        },
+        "toast": {
+          "card_updated_title": "Card updated!",
+          "card_updated_desc": "Your changes to the card have been saved.",
+          "card_update_failed_title": "Failed to update card!",
+          "card_update_failed_desc": "Something went wrong while updating this card.",
+          "card_deleted_title": "Card deleted!",
+          "card_deletion_failed_title": "Failed to delete card!",
+          "card_deletion_failed_desc": "Something went wrong while deleting this card."
+        },
+        "alt": {
+          "about_cards": "About cards",
+          "delete_card": "Delete card",
+          "close": "Close card overlay",
+          "add_checklist_item": "Add checklist item"
+        },
+        "btn": {
+          "add_label": "Add label",
+          "dates": "Dates",
+          "add_checklist": "Add checklist",
+          "add_attachment": "Add attachment",
+          "save": "Save",
+          "cancel": "Cancel"
+        },
+        "label": {
+          "created_at": "Created at:",
+          "created_by": "Created by:"
+        },
+        "section": {
+          "description": "Description",
+          "checklist": "Checklist",
+          "activity_comments": "Activity & comments"
+        },
+        "placeholder": {
+          "write_description": "Write a description...",
+          "add_detailed_description": "Add a more detailed description..."
+        },
+        "field": {
+          "checklist_item_label": "Checklist item:",
+          "checklist_item_placeholder": "Enter checklist item...",
+          "checklist_item_invalid": "Checklist item cannot be empty."
+        },
+        "text": {
+          "created_card_on": "Created this card on {date}."
+        }
+      }
+    }
   }
 }

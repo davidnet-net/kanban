@@ -5,6 +5,8 @@
 	import { FlexWrapper, Button, Loader, toast, Space, accessToken, refreshAccessToken, authFetch as sesauthfetch } from "@davidnet/svelte-ui";
 	import type { ProfileResponse, UserProfile } from "$lib/types";
 
+	import {_} from 'svelte-i18n';
+	
 	interface Invite {
 		invite_id: number;
 		board_id: number;
@@ -58,8 +60,8 @@
 
 			if (!res.ok) {
 				toast({
-					title: "Profile load error",
-					desc: "Some profile(s) could not be loaded.",
+					title: $_('kanban.invites.error.profiles_failed_to_load.title'),
+					desc: $_('kanban.invites.error.profiles_failed_to_load.desc'),
 					icon: "crisis_alert",
 					appearance: "danger",
 					position: "top-center",
@@ -73,8 +75,8 @@
 		} catch (err) {
 			console.error("fetchProfile error:", err);
 			toast({
-				title: "Network Error",
-				desc: "Something went wrong while fetching the profile.",
+				title: $_('kanban.invites.error.network_error.title'),
+				desc: $_('kanban.invites.error.network_error.desc'),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "top-center",
@@ -98,8 +100,8 @@
 		} catch (err) {
 			console.error("Failed to load invites:", err);
 			toast({
-				title: "Failed to load invites",
-				desc: "Could not fetch your invites.",
+				title: $_('kanban.invites.error.failed_to_load_invites.title'),
+				desc: $_('kanban.invites.error.failed_to_load_invites.desc'),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "top-center",
@@ -114,8 +116,8 @@
 		try {
 			await authFetch(`${kanbanapiurl}invite/accept`, { invite_id: inviteId });
 			toast({
-				title: "Invite accepted",
-				desc: "You are now part of the board!",
+				title: $_('kanban.invites.toast.invite_accepted.title'),
+				desc: $_('kanban.invites.toast.invite_accepted.desc'),
 				icon: "person_add",
 				appearance: "success",
 				position: "bottom-left",
@@ -125,8 +127,8 @@
 		} catch (err) {
 			console.error("Accept invite failed:", err);
 			toast({
-				title: "Failed to accept invite",
-				desc: "Could not join board.",
+				title: $_('kanban.invites.error.failed_to_accept_invite.title'),
+				desc: $_('kanban.invites.error.failed_to_accept_invite.desc'),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "bottom-left",
@@ -139,8 +141,8 @@
 		try {
 			await authFetch(`${kanbanapiurl}invite/deny`, { invite_id: inviteId });
 			toast({
-				title: "Invite denied",
-				desc: "You have declined the invitation.",
+				title: $_('kanban.invites.toast.invite_declined.title'),
+				desc: $_('kanban.invites.toast.invite_declined.desc'),
 				icon: "person_cancel",
 				appearance: "warning",
 				position: "bottom-left",
@@ -150,8 +152,8 @@
 		} catch (err) {
 			console.error("Deny invite failed:", err);
 			toast({
-				title: "Failed to deny invite",
-				desc: "Could not deny invitation.",
+				title: $_('kanban.invites.error.invite_declined_failed.title'),
+				desc: $_('kanban.invites.error.invite_declined_failed.desc'),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "bottom-left",
@@ -178,12 +180,12 @@
 			onClick={() => {
 				history.back();
 			}}
-			iconbefore="arrow_back">Back</Button
+			iconbefore="arrow_back">{$_('kanban.invites.btn.back')}</Button
 		>
-		<h2>My Board Invitations</h2>
+		<h2>{$_('kanban.invites.title.my_board_invites')}</h2>
 
 		{#if invites.length === 0}
-			<p style="color: var(--token-color-text-default-secondary);">You have no pending invites.</p>
+			<p style="color: var(--token-color-text-default-secondary);">{$_('kanban.invites.title.you_have_no_pending_board_invites')}</p>
 		{:else}
 			<div class="invite-list">
 				{#each invites as invite (invite.invite_id)}
@@ -192,7 +194,7 @@
 							<strong>{invite.board_name}</strong>
 							<Space width="var(--token-space-4);" />
 							{#if invite.inviter}
-								invited by
+								{$_('kanban.invites.title.invited_by')}
 								<Space width="var(--token-space-4);" />
 								<FlexWrapper direction="row" gap="var(--token-space-3);">
 									<img class="pp" src={invite.inviter.avatar_url || "https://account.davidnet.net/placeholder.png"} alt="profile" />
@@ -205,8 +207,8 @@
 						</div>
 						<Space width="var(--token-space-3);" />
 						<FlexWrapper direction="row" gap="var(--token-space-2)">
-							<Button appearance="primary" onClick={() => acceptInvite(invite.invite_id)}>Accept</Button>
-							<Button appearance="danger" onClick={() => denyInvite(invite.invite_id)}>Deny</Button>
+							<Button appearance="primary" onClick={() => acceptInvite(invite.invite_id)}>{$_('kanban.invites.btn.accept')}</Button>
+							<Button appearance="danger" onClick={() => denyInvite(invite.invite_id)}>{$_('kanban.invites.btn.deny')}</Button>
 						</FlexWrapper>
 					</div>
 				{/each}

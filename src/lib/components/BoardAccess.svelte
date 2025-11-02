@@ -17,6 +17,7 @@
 	} from "@davidnet/svelte-ui";
 	import { onMount } from "svelte";
 	import { get } from "svelte/store";
+	import { _ } from "svelte-i18n";
 
 	let { closeOverlay, boardOwner, correlationID, boardId } = $props<{
 		closeOverlay: () => void;
@@ -26,7 +27,7 @@
 	}>();
 
 	const token = String(get(accessToken));
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 	async function authFetch(url: string, body: any) {
 		const res = await fetch(url, {
 			method: "POST",
@@ -42,19 +43,16 @@
 	}
 
 	let loaded = $state(false);
-	/* eslint-disable @typescript-eslint/no-explicit-any */
 	let owner: ProfileResponse | null = $state(null);
 	let connections: Array<any> = $state([]);
 	let members: Array<any> = $state([]);
 	let pendingInvites: Array<any> = $state([]);
-	/* eslint-enable @typescript-eslint/no-explicit-any */
 
 	let newidentfier: string | undefined = $state(undefined);
 	let newidentfierconnection: string | undefined = $state(undefined);
 	let viewinvites: boolean = $state(false);
 
 	let showRemoveMemberModal = $state(false);
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let memberToRemove: any = $state(null);
 
 	async function fetchProfile(id: number | undefined) {
@@ -75,18 +73,12 @@
 				credentials: "include"
 			});
 
-			if (!res.ok) {
-				throw new Error(`Profile fetch failed with status ${res.status}`);
-			}
-
+			if (!res.ok) throw new Error(`Profile fetch failed with status ${res.status}`);
 			const data = await res.json();
-			console.log(data);
 			return data;
 		} catch (err) {
-			console.error("fetchProfile error:", err);
 			toast({
-				title: "Network Error",
-				desc: "Something went wrong while fetching the profile.",
+				title: $_('kanban.components.boardaccess.error.network'),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "top-center",
@@ -99,10 +91,7 @@
 	async function loadMembers() {
 		try {
 			const result = await authFetch(`${kanbanapiurl}board/get_board_members`, { board_id: boardId });
-			console.log(result);
-
 			const enriched = await Promise.all(
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				(result || []).map(async (member: any) => {
 					const userId = typeof member === "number" ? member : member.user_id;
 					try {
@@ -126,10 +115,8 @@
 
 			members = enriched;
 		} catch (err) {
-			console.error("loadMembers error:", err);
 			toast({
-				title: "Failed to load members",
-				desc: "Could not fetch board members.",
+				title: $_('kanban.components.boardaccess.error.failed_load_board_members'),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "top-center",
@@ -141,9 +128,7 @@
 	async function loadInvites() {
 		try {
 			const invites = await authFetch(`${kanbanapiurl}invite/board`, { board_id: boardId });
-
 			const enriched = await Promise.all(
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				(invites || []).map(async (invite: any) => {
 					const userId = typeof invite === "number" ? invite : invite.invitee_user_id;
 					try {
@@ -164,13 +149,10 @@
 					}
 				})
 			);
-
 			pendingInvites = enriched;
 		} catch (err) {
-			console.error("loadInvites error:", err);
 			toast({
-				title: "Failed to load invites",
-				desc: "Could not fetch invites for this board.",
+				title: $_('kanban.components.boardaccess.error.failed_to_load_invites'),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "top-center",
@@ -200,12 +182,10 @@
 			const requserID = await authFetch(`${authapiurl}resolve-identifier`, { identifier });
 			userID = Number(requserID.id);
 		} catch (err) {
-			console.warn(err);
 			newidentfier = undefined;
 			newidentfierconnection = undefined;
 			toast({
-				title: "User not found",
-				desc: "User does not exist!",
+				title: $_('kanban.components.boardaccess.error.user_not_found'),
 				icon: "person_alert",
 				appearance: "warning",
 				position: "bottom-left",
@@ -215,10 +195,8 @@
 		}
 
 		if (userID === owner?.profile.id) {
-			newidentfier = undefined;
-			newidentfierconnection = undefined;
 			toast({
-				title: "User already part of board.",
+				title: $_('kanban.components.boardaccess.error.user_already_in_board'),
 				desc: identifier,
 				icon: "person_alert",
 				appearance: "info",
@@ -231,7 +209,7 @@
 		try {
 			await authFetch(`${kanbanapiurl}invite/send`, { board_id: boardId, user_id: userID });
 			toast({
-				title: "Invite sent",
+				title: $_('kanban.components.boardaccess.toast.invite_send.title'),
 				desc: identifier,
 				icon: "person_add",
 				appearance: "success",
@@ -242,10 +220,8 @@
 			newidentfierconnection = undefined;
 			await loadInvites();
 		} catch (err) {
-			console.error("inviteuser error:", err);
 			toast({
-				title: "Invite failed",
-				desc: "Could not send invite.",
+				title: $_('kanban.components.boardaccess.error.could_not_send_invite'),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "bottom-left",
@@ -258,8 +234,7 @@
 		try {
 			await authFetch(`${kanbanapiurl}invite/cancel`, { invite_id: inviteId });
 			toast({
-				title: "Invite canceled",
-				desc: "Invite removed.",
+				title: $_('kanban.components.boardaccess.toast.invite_canceled.title'),
 				icon: "person_cancel",
 				appearance: "warning",
 				position: "bottom-left",
@@ -267,10 +242,8 @@
 			});
 			await loadInvites();
 		} catch (err) {
-			console.error("cancelInvite error:", err);
 			toast({
-				title: "Cancel failed",
-				desc: "Could not cancel invite.",
+				title: $_('kanban.components.boardaccess.error.cancel_invite_failed'),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "bottom-left",
@@ -290,7 +263,7 @@
 		try {
 			await authFetch(`${kanbanapiurl}board/remove_member`, { board_id: boardId, member_id: memberToRemove.user_id });
 			toast({
-				title: "Member removed",
+				title: $_('kanban.components.boardaccess.toast.member_removed.title'),
 				desc: memberToRemove.display_name,
 				icon: "person_remove",
 				appearance: "warning",
@@ -299,10 +272,9 @@
 			});
 			await loadMembers();
 		} catch (err) {
-			console.error("removeMember error:", err);
 			toast({
-				title: "Remove failed",
-				desc: "Could not remove member.",
+				title: $_('kanban.components.boardaccess.error.remove_failed'),
+				desc: $_('kanban.components.boardaccess.error.remove_failed_desc'),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "bottom-left",
@@ -315,17 +287,16 @@
 	}
 </script>
 
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<!-- Overlay -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="blanket" onclick={(e) => e.target === e.currentTarget && closeOverlay()} tabindex="-1" aria-modal="true">
 	<div class="content">
 		{#if loaded}
 			<header class="header">
-				<h2>Board Access</h2>
+				<h2>{$_('kanban.components.boardaccess.title')}</h2>
 				<div>
-					<IconButton icon="help" disabled appearance="subtle" alt="About board access." onClick={() => {}} />
-					<IconButton icon="close" appearance="primary" onClick={closeOverlay} alt="Close." />
+					<IconButton icon="help" disabled onClick={()=>{}} appearance="subtle" alt={$_('kanban.components.boardaccess.about_alt')} />
+					<IconButton icon="close" appearance="primary" onClick={closeOverlay} alt={$_('kanban.components.boardaccess.close_alt')} />
 				</div>
 			</header>
 
@@ -333,18 +304,14 @@
 				<div class="overlay-body">
 					{#if viewinvites}
 						<div class="members">
-							<h4>Invitations</h4>
+							<h4>{$_('kanban.components.boardaccess.section.invites')}</h4>
 							{#if pendingInvites.length === 0}
-								<p style="color: var(--token-color-text-default-secondary);">No pending invites.</p>
+								<p style="color: var(--token-color-text-default-secondary);">{$_('kanban.components.boardaccess.no_pending_invites')}</p>
 							{:else}
 								{#each pendingInvites as invite (invite.invite_id)}
 									<div class="member">
 										<FlexWrapper direction="row" gap="var(--token-space-3);">
-											<img
-												crossorigin="anonymous"
-												src={invite.avatar_url || "https://account.davidnet.net/placeholder.png"}
-												alt="profile"
-											/>
+											<img crossorigin="anonymous" src={invite.avatar_url} alt="profile" />
 											<a href={`https://account.davidnet.net/profile/${invite.invitee_user_id}`}>
 												{invite.display_name}
 												<span class="secondary">@{invite.username}</span>
@@ -354,17 +321,17 @@
 											icon="person_cancel"
 											appearance="warning"
 											onClick={() => cancelInvite(invite.invite_id)}
-											alt="Cancel invite"
+											alt={$_('kanban.components.boardaccess.cancel_invite_alt')}
 										/>
 									</div>
 								{/each}
 							{/if}
 						</div>
 						<Space height="var(--token-space-4)" />
-						<Button appearance="subtle" onClick={() => (viewinvites = false)}>View members</Button>
+						<Button appearance="subtle" onClick={() => (viewinvites = false)}>{$_('kanban.components.boardaccess.view_members')}</Button>
 					{:else}
 						<div class="members">
-							<h4>Members</h4>
+							<h4>{$_('kanban.components.boardaccess.section.members')}</h4>
 							<div class="member">
 								<FlexWrapper direction="row" gap="var(--token-space-3);">
 									<img crossorigin="anonymous" src={owner?.profile.avatar_url} alt="profile" />
@@ -379,11 +346,7 @@
 							{#each members as member (member.user_id)}
 								<div class="member">
 									<FlexWrapper direction="row" gap="var(--token-space-3);">
-										<img
-											crossorigin="anonymous"
-											src={member.avatar_url || "https://account.davidnet.net/placeholder.png"}
-											alt="profile"
-										/>
+										<img crossorigin="anonymous" src={member.avatar_url} alt="profile" />
 										<a href={`https://account.davidnet.net/profile/${member.user_id}`}>
 											{member.display_name || "Unknown"}
 											<span class="secondary">@{member.username || "unknown"}</span>
@@ -392,19 +355,19 @@
 									<IconButton
 										icon="person_remove"
 										appearance="danger"
-										alt="Unshare"
+										alt={$_('kanban.components.boardaccess.remove_member_alt')}
 										onClick={() => confirmRemoveMember(member.user_id, member.display_name)}
 									/>
 								</div>
 							{/each}
 						</div>
 						<Space height="var(--token-space-4)" />
-						<Button appearance="subtle" onClick={() => (viewinvites = true)}>View invites</Button>
+						<Button appearance="subtle" onClick={() => (viewinvites = true)}>{$_('kanban.components.boardaccess.view_invites')}</Button>
 					{/if}
 				</div>
 
 				<div class="invite-container">
-					<h3 style="margin-bottom: 0px;">Invite new people</h3>
+					<h3 style="margin-bottom: 0px;">{$_('kanban.components.boardaccess.invite.title')}</h3>
 					<FlexWrapper width="100%" height="100%">
 						<div class="invite">
 							<FlexWrapper width="100%" direction="row" justifycontent="flex-start">
@@ -416,29 +379,29 @@
 									bind:value={newidentfierconnection}
 									appearance="subtle"
 								>
-									Quick connections invite
+									{$_('kanban.components.boardaccess.invite.quick_connections')}
 								</Dropdown>
 							</FlexWrapper>
 							<Space height="var(--token-space-2);" />
 							<FlexWrapper width="100%" direction="row" justifycontent="flex-end">
 								<Button appearance="primary" disabled={!newidentfierconnection} onClick={() => inviteuser(newidentfierconnection)}>
-									Invite
+									{$_('kanban.components.boardaccess.invite.button')}
 								</Button>
 							</FlexWrapper>
 						</div>
 						<Space height="var(--token-space-5);" />
 						<div class="invite">
 							<TextField
-								label="Enter the user you want to invite:"
+								label={$_('kanban.components.boardaccess.invite.enter_user_label')}
 								type="text"
-								placeholder="Email or username"
+								placeholder={$_('kanban.components.boardaccess.invite.placeholder')}
 								bind:value={newidentfier}
-								invalid={false}
-								invalidMessage="Unknown user."
 							/>
 							<Space height="var(--token-space-2);" />
 							<FlexWrapper width="100%" direction="row" justifycontent="flex-end">
-								<Button appearance="primary" disabled={!newidentfier} onClick={() => inviteuser(newidentfier)}>Invite</Button>
+								<Button appearance="primary" disabled={!newidentfier} onClick={() => inviteuser(newidentfier)}>
+									{$_('kanban.components.boardaccess.invite.button')}
+								</Button>
 							</FlexWrapper>
 						</div>
 					</FlexWrapper>
@@ -450,12 +413,11 @@
 			</FlexWrapper>
 		{/if}
 
-		<!-- Remove Member Modal -->
 		{#if showRemoveMemberModal && memberToRemove}
 			<Modal
-				title="Remove member?"
+				title={$_('kanban.components.boardaccess.modal.remove_title')}
 				titleIcon="person_remove"
-				desc={`Are you sure you want to remove ${memberToRemove.display_name} from the board? This cannot be undone.`}
+				desc={$_('kanban.components.boardaccess.modal.remove_desc', {values: { name: memberToRemove.display_name }})}
 				hasCloseBtn
 				on:close={() => {
 					showRemoveMemberModal = false;
@@ -464,7 +426,7 @@
 				options={[
 					{
 						appearance: "subtle",
-						content: "Cancel",
+						content: $_('kanban.components.boardaccess.modal.cancel'),
 						onClick: () => {
 							showRemoveMemberModal = false;
 							memberToRemove = null;
@@ -472,7 +434,7 @@
 					},
 					{
 						appearance: "danger",
-						content: "Remove",
+						content: $_('kanban.components.boardaccess.modal.remove'),
 						onClick: removeMemberConfirmed
 					}
 				]}
@@ -480,6 +442,7 @@
 		{/if}
 	</div>
 </div>
+
 
 <style>
 	.blanket {

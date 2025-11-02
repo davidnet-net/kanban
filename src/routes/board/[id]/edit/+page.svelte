@@ -4,6 +4,7 @@
 	import { kanbanapiurl } from "$lib/config";
 	import { Button, Dropdown, FlexWrapper, Space, TextField, toast, authFetch } from "@davidnet/svelte-ui";
 	import { onMount } from "svelte";
+	import { _ } from "svelte-i18n";
 
 	let boardId = Number(page.params.id);
 	let boardname: string = "";
@@ -16,8 +17,8 @@
 	let initialVisibility = "";
 
 	const visibilityOptions = [
-		{ label: "Private", value: "private" },
-		{ label: "Public", value: "public" }
+		{ label: $_('kanban.board.id.edit.option.private'), value: "private" },
+		{ label: $_('kanban.board.id.edit.option.public'), value: "public" }
 	];
 
 	// Fetch board details on mount
@@ -39,7 +40,7 @@
 			initialVisibility = visibility;
 		} catch (err) {
 			toast({
-				title: "Something exploded!",
+				title: $_('kanban.board.id.edit.error.something_failed'),
 				desc: "Error: " + err,
 				icon: "crisis_alert",
 				appearance: "danger",
@@ -73,7 +74,7 @@
 			if (!res.ok) {
 				const err = await res.json();
 				toast({
-					title: "Update failed",
+					title: $_('kanban.board.id.edit.error.update_failed'),
 					desc: "Error: " + err,
 					icon: "crisis_alert",
 					appearance: "danger",
@@ -86,8 +87,8 @@
 
 			const updated = await res.json();
 			toast({
-				title: "Board updated.",
-				desc: "Board " + updated.name + " updated successfully.",
+				title: $_('kanban.board.id.edit.toast.board_update_successfull.title'),
+				desc: $_('kanban.board.id.edit.toast.board_update_successfull.desc', { values: { board_name: updated.name}}),
 				icon: "celebration",
 				appearance: "success",
 				position: "bottom-left",
@@ -97,7 +98,7 @@
 		} catch (err) {
 			console.warn("Error updating board:", err);
 			toast({
-				title: "Something failed",
+				title: $_('kanban.board.id.edit.error.something_failed'),
 				desc: "Error: " + err,
 				icon: "crisis_alert",
 				appearance: "danger",
@@ -111,29 +112,29 @@
 </script>
 
 <div class="background">
-	<h2 style="text-align: center; margin: 0.5rem;">Edit board: <br /> {initialName}.</h2>
-	<h4 style="text-align: center; margin: 0px; color: var(--token-color-text-default-secondary);">These are your current settings.</h4>
+	<h2 style="text-align: center; margin: 0.5rem;">{$_('kanban.board.id.edit.title.edit_board')} <br /> {initialName}.</h2>
+	<h4 style="text-align: center; margin: 0px; color: var(--token-color-text-default-secondary);">{$_('kanban.board.id.edit.title.current_settings')}</h4>
 	<Space height="var(--token-space-4)" />
 	<TextField
-		label="Name:"
+		label={$_('kanban.board.id.edit.field.board_name.label')}
 		type="text"
-		placeholder="Enter new board name"
+		placeholder={$_('kanban.board.id.edit.field.board_name.placeholder')}
 		bind:value={boardname}
 		invalid={boardname_invalid}
-		invalidMessage="Name should be max 20 characters. And may not contain special characters."
+		invalidMessage={$_('kanban.board.id.edit.field.board_name.invalid')}
 	/>
 	<Space height="var(--token-space-3)" />
 
 	<FlexWrapper direction="column" alignitems="flex-start" width="100%">
-		<span>Board visibility:</span>
+		<span>{$_('kanban.board.id.edit.title.board_visibility')}</span>
 		<Space height="var(--token-space-1)" />
 		<Dropdown actions={visibilityOptions} bind:value={visibility} appearance="subtle" />
 	</FlexWrapper>
 
 	<Space height="var(--token-space-3)" />
 	<FlexWrapper direction="row" justifycontent="flex-end" width="100%">
-		<Button appearance="subtle" loading={busy} onClick={() => window.history.back()}>Cancel</Button>
-		<Button appearance="primary" onClick={editBoard} loading={busy} disabled={noChanges}>Edit board</Button>
+		<Button appearance="subtle" loading={busy} onClick={() => window.history.back()}>{$_('kanban.board.id.edit.btn.cancel')}</Button>
+		<Button appearance="primary" onClick={editBoard} loading={busy} disabled={noChanges}>{$_('kanban.board.id.edit.btn.edit_board')}</Button>
 	</FlexWrapper>
 </div>
 
