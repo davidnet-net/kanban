@@ -127,7 +127,7 @@
 			</div>
 
 			<div class="section">
-				<h2 class="section-title">{$_('kanban.index.title.recent_boards')}:</h2>
+				<h2 class="section-title">{$_('kanban.index.title.recent_boards')}</h2>
 				{#if recent_boards.length > 0}
 					<div class="boards-grid">
 						{#each recent_boards as board (board.id)}
