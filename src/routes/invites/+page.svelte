@@ -197,7 +197,7 @@
 								{$_('kanban.invites.title.invited_by')}
 								<Space width="var(--token-space-4);" />
 								<FlexWrapper direction="row" gap="var(--token-space-3);">
-									<img class="pp" src={invite.inviter.avatar_url || "https://account.davidnet.net/placeholder.png"} alt="profile" />
+									<img crossorigin="anonymous" class="pp" src={invite.inviter.avatar_url || "https://account.davidnet.net/placeholder.png"} alt="profile" />
 									<a href={`https://account.davidnet.net/profile/${invite.inviter.id}`}>
 										{invite.inviter.display_name}
 										<span class="secondary">@{invite.inviter.username}</span>
