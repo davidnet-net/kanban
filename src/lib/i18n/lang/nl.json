@@ -92,8 +92,8 @@
     },
     "create": {
       "option": {
-        "private": "Prive",
-        "public": "Public"
+        "private": "Privé",
+        "public": "Openbaar"
       },
       "error": {
         "something_failed": {
@@ -126,7 +126,7 @@
       "id": {
         "edit": {
           "option": {
-            "private": "Privaté",
+            "private": "Privé",
             "public": "Openbaar"
           },
           "error": {

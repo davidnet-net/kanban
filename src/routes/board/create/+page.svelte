@@ -94,7 +94,7 @@
 	<Space height="var(--token-space-3)" />
 
 	<FlexWrapper direction="column" alignitems="flex-start" width="100%">
-		<span>{$_('kanban.create.title.board_visibility')}Bord visibility</span>
+		<span>{$_('kanban.create.title.board_visibility')}</span>
 		<Space height="var(--token-space-1)" />
 		<Dropdown actions={visibilityOptions} bind:value={visibility} appearance="subtle" />
 	</FlexWrapper>
