@@ -15,81 +15,103 @@ register('es', () => import('./lang/es.json'));
 // Region aliases
 // ------------------------------
 const regionAliases: Record<string, string> = {
-	'en-US': 'en',
-	'en-GB': 'en',
-	'en-CA': 'en',
-	'en-AU': 'en',
-	'de-DE': 'de',
-	'de-AT': 'de',
-	'de-CH': 'de',
-	'nl-NL': 'nl',
-	'nl-BE': 'nl',
-	'es-ES': 'es',
-	'es-MX': 'es',
-	'es-AR': 'es',
-	'en': 'en',
-	'de': 'de',
-	'nl': 'nl'
+  'en-US': 'en',
+  'en-GB': 'en',
+  'en-CA': 'en',
+  'en-AU': 'en',
+  'de-DE': 'de',
+  'de-AT': 'de',
+  'de-CH': 'de',
+  'nl-NL': 'nl',
+  'nl-BE': 'nl',
+  'es-ES': 'es',
+  'es-MX': 'es',
+  'es-AR': 'es',
+  'en': 'en',
+  'de': 'de',
+  'nl': 'nl'
 };
 
 // ------------------------------
 // Writable store for current language
 // ------------------------------
-// Default to 'en' initially
 export const currentLanguage = writable('en');
 
 // ------------------------------
 // Initialize svelte-i18n
 // ------------------------------
 init({
-	initialLocale: undefined,
-	fallbackLocale: 'en'
+  initialLocale: undefined,
+  fallbackLocale: 'en'
 });
+console.debug('[Davidnet Translator] svelte-i18n initialized with fallbackLocale: "en"');
 
 // ------------------------------
 // Detect browser language
 // ------------------------------
 if (browser) {
-	const browserLang = window.navigator.language || 'en';
-	const normalizedLang =
-		regionAliases[browserLang] ||
-		regionAliases[browserLang.toLowerCase()] ||
-		browserLang.split('-')[0] ||
-		'en';
+  const browserLang = window.navigator.language || 'en';
+  console.debug('[Davidnet Translator] Browser language detected:', browserLang);
 
-	currentLanguage.set(normalizedLang); 
-	locale.set(normalizedLang);
-	console.log('Using language:', normalizedLang);
+  const normalizedLang =
+    regionAliases[browserLang] ||
+    regionAliases[browserLang.toLowerCase()] ||
+    browserLang.split('-')[0] ||
+    'en';
+
+  currentLanguage.set(normalizedLang);
+  locale.set(normalizedLang);
+
+  console.debug('[Davidnet Translator] Normalized language set:', normalizedLang);
 }
 
 // ------------------------------
 // Utility: ensure locale is loaded before usage
 // ------------------------------
 export const isLocaleLoaded = derived(locale, ($locale, set) => {
-	if (!$locale) return set(false);
+  if (!$locale) {
+    console.debug('[Davidnet Translator] Locale not set yet');
+    return set(false);
+  }
 
-	waitLocale().then(() => set(true));
+  console.debug('[Davidnet Translator] Waiting for locale to load:', $locale);
+  waitLocale()
+    .then(() => {
+      console.debug('[Davidnet Translator] Locale loaded:', $locale);
+      set(true);
+    })
+    .catch((err) => {
+      console.error('[Davidnet Translator] Error loading locale:', err);
+      set(false);
+    });
 });
 
 // ------------------------------
 // Optional HTML escape utility
 // ------------------------------
 export const escapeHtml = (unsafe: string): string => {
-	const replacements: Record<string, string> = {
-		'&': '&amp;',
-		'<': '&lt;',
-		'>': '&gt;',
-		'"': '&quot;',
-		"'": '&#039;'
-	};
-	return unsafe.replace(/[&<>"']/g, (match) => replacements[match]);
+  const replacements: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  const escaped = unsafe.replace(/[&<>"']/g, (match) => replacements[match]);
+  console.debug('[Davidnet Translator] escapeHtml input:', unsafe, 'escaped:', escaped);
+  return escaped;
 };
 
 // ------------------------------
 // Helper to dynamically change language
 // ------------------------------
 export function setAppLanguage(lang: string) {
-	if (!lang) return;
-	currentLanguage.set(lang);
-	locale.set(lang);
+  if (!lang) {
+    console.warn('[Davidnet Translator] setAppLanguage called with empty lang');
+    return;
+  }
+
+  console.debug('[Davidnet Translator] Changing language to:', lang);
+  currentLanguage.set(lang);
+  locale.set(lang);
 }
