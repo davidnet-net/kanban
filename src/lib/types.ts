@@ -14,6 +14,7 @@ export interface SessionInfo {
 		timezone: string;
 		dateFormat: string;
 		firstDay: string;
+		language: string;
 	};
 }
 

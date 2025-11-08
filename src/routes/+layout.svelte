@@ -16,7 +16,7 @@
 	import type { SessionInfo } from "$lib/types";
 	import { page } from "$app/state";
 	import "$lib/i18n/i18n";
-	import { isLocaleLoaded } from "$lib/i18n/i18n";
+	import { isLocaleLoaded, setAppLanguage } from "$lib/i18n/i18n";
 	import { get } from "svelte/store";
 
 	let { children } = $props();
@@ -65,6 +65,7 @@
 			}
 
 			authed = true;
+			setAppLanguage(si.preferences.language);
 
 			setInterval(() => {
 				refreshAccessToken(correlationID, true, false);

@@ -1,14 +1,19 @@
+// src/lib/i18n/i18n.ts
 import { browser } from '$app/environment';
-import { derived } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 import { init, register, locale, waitLocale } from 'svelte-i18n';
 
-// --- Base languages ---
+// ------------------------------
+// Register base languages
+// ------------------------------
 register('en', () => import('./lang/en.json'));
 register('de', () => import('./lang/de.json'));
 register('nl', () => import('./lang/nl.json'));
 register('es', () => import('./lang/es.json'));
 
-// --- Region variants (reuse base language files) ---
+// ------------------------------
+// Region aliases
+// ------------------------------
 const regionAliases: Record<string, string> = {
 	'en-US': 'en',
 	'en-GB': 'en',
@@ -21,35 +26,54 @@ const regionAliases: Record<string, string> = {
 	'nl-BE': 'nl',
 	'es-ES': 'es',
 	'es-MX': 'es',
-	'es-AR': 'es'
+	'es-AR': 'es',
+	'en': 'en',
+	'de': 'de',
+	'nl': 'nl'
 };
 
-// --- Determine browser language ---
-let language = 'en';
-if (browser) {
-	const browserLang = window.navigator.language || 'en';
-	const normalizedLang = regionAliases[browserLang] || regionAliases[browserLang.toLowerCase()] || browserLang.split('-')[0] || 'en';
-	language = normalizedLang;
-}
-console.log('Using language:', language);
+// ------------------------------
+// Writable store for current language
+// ------------------------------
+// Default to 'en' initially
+export const currentLanguage = writable('en');
 
-// --- Init svelte-i18n ---
+// ------------------------------
+// Initialize svelte-i18n
+// ------------------------------
 init({
-	initialLocale: language,
+	initialLocale: undefined,
 	fallbackLocale: 'en'
 });
 
-// --- Ensure locale is loaded before using $t ---
+// ------------------------------
+// Detect browser language
+// ------------------------------
 if (browser) {
-	// Wait until the JSON file for the initial locale is loaded
-	waitLocale().then(() => {
-		console.log('Locale loaded:', language);
-	});
+	const browserLang = window.navigator.language || 'en';
+	const normalizedLang =
+		regionAliases[browserLang] ||
+		regionAliases[browserLang.toLowerCase()] ||
+		browserLang.split('-')[0] ||
+		'en';
+
+	currentLanguage.set(normalizedLang); 
+	locale.set(normalizedLang);
+	console.log('Using language:', normalizedLang);
 }
 
-// --- Utils ---
-export const isLocaleLoaded = derived(locale, ($locale) => typeof $locale === 'string');
+// ------------------------------
+// Utility: ensure locale is loaded before usage
+// ------------------------------
+export const isLocaleLoaded = derived(locale, ($locale, set) => {
+	if (!$locale) return set(false);
 
+	waitLocale().then(() => set(true));
+});
+
+// ------------------------------
+// Optional HTML escape utility
+// ------------------------------
 export const escapeHtml = (unsafe: string): string => {
 	const replacements: Record<string, string> = {
 		'&': '&amp;',
@@ -60,3 +84,12 @@ export const escapeHtml = (unsafe: string): string => {
 	};
 	return unsafe.replace(/[&<>"']/g, (match) => replacements[match]);
 };
+
+// ------------------------------
+// Helper to dynamically change language
+// ------------------------------
+export function setAppLanguage(lang: string) {
+	if (!lang) return;
+	currentLanguage.set(lang);
+	locale.set(lang);
+}

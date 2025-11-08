@@ -33,7 +33,7 @@
 		"vite": "^7.0.4"
 	},
 	"dependencies": {
-		"@davidnet/svelte-ui": "^1.13.7",
+		"@davidnet/svelte-ui": "^1.13.9",
 		"marked": "^16.2.1",
 		"svelte-dnd-action": "^0.9.65",
 		"svelte-i18n": "^4.0.1"
