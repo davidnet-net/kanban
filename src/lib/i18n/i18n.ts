@@ -6,6 +6,7 @@ import { init, register, locale, waitLocale } from 'svelte-i18n';
 register('en', () => import('./lang/en.json'));
 register('de', () => import('./lang/de.json'));
 register('nl', () => import('./lang/nl.json'));
+register('es', () => import('./lang/es.json'));
 
 // --- Region variants (reuse base language files) ---
 const regionAliases: Record<string, string> = {
@@ -18,9 +19,9 @@ const regionAliases: Record<string, string> = {
 	'de-CH': 'de',
 	'nl-NL': 'nl',
 	'nl-BE': 'nl',
-	'nl': 'nl',
-	'en': 'en',
-	'de': 'de'
+	'es-ES': 'es',
+	'es-MX': 'es',
+	'es-AR': 'es'
 };
 
 // --- Determine browser language ---
