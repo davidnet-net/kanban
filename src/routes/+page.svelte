@@ -110,12 +110,6 @@
 			<div class="section">
 				<LinkButton appearance="primary" href="/board/create">{$_('kanban.index.btn.create_board')}</LinkButton>
 				<LinkButton appearance="subtle" href="/invites">{$_('kanban.index.btn.invites')}</LinkButton>
-				<LinkIconButton
-					icon="source_notes"
-					appearance="subtle"
-					href="https://github.com/davidnet-net/kanban/commits/main/"
-					alt={$_('kanban.index.btn.alt.update_history')}
-				/>
 				<IconButton
 					icon="auto_delete"
 					appearance="subtle"
