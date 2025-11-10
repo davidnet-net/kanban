@@ -665,18 +665,18 @@
 </script>
 
 {#if loading}
-	<p class="loading-text">{$_('kanban.board.id.title.loading', { values: { board_name: $boardMeta?.name ?? id}})}</p>
+	<p class="loading-text">{$_("kanban.board.id.title.loading", { values: { board_name: $boardMeta?.name ?? id } })}</p>
 	<Loader />
-	<p>{$_('kanban.board.id.title.getting_ready')}</p>
+	<p>{$_("kanban.board.id.title.getting_ready")}</p>
 {:else if common_error}
 	<Icon size="3rem;" color="var(--token-color-text-danger);" icon="crisis_alert" />
 	<p class="loading-text">{common_error}</p>
-	<LinkButton appearance="primary" href="/">{$_('kanban.board.id.btn.my_boards')}</LinkButton>
+	<LinkButton appearance="primary" href="/">{$_("kanban.board.id.btn.my_boards")}</LinkButton>
 	<Space height="var(--token-space-3);" />
 	<Button
 		onClick={() => {
 			history.back();
-		}}>{$_('kanban.board.id.btn.back')}</Button
+		}}>{$_("kanban.board.id.btn.back")}</Button
 	>
 {:else}
 	<div class="board" style="background-image: url({$boardMeta?.background_url});">
@@ -688,13 +688,13 @@
 					iconbefore="view_kanban"
 					actions={[
 						{ label: "Kanban", value: "kanban" },
-						{ label: $_('kanban.board.id.dropdown.view.calendar'), value: "calendar" }
+						{ label: $_("kanban.board.id.dropdown.view.calendar"), value: "calendar" }
 					]}
 					bind:value={view}
 					appearance="subtle"
 					alwaysshowslot
 				>
-					{$_('kanban.board.id.dropdown.view.label')}
+					{$_("kanban.board.id.dropdown.view.label")}
 				</Dropdown>
 			</div>
 			<div class="nav-center"></div>
@@ -702,7 +702,7 @@
 				{#if $board_favorited}
 					<IconButton
 						appearance="warning"
-						alt={$_('kanban.board.id.btn.remove_favorite')}
+						alt={$_("kanban.board.id.btn.remove_favorite")}
 						onClick={() => toggleFav(false)}
 						icon="star_shine"
 						disabled={!authencated}
@@ -710,7 +710,7 @@
 				{:else}
 					<IconButton
 						appearance="subtle"
-						alt={$_('kanban.board.id.btn.add_favorite')}
+						alt={$_("kanban.board.id.btn.add_favorite")}
 						onClick={() => toggleFav(true)}
 						icon="star"
 						disabled={!authencated}
@@ -721,10 +721,10 @@
 					<IconDropdown
 						appearance="subtle"
 						icon="more_horiz"
-						alt={$_('kanban.board.id.dropdown.board_more_actions.label')}
+						alt={$_("kanban.board.id.dropdown.board_more_actions.label")}
 						actions={[
 							{
-								label: $_('kanban.board.id.dropdown.board_more_actions.leave_board'),
+								label: $_("kanban.board.id.dropdown.board_more_actions.leave_board"),
 								onClick: () => {
 									showBoardLeaveModal = true;
 								}
@@ -738,30 +738,30 @@
 						onClick={() => {
 							BoardAccessOverlayOpen = true;
 						}}
-						disabled={!is_owner}>{$_('kanban.board.id.btn.share')}</Button
+						disabled={!is_owner}>{$_("kanban.board.id.btn.share")}</Button
 					>
 					<IconDropdown
 						appearance="subtle"
 						icon="more_horiz"
-						alt={$_('kanban.board.id.dropdown.board_more_actions.label')}
+						alt={$_("kanban.board.id.dropdown.board_more_actions.label")}
 						disabled={!is_owner}
 						actions={[
 							{
-								label: $_('kanban.board.id.dropdown.board_more_actions.delete_board'),
+								label: $_("kanban.board.id.dropdown.board_more_actions.delete_board"),
 								onClick: () => {
 									showBoardDelModal = true;
 								}
 							},
 							{
-								label: $_('kanban.board.id.dropdown.board_more_actions.edit_board'),
+								label: $_("kanban.board.id.dropdown.board_more_actions.edit_board"),
 								onClick: () => {
 									goto("/board/" + id + "/edit");
 								}
 							},
 							{
-								label: $_('kanban.board.id.dropdown.board_more_actions.change_background'),
+								label: $_("kanban.board.id.dropdown.board_more_actions.change_background"),
 								onClick: () => {
-									goto("/board/" + id + "/background")
+									goto("/board/" + id + "/background");
 								}
 							}
 						]}
@@ -790,23 +790,23 @@
 							<IconDropdown
 								appearance="subtle"
 								icon="more_horiz"
-								alt={$_('kanban.board.id.dropdown.list_more_actions.label')}
+								alt={$_("kanban.board.id.dropdown.list_more_actions.label")}
 								disabled={!can_edit}
 								actions={[
 									{
-										label: $_('kanban.board.id.dropdown.list_more_actions.delete_list'),
+										label: $_("kanban.board.id.dropdown.list_more_actions.delete_list"),
 										onClick: () => {
 											deleteList(Number(list.id), list.name);
 										}
 									},
 									{
-										label: $_('kanban.board.id.dropdown.list_more_actions.move_left'),
+										label: $_("kanban.board.id.dropdown.list_more_actions.move_left"),
 										onClick: () => {
 											moveListLeft(Number(list.id));
 										}
 									},
 									{
-										label: $_('kanban.board.id.dropdown.list_more_actions.move_right'),
+										label: $_("kanban.board.id.dropdown.list_more_actions.move_right"),
 										onClick: () => {
 											moveListRight(Number(list.id));
 										}
@@ -843,7 +843,7 @@
 								<input
 									class="card new-card-input"
 									bind:value={$newCardText[list.id]}
-									placeholder={$_('kanban.board.id.field.new_card.placeholder')}
+									placeholder={$_("kanban.board.id.field.new_card.placeholder")}
 									onkeydown={(e) => e.key === "Enter" && confirmNewCard(list.id)}
 									onblur={() => confirmNewCard(list.id)}
 									use:autoFocus
@@ -861,7 +861,7 @@
 										{ label: "Option B", onClick: () => {} }
 									]}
 								>
-									{$_('kanban.board.id.btn.add_new_card')}
+									{$_("kanban.board.id.btn.add_new_card")}
 								</SplitButton>
 							</FlexWrapper>
 						</div>
@@ -873,13 +873,13 @@
 						<input
 							bind:value={$newListName}
 							class="new-list-input"
-							placeholder={$_('kanban.board.id.field.new_list.placeholder')}
+							placeholder={$_("kanban.board.id.field.new_list.placeholder")}
 							onkeydown={(e) => e.key === "Enter" && confirmNewList()}
 							onblur={confirmNewList}
 							use:autoFocusInput
 						/>
 					{:else}
-						<Button appearance="subtle" onClick={() => addingList.set(true)}>{$_('kanban.board.id.btn.add_new_list')}</Button>
+						<Button appearance="subtle" onClick={() => addingList.set(true)}>{$_("kanban.board.id.btn.add_new_list")}</Button>
 					{/if}
 				</div>
 			</div>
@@ -894,7 +894,7 @@
 								bind:value={CalendarListID}
 								actions={$lists.length > 0
 									? $lists.map((l) => ({ label: l.name, value: l.id }))
-									: [{ label: $_('kanban.board.id.error.no_lists'), value: null }]}
+									: [{ label: $_("kanban.board.id.error.no_lists"), value: null }]}
 							/>
 						</FlexWrapper>
 
@@ -909,10 +909,9 @@
 								dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" }
 							}}
 							onfinalize={(e) => {
-								if (!currentHoverDate) return;
+								if (!currentHoverDate || !e.detail.items?.length) return;
 
 								const movedCard = e.detail.items[0];
-								console.log(e.detail.info.id);
 
 								calendarEvents.update((evts) => {
 									const currentCards = evts[String(currentHoverDate)] ?? [];
@@ -931,7 +930,7 @@
 								}
 							}}
 						>
-							{#each $cards[CalendarListID] ?? [] as card (card.id)}
+							{#each $cards[CalendarListID] ?? [] as card (card?.id)}
 								<div class="card">{card.name}</div>
 							{/each}
 						</div>
@@ -941,9 +940,9 @@
 					<div class="calendar">
 						<FlexWrapper direction="row" width="100%" gap="var(--token-space-3)">
 							<FlexWrapper direction="row" width="100%" gap="var(--token-space-3)">
-								<IconButton icon="chevron_backward" onClick={prevMonth} alt={$_('kanban.board.id.btn.previous_month')} />
+								<IconButton icon="chevron_backward" onClick={prevMonth} alt={$_("kanban.board.id.btn.previous_month")} />
 								<h2>{MONTHS[month]} {year}</h2>
-								<IconButton icon="chevron_forward" onClick={nextMonth} alt={$_('kanban.board.id.btn.next_month')} />
+								<IconButton icon="chevron_forward" onClick={nextMonth} alt={$_("kanban.board.id.btn.next_month")} />
 							</FlexWrapper>
 							<Button
 								onClick={() => {
@@ -951,23 +950,22 @@
 									year = today.getFullYear();
 									month = today.getMonth();
 								}}
-								appearance="subtle">{$_('kanban.board.id.btn.today')}</Button
+								appearance="subtle">{$_("kanban.board.id.btn.today")}</Button
 							>
 						</FlexWrapper>
 
 						<div class="calendar-grid-header">
-							{#each DAYS as day}
+							{#each DAYS as day (day)}
 								<div class="cell-header">{day}</div>
 							{/each}
 						</div>
 
 						<div class="calendar-grid-container">
-							{#each grid as week}
+							{#each grid as week (week)}
 								<div class="calendar-grid">
-									{#each week as day}
+									{#each week as day (day)}
 										<div class="cell">
 											{#if day !== null}
-												<!-- svelte-ignore a11y_no_static_element_interactions -->
 												<div
 													class="cell-content"
 													data-iso={getIsoDate(year, month, day)}
@@ -981,7 +979,7 @@
 													}}
 												>
 													<div class="cell-date">{day}</div>
-													{#each $calendarEvents[getIsoDate(year, month, day)] ?? [] as card (card.id)}
+													{#each $calendarEvents[getIsoDate(year, month, day)] ?? [] as card (card?.id)}
 														<div class="example-event">{card.name}</div>
 													{/each}
 												</div>
@@ -997,7 +995,7 @@
 				{/if}
 			</div>
 		{:else}
-			<h1>{$_('kanban.board.id.title.unhandled_view')}</h1>
+			<h1>{$_("kanban.board.id.title.unhandled_view")}</h1>
 			<Loader />
 		{/if}
 	</div>
@@ -1005,36 +1003,36 @@
 
 {#if showBoardDelModal}
 	<Modal
-		title={$_('kanban.board.id.modal.BoardDelModal.title', { values: { board_name: $boardMeta?.name ?? id}})}
+		title={$_("kanban.board.id.modal.BoardDelModal.title", { values: { board_name: $boardMeta?.name ?? id } })}
 		titleIcon="delete_forever"
-		desc={$_('kanban.board.id.modal.BoardDelModal.desc')}
+		desc={$_("kanban.board.id.modal.BoardDelModal.desc")}
 		hasCloseBtn
 		on:close={() => (showBoardDelModal = false)}
 		options={[
 			{
 				appearance: "subtle",
-				content: $_('kanban.board.id.modal.BoardDelModal.cancel'),
+				content: $_("kanban.board.id.modal.BoardDelModal.cancel"),
 				onClick: () => (showBoardDelModal = false)
 			},
-			{ appearance: "danger", content: $_('kanban.board.id.modal.BoardDelModal.delete_board'), onClick: DeleteBoard }
+			{ appearance: "danger", content: $_("kanban.board.id.modal.BoardDelModal.delete_board"), onClick: DeleteBoard }
 		]}
 	/>
 {/if}
 
 {#if showBoardLeaveModal}
 	<Modal
-		title={$_('kanban.board.id.modal.BoardLeaveModal.title', { values: { board_name: $boardMeta?.name ?? id}})}
+		title={$_("kanban.board.id.modal.BoardLeaveModal.title", { values: { board_name: $boardMeta?.name ?? id } })}
 		titleIcon="door_open"
-		desc={$_('kanban.board.id.modal.BoardLeaveModal.desc')}
+		desc={$_("kanban.board.id.modal.BoardLeaveModal.desc")}
 		hasCloseBtn
 		on:close={() => (showBoardLeaveModal = false)}
 		options={[
 			{
 				appearance: "subtle",
-				content: $_('kanban.board.id.modal.BoardLeaveModal.cancel'),
+				content: $_("kanban.board.id.modal.BoardLeaveModal.cancel"),
 				onClick: () => (showBoardLeaveModal = false)
 			},
-			{ appearance: "danger", content: $_('kanban.board.id.modal.BoardLeaveModal.leave'), onClick: LeaveBoard }
+			{ appearance: "danger", content: $_("kanban.board.id.modal.BoardLeaveModal.leave"), onClick: LeaveBoard }
 		]}
 	/>
 {/if}
