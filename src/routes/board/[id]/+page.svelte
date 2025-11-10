@@ -617,15 +617,7 @@
 
 	function buildMonthGrid(year: number, monthIndex: number) {
 		const daysInMonth = getDaysInMonth(year, monthIndex);
-
-		// Haal de eerste dag van de maand op
-		let firstDay = new Date(year, monthIndex, 1).getDay();
-
-		// Corrigeer op basis van gebruikersvoorkeur
-		// (getDay() → 0 = zondag, 1 = maandag, ... 6 = zaterdag)
-		if (si?.preferences?.firstDay === "monday") {
-			firstDay = (firstDay + 6) % 7; // schuif zodat maandag = 0
-		}
+		const firstDay = new Date(year, monthIndex, 1).getDay();
 
 		const weeks: (number | null)[][] = [];
 		let currentWeek: (number | null)[] = new Array(7).fill(null);
