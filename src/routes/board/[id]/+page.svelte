@@ -883,118 +883,136 @@
 					{/if}
 				</div>
 			</div>
-		{:else if view === "calendar"}
-			<div class="lists">
-				{#if CalendarListID}
-					<!-- Select which list to display on calendar -->
-					<div class="list">
-						<FlexWrapper width="100%">
-							<Dropdown
-								appearance="subtle"
-								bind:value={CalendarListID}
-								actions={$lists.length > 0
-									? $lists.map((l) => ({ label: l.name, value: l.id }))
-									: [{ label: $_("kanban.board.id.error.no_lists"), value: null }]}
-							/>
-						</FlexWrapper>
+{:else if view === "calendar"}
+<div class="lists">
+  {#if CalendarListID}
+    <!-- Select which list to display on calendar -->
+    <div class="list">
+      <FlexWrapper width="100%">
+        <Dropdown
+          appearance="subtle"
+          bind:value={CalendarListID}
+          actions={$lists.length > 0
+            ? $lists.map((l) => ({ label: l.name, value: l.id }))
+            : [{ label: $_("kanban.board.id.error.no_lists"), value: null }]}
+        />
+      </FlexWrapper>
 
-						<!-- List cards (DnD enabled to move to calendar) -->
-						<div
-							class="cards"
-							use:dndzone={{
-								items: $cards[CalendarListID] ?? [],
-								type: "card",
-								dropFromOthersDisabled: false,
-								flipDurationMs: 200,
-								dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" }
-							}}
-							onfinalize={(e) => {
-								if (!currentHoverDate || !e.detail.items?.length) return;
+      <!-- List cards (DnD enabled to move to calendar) -->
+      <div class="cards">
+        {#each $cards[CalendarListID] ?? [] as card (card.id)}
+          <div class="card"
+            use:dndzone={{
+              items: [$cards[CalendarListID].find(c => c.id === card.id)],
+              type: "card",
+              dropFromOthersDisabled: false,
+              flipDurationMs: 200,
+              dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" }
+            }}
+            onfinalize={(e) => {
+              const movedCard = e.detail.items[0];
+              if (!movedCard) return;
 
-								const movedCard = e.detail.items[0];
+              // voeg toe aan eerste dag of een fallback dag
+              const todayIso = getIsoDate(year, month, 1);
+              calendarEvents.update(evts => {
+                const currentCards = evts[todayIso] ?? [];
+                return { ...evts, [todayIso]: [...currentCards, movedCard] };
+              });
 
-								calendarEvents.update((evts) => {
-									const currentCards = evts[String(currentHoverDate)] ?? [];
-									return {
-										...evts,
-										[String(currentHoverDate)]: [...currentCards, movedCard]
-									};
-								});
+              // verwijder uit lijst
+              const sourceListId = movedCard.listId;
+              if (sourceListId) {
+                cards.update(c => ({
+                  ...c,
+                  [sourceListId]: c[sourceListId].filter(card => card.id !== movedCard.id)
+                }));
+              }
+            }}
+          >
+            {card.name}
+          </div>
+        {/each}
+      </div>
+    </div>
 
-								const sourceListId = movedCard.listId;
-								if (sourceListId) {
-									cards.update((c) => ({
-										...c,
-										[sourceListId]: c[sourceListId].filter((card) => card.id !== movedCard.id)
-									}));
-								}
-							}}
-						>
-							{#each $cards[CalendarListID] ?? [] as card (card?.id)}
-								<div class="card">{card.name}</div>
-							{/each}
-						</div>
-					</div>
+    <!-- Calendar Grid -->
+    <div class="calendar">
+      <FlexWrapper direction="row" width="100%" gap="var(--token-space-3)">
+        <FlexWrapper direction="row" width="100%" gap="var(--token-space-3)">
+          <IconButton icon="chevron_backward" onClick={prevMonth} alt={$_("kanban.board.id.btn.previous_month")} />
+          <h2>{MONTHS[month]} {year}</h2>
+          <IconButton icon="chevron_forward" onClick={nextMonth} alt={$_("kanban.board.id.btn.next_month")} />
+        </FlexWrapper>
+        <Button
+          onClick={() => {
+            const today = new Date();
+            year = today.getFullYear();
+            month = today.getMonth();
+          }}
+          appearance="subtle">{$_("kanban.board.id.btn.today")}</Button>
+      </FlexWrapper>
 
-					<!-- Calendar Grid -->
-					<div class="calendar">
-						<FlexWrapper direction="row" width="100%" gap="var(--token-space-3)">
-							<FlexWrapper direction="row" width="100%" gap="var(--token-space-3)">
-								<IconButton icon="chevron_backward" onClick={prevMonth} alt={$_("kanban.board.id.btn.previous_month")} />
-								<h2>{MONTHS[month]} {year}</h2>
-								<IconButton icon="chevron_forward" onClick={nextMonth} alt={$_("kanban.board.id.btn.next_month")} />
-							</FlexWrapper>
-							<Button
-								onClick={() => {
-									const today = new Date();
-									year = today.getFullYear();
-									month = today.getMonth();
-								}}
-								appearance="subtle">{$_("kanban.board.id.btn.today")}</Button
-							>
-						</FlexWrapper>
+      <div class="calendar-grid-header">
+        {#each DAYS as day (day)}
+          <div class="cell-header">{day}</div>
+        {/each}
+      </div>
 
-						<div class="calendar-grid-header">
-							{#each DAYS as day (day)}
-								<div class="cell-header">{day}</div>
-							{/each}
-						</div>
+      <div class="calendar-grid-container">
+        {#each grid as week (week)}
+          <div class="calendar-grid">
+            {#each week as day (day)}
+              <div class="cell">
+                {#if day !== null}
+                  <!-- Elke cel is een eigen dndzone -->
+                  <div
+                    class="cell-content"
+                    use:dndzone={{
+                      items: $calendarEvents[getIsoDate(year, month, day)] ?? [],
+                      type: "card",
+                      dropFromOthersDisabled: false,
+                      flipDurationMs: 200,
+                      dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" }
+                    }}
+                    onfinalize={(e) => {
+                      const movedCard = e.detail.items.find(c => !$calendarEvents[getIsoDate(year, month, day)]?.some(existing => existing.id === c.id));
+                      if (!movedCard) return;
 
-						<div class="calendar-grid-container">
-							{#each grid as week (week)}
-								<div class="calendar-grid">
-									{#each week as day (day)}
-										<div class="cell">
-											{#if day !== null}
-												<div
-													class="cell-content"
-													data-iso={getIsoDate(year, month, day)}
-													onmouseenter={() => (currentHoverDate = getIsoDate(year, month, day))}
-													use:dndzone={{
-														items: $calendarEvents[getIsoDate(year, month, day)] ?? [],
-														type: "card",
-														dropFromOthersDisabled: false,
-														flipDurationMs: 200,
-														dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" }
-													}}
-												>
-													<div class="cell-date">{day}</div>
-													{#each $calendarEvents[getIsoDate(year, month, day)] ?? [] as card (card?.id)}
-														<div class="example-event">{card.name}</div>
-													{/each}
-												</div>
-											{:else}
-												<div class="cell"><div class="cell-content"></div></div>
-											{/if}
-										</div>
-									{/each}
-								</div>
-							{/each}
-						</div>
-					</div>
-				{/if}
-			</div>
-		{:else}
+                      // Voeg kaart toe aan deze dag
+                      calendarEvents.update(evts => {
+                        const currentCards = evts[getIsoDate(year, month, day)] ?? [];
+                        return { ...evts, [getIsoDate(year, month, day)]: [...currentCards, movedCard] };
+                      });
+
+                      // Verwijder uit source list
+                      const sourceListId = movedCard.listId;
+                      if (sourceListId) {
+                        cards.update(c => ({
+                          ...c,
+                          [sourceListId]: c[sourceListId].filter(card => card.id !== movedCard.id)
+                        }));
+                      }
+                    }}
+                  >
+                    <div class="cell-date">{day}</div>
+                    {#each $calendarEvents[getIsoDate(year, month, day)] ?? [] as card (card.id)}
+                      <div class="example-event">{card.name}</div>
+                    {/each}
+                  </div>
+                {:else}
+                  <div class="cell"><div class="cell-content"></div></div>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        {/each}
+      </div>
+    </div>
+  {/if}
+</div>
+{:else}
+
 			<h1>{$_("kanban.board.id.title.unhandled_view")}</h1>
 			<Loader />
 		{/if}
