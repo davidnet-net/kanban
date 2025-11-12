@@ -139,7 +139,7 @@
 
 	async function denyInvite(inviteId: number) {
 		try {
-			await authFetch(`${kanbanapiurl}invite/deny`, { invite_id: inviteId });
+			await authFetch(`${kanbanapiurl}invite/decline`, { invite_id: inviteId });
 			toast({
 				title: $_('kanban.invites.toast.invite_declined.title'),
 				desc: $_('kanban.invites.toast.invite_declined.desc'),
