@@ -354,11 +354,6 @@
 		}
 	}
 
-	function getIsoDate(year: number, month: number, day: number) {
-		const date = new Date(year, month, day);
-		return date.toISOString().split("T")[0];
-	}
-
 	// --- Add list ---
 	async function confirmNewList() {
 		const name = get(newListName)?.trim();
@@ -669,7 +664,7 @@ let currentHoverDate: string | null = null;
 
 // central refresh function: call whenever inputs change (year, month, preference)
 function refreshCalendar() {
-	DAYS = getWeekdayLabels(si.preferences.firstDay);
+	DAYS = getWeekdayLabels(String(si?.preferences.firstDay));
 	grid = buildMonthGrid(year, month);
 }
 
