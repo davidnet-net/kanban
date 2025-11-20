@@ -230,7 +230,7 @@
 
 			setupWS(Number(id));
 
-			await loadImage($boardMeta?.background_url);
+			await loadImage(String($boardMeta?.background_url));
 		} finally {
 			loading = false;
 		}
