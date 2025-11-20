@@ -631,12 +631,9 @@ function getIsoDate(year: number, monthIndex: number, day: number) {
 	return `${year}-${m}-${d}`;
 }
 
-function buildMonthGrid(year: number, monthIndex: number) {
-	const daysInMonth = getDaysInMonth(year, monthIndex);
-
-	// use the user's preference string directly
-	const jsDay = new Date(year, monthIndex, 1).getDay();
-	const firstDay = getWeekdayIndex(jsDay, si.preferences.firstDay);
+	function buildMonthGrid(year: number, monthIndex: number) {
+		const daysInMonth = getDaysInMonth(year, monthIndex);
+		const firstDay = new Date(year, monthIndex, 1).getDay();
 
 	const weeks: (number | null)[][] = [];
 	let currentWeek: (number | null)[] = new Array(7).fill(null);
