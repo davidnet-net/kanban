@@ -94,6 +94,15 @@
 		return res.json();
 	}
 
+	async function loadImage(url: string) {
+		return new Promise((resolve, reject) => {
+			const img = new Image();
+			img.src = url;
+			img.onload = () => resolve(img);
+			img.onerror = reject;
+		});
+	}
+
 	async function fetchBoard() {
 		try {
 			const res = await fetch(`${kanbanapiurl}board/get`, {
@@ -220,6 +229,8 @@
 			}
 
 			setupWS(Number(id));
+
+			await loadImage($boardMeta?.background_url);
 		} finally {
 			loading = false;
 		}
@@ -571,118 +582,118 @@
 	let openedCard: Card | null = $state(null);
 	let BoardAccessOverlayOpen: boolean = $state(false);
 
-// Calendar
-const MONTHS = [
-	$_("kanban.dates.month.january"),
-	$_("kanban.dates.month.february"),
-	$_("kanban.dates.month.march"),
-	$_("kanban.dates.month.april"),
-	$_("kanban.dates.month.may"),
-	$_("kanban.dates.month.june"),
-	$_("kanban.dates.month.july"),
-	$_("kanban.dates.month.august"),
-	$_("kanban.dates.month.september"),
-	$_("kanban.dates.month.october"),
-	$_("kanban.dates.month.november"),
-	$_("kanban.dates.month.december")
-];
-
-// Helper: return an array of weekday labels in the correct order
-function getWeekdayLabels(firstDay: string) {
-	const base = [
-		$_("kanban.dates.day.sun"),
-		$_("kanban.dates.day.mon"),
-		$_("kanban.dates.day.tue"),
-		$_("kanban.dates.day.wed"),
-		$_("kanban.dates.day.thu"),
-		$_("kanban.dates.day.fri"),
-		$_("kanban.dates.day.sat")
+	// Calendar
+	const MONTHS = [
+		$_("kanban.dates.month.january"),
+		$_("kanban.dates.month.february"),
+		$_("kanban.dates.month.march"),
+		$_("kanban.dates.month.april"),
+		$_("kanban.dates.month.may"),
+		$_("kanban.dates.month.june"),
+		$_("kanban.dates.month.july"),
+		$_("kanban.dates.month.august"),
+		$_("kanban.dates.month.september"),
+		$_("kanban.dates.month.october"),
+		$_("kanban.dates.month.november"),
+		$_("kanban.dates.month.december")
 	];
 
-	return firstDay === "sunday" ? base : base.slice(1).concat(base[0]); // monday-first: Mon..Sun
-}
+	// Helper: return an array of weekday labels in the correct order
+	function getWeekdayLabels(firstDay: string) {
+		const base = [
+			$_("kanban.dates.day.sun"),
+			$_("kanban.dates.day.mon"),
+			$_("kanban.dates.day.tue"),
+			$_("kanban.dates.day.wed"),
+			$_("kanban.dates.day.thu"),
+			$_("kanban.dates.day.fri"),
+			$_("kanban.dates.day.sat")
+		];
 
-// IMPORTANT: produce a plain array (not a store) so your template {#each DAYS as day} works
-let DAYS: string[] = getWeekdayLabels(si.preferences.firstDay);
+		return firstDay === "sunday" ? base : base.slice(1).concat(base[0]); // monday-first: Mon..Sun
+	}
 
-let year: number = $state(new Date().getFullYear());
-let month: number = $state(new Date().getMonth());
+	// IMPORTANT: produce a plain array (not a store) so your template {#each DAYS as day} works
+	let DAYS: string[] = getWeekdayLabels(si.preferences.firstDay);
 
-function isLeapYear(year: number) {
-	return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
-}
+	let year: number = $state(new Date().getFullYear());
+	let month: number = $state(new Date().getMonth());
 
-function getDaysInMonth(year: number, monthIndex: number) {
-	const monthLengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-	if (monthIndex === 1 && isLeapYear(year)) return 29;
-	return monthLengths[monthIndex];
-}
+	function isLeapYear(year: number) {
+		return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+	}
 
-// Convert JS weekday (Sunday=0) to Monday-first or Sunday-first index
-function getWeekdayIndex(jsDay: number, firstDay: string) {
-	if (firstDay === "sunday") return jsDay; // JS default is Sunday-first
-	// Monday-first: map JS 0 (Sunday) -> 6, JS 1 (Monday) -> 0, etc.
-	return (jsDay + 6) % 7;
-}
+	function getDaysInMonth(year: number, monthIndex: number) {
+		const monthLengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+		if (monthIndex === 1 && isLeapYear(year)) return 29;
+		return monthLengths[monthIndex];
+	}
 
-function getIsoDate(year: number, monthIndex: number, day: number) {
-	const m = String(monthIndex + 1).padStart(2, "0");
-	const d = String(day).padStart(2, "0");
-	return `${year}-${m}-${d}`;
-}
+	// Convert JS weekday (Sunday=0) to Monday-first or Sunday-first index
+	function getWeekdayIndex(jsDay: number, firstDay: string) {
+		if (firstDay === "sunday") return jsDay; // JS default is Sunday-first
+		// Monday-first: map JS 0 (Sunday) -> 6, JS 1 (Monday) -> 0, etc.
+		return (jsDay + 6) % 7;
+	}
+
+	function getIsoDate(year: number, monthIndex: number, day: number) {
+		const m = String(monthIndex + 1).padStart(2, "0");
+		const d = String(day).padStart(2, "0");
+		return `${year}-${m}-${d}`;
+	}
 
 	function buildMonthGrid(year: number, monthIndex: number) {
 		const daysInMonth = getDaysInMonth(year, monthIndex);
 		const firstDay = new Date(year, monthIndex, 1).getDay();
 
-	const weeks: (number | null)[][] = [];
-	let currentWeek: (number | null)[] = new Array(7).fill(null);
+		const weeks: (number | null)[][] = [];
+		let currentWeek: (number | null)[] = new Array(7).fill(null);
 
-	for (let d = 0; d < daysInMonth; d++) {
-		const dayOfWeek = (firstDay + d) % 7;
-		currentWeek[dayOfWeek] = d + 1;
+		for (let d = 0; d < daysInMonth; d++) {
+			const dayOfWeek = (firstDay + d) % 7;
+			currentWeek[dayOfWeek] = d + 1;
 
-		// push week on Saturday column (index 6) or at month end
-		if (dayOfWeek === 6 || d === daysInMonth - 1) {
-			weeks.push(currentWeek);
-			currentWeek = new Array(7).fill(null);
+			// push week on Saturday column (index 6) or at month end
+			if (dayOfWeek === 6 || d === daysInMonth - 1) {
+				weeks.push(currentWeek);
+				currentWeek = new Array(7).fill(null);
+			}
 		}
+
+		return weeks;
 	}
 
-	return weeks;
-}
+	// grid is a plain variable (array of weeks)
+	let grid = buildMonthGrid(year, month);
 
-// grid is a plain variable (array of weeks)
-let grid = buildMonthGrid(year, month);
+	// events
+	const calendarEvents = writable<{ [isoDate: string]: any[] }>({});
+	let currentHoverDate: string | null = null;
 
-// events
-const calendarEvents = writable<{ [isoDate: string]: any[] }>({});
-let currentHoverDate: string | null = null;
+	// central refresh function: call whenever inputs change (year, month, preference)
+	function refreshCalendar() {
+		DAYS = getWeekdayLabels(String(si?.preferences.firstDay));
+		grid = buildMonthGrid(year, month);
+	}
 
-// central refresh function: call whenever inputs change (year, month, preference)
-function refreshCalendar() {
-	DAYS = getWeekdayLabels(String(si?.preferences.firstDay));
-	grid = buildMonthGrid(year, month);
-}
-
-// call refreshCalendar() immediately in case preference is not default
-refreshCalendar();
-
-function prevMonth() {
-	if (month === 0) {
-		month = 11;
-		year -= 1;
-	} else month -= 1;
+	// call refreshCalendar() immediately in case preference is not default
 	refreshCalendar();
-}
 
-function nextMonth() {
-	if (month === 11) {
-		month = 0;
-		year += 1;
-	} else month += 1;
-	refreshCalendar();
-}
+	function prevMonth() {
+		if (month === 0) {
+			month = 11;
+			year -= 1;
+		} else month -= 1;
+		refreshCalendar();
+	}
+
+	function nextMonth() {
+		if (month === 11) {
+			month = 0;
+			year += 1;
+		} else month += 1;
+		refreshCalendar();
+	}
 </script>
 
 {#if loading}
@@ -904,136 +915,142 @@ function nextMonth() {
 					{/if}
 				</div>
 			</div>
-{:else if view === "calendar"}
-<div class="lists">
-  {#if CalendarListID}
-    <!-- Select which list to display on calendar -->
-    <div class="list">
-      <FlexWrapper width="100%">
-        <Dropdown
-          appearance="subtle"
-          bind:value={CalendarListID}
-          actions={$lists.length > 0
-            ? $lists.map((l) => ({ label: l.name, value: l.id }))
-            : [{ label: $_("kanban.board.id.error.no_lists"), value: null }]}
-        />
-      </FlexWrapper>
+		{:else if view === "calendar"}
+			<div class="lists">
+				{#if CalendarListID}
+					<!-- Select which list to display on calendar -->
+					<div class="list">
+						<FlexWrapper width="100%">
+							<Dropdown
+								appearance="subtle"
+								bind:value={CalendarListID}
+								actions={$lists.length > 0
+									? $lists.map((l) => ({ label: l.name, value: l.id }))
+									: [{ label: $_("kanban.board.id.error.no_lists"), value: null }]}
+							/>
+						</FlexWrapper>
 
-      <!-- List cards (DnD enabled to move to calendar) -->
-      <div class="cards">
-        {#each $cards[CalendarListID] ?? [] as card (card.id)}
-          <div class="card"
-            use:dndzone={{
-              items: [$cards[CalendarListID].find(c => c.id === card.id)],
-              type: "card",
-              dropFromOthersDisabled: false,
-              flipDurationMs: 200,
-              dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" }
-            }}
-            onfinalize={(e) => {
-              const movedCard = e.detail.items[0];
-              if (!movedCard) return;
+						<!-- List cards (DnD enabled to move to calendar) -->
+						<div class="cards">
+							{#each $cards[CalendarListID] ?? [] as card (card.id)}
+								<div
+									class="card"
+									use:dndzone={{
+										items: [$cards[CalendarListID].find((c) => c.id === card.id)],
+										type: "card",
+										dropFromOthersDisabled: false,
+										flipDurationMs: 200,
+										dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" }
+									}}
+									onfinalize={(e) => {
+										const movedCard = e.detail.items[0];
+										if (!movedCard) return;
 
-              // voeg toe aan eerste dag of een fallback dag
-              const todayIso = getIsoDate(year, month, 1);
-              calendarEvents.update(evts => {
-                const currentCards = evts[todayIso] ?? [];
-                return { ...evts, [todayIso]: [...currentCards, movedCard] };
-              });
+										// voeg toe aan eerste dag of een fallback dag
+										const todayIso = getIsoDate(year, month, 1);
+										calendarEvents.update((evts) => {
+											const currentCards = evts[todayIso] ?? [];
+											return { ...evts, [todayIso]: [...currentCards, movedCard] };
+										});
 
-              // verwijder uit lijst
-              const sourceListId = movedCard.listId;
-              if (sourceListId) {
-                cards.update(c => ({
-                  ...c,
-                  [sourceListId]: c[sourceListId].filter(card => card.id !== movedCard.id)
-                }));
-              }
-            }}
-          >
-            {card.name}
-          </div>
-        {/each}
-      </div>
-    </div>
+										// verwijder uit lijst
+										const sourceListId = movedCard.listId;
+										if (sourceListId) {
+											cards.update((c) => ({
+												...c,
+												[sourceListId]: c[sourceListId].filter((card) => card.id !== movedCard.id)
+											}));
+										}
+									}}
+								>
+									{card.name}
+								</div>
+							{/each}
+						</div>
+					</div>
 
-    <!-- Calendar Grid -->
-    <div class="calendar">
-      <FlexWrapper direction="row" width="100%" gap="var(--token-space-3)">
-        <FlexWrapper direction="row" width="100%" gap="var(--token-space-3)">
-          <IconButton icon="chevron_backward" onClick={prevMonth} alt={$_("kanban.board.id.btn.previous_month")} />
-          <h2>{MONTHS[month]} {year}</h2>
-          <IconButton icon="chevron_forward" onClick={nextMonth} alt={$_("kanban.board.id.btn.next_month")} />
-        </FlexWrapper>
-        <Button
-          onClick={() => {
-            const today = new Date();
-            year = today.getFullYear();
-            month = today.getMonth();
-          }}
-          appearance="subtle">{$_("kanban.board.id.btn.today")}</Button>
-      </FlexWrapper>
+					<!-- Calendar Grid -->
+					<div class="calendar">
+						<FlexWrapper direction="row" width="100%" gap="var(--token-space-3)">
+							<FlexWrapper direction="row" width="100%" gap="var(--token-space-3)">
+								<IconButton icon="chevron_backward" onClick={prevMonth} alt={$_("kanban.board.id.btn.previous_month")} />
+								<h2>{MONTHS[month]} {year}</h2>
+								<IconButton icon="chevron_forward" onClick={nextMonth} alt={$_("kanban.board.id.btn.next_month")} />
+							</FlexWrapper>
+							<Button
+								onClick={() => {
+									const today = new Date();
+									year = today.getFullYear();
+									month = today.getMonth();
+								}}
+								appearance="subtle">{$_("kanban.board.id.btn.today")}</Button
+							>
+						</FlexWrapper>
 
-      <div class="calendar-grid-header">
-        {#each DAYS as day (day)}
-          <div class="cell-header">{day}</div>
-        {/each}
-      </div>
+						<div class="calendar-grid-header">
+							{#each DAYS as day (day)}
+								<div class="cell-header">{day}</div>
+							{/each}
+						</div>
 
-      <div class="calendar-grid-container">
-        {#each grid as week (week)}
-          <div class="calendar-grid">
-            {#each week as day (day)}
-              <div class="cell">
-                {#if day !== null}
-                  <!-- Elke cel is een eigen dndzone -->
-                  <div
-                    class="cell-content"
-                    use:dndzone={{
-                      items: $calendarEvents[getIsoDate(year, month, day)] ?? [],
-                      type: "card",
-                      dropFromOthersDisabled: false,
-                      flipDurationMs: 200,
-                      dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" }
-                    }}
-                    onfinalize={(e) => {
-                      const movedCard = e.detail.items.find(c => !$calendarEvents[getIsoDate(year, month, day)]?.some(existing => existing.id === c.id));
-                      if (!movedCard) return;
+						<div class="calendar-grid-container">
+							{#each grid as week (week)}
+								<div class="calendar-grid">
+									{#each week as day (day)}
+										<div class="cell">
+											{#if day !== null}
+												<!-- Elke cel is een eigen dndzone -->
+												<div
+													class="cell-content"
+													use:dndzone={{
+														items: $calendarEvents[getIsoDate(year, month, day)] ?? [],
+														type: "card",
+														dropFromOthersDisabled: false,
+														flipDurationMs: 200,
+														dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" }
+													}}
+													onfinalize={(e) => {
+														const movedCard = e.detail.items.find(
+															(c) =>
+																!$calendarEvents[getIsoDate(year, month, day)]?.some(
+																	(existing) => existing.id === c.id
+																)
+														);
+														if (!movedCard) return;
 
-                      // Voeg kaart toe aan deze dag
-                      calendarEvents.update(evts => {
-                        const currentCards = evts[getIsoDate(year, month, day)] ?? [];
-                        return { ...evts, [getIsoDate(year, month, day)]: [...currentCards, movedCard] };
-                      });
+														// Voeg kaart toe aan deze dag
+														calendarEvents.update((evts) => {
+															const currentCards = evts[getIsoDate(year, month, day)] ?? [];
+															return { ...evts, [getIsoDate(year, month, day)]: [...currentCards, movedCard] };
+														});
 
-                      // Verwijder uit source list
-                      const sourceListId = movedCard.listId;
-                      if (sourceListId) {
-                        cards.update(c => ({
-                          ...c,
-                          [sourceListId]: c[sourceListId].filter(card => card.id !== movedCard.id)
-                        }));
-                      }
-                    }}
-                  >
-                    <div class="cell-date">{day}</div>
-                    {#each $calendarEvents[getIsoDate(year, month, day)] ?? [] as card (card.id)}
-                      <div class="example-event">{card.name}</div>
-                    {/each}
-                  </div>
-                {:else}
-                  <div class="cell"><div class="cell-content"></div></div>
-                {/if}
-              </div>
-            {/each}
-          </div>
-        {/each}
-      </div>
-    </div>
-  {/if}
-</div>
-{:else}
-
+														// Verwijder uit source list
+														const sourceListId = movedCard.listId;
+														if (sourceListId) {
+															cards.update((c) => ({
+																...c,
+																[sourceListId]: c[sourceListId].filter((card) => card.id !== movedCard.id)
+															}));
+														}
+													}}
+												>
+													<div class="cell-date">{day}</div>
+													{#each $calendarEvents[getIsoDate(year, month, day)] ?? [] as card (card.id)}
+														<div class="example-event">{card.name}</div>
+													{/each}
+												</div>
+											{:else}
+												<div class="cell"><div class="cell-content"></div></div>
+											{/if}
+										</div>
+									{/each}
+								</div>
+							{/each}
+						</div>
+					</div>
+				{/if}
+			</div>
+		{:else}
 			<h1>{$_("kanban.board.id.title.unhandled_view")}</h1>
 			<Loader />
 		{/if}
