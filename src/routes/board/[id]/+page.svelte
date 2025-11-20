@@ -614,7 +614,7 @@
 	}
 
 	// IMPORTANT: produce a plain array (not a store) so your template {#each DAYS as day} works
-	let DAYS: string[] = getWeekdayLabels(si.preferences.firstDay);
+	let DAYS: string[] = getWeekdayLabels("monday"); // DO FROM PREFERENCES TEMFIX
 
 	let year: number = $state(new Date().getFullYear());
 	let month: number = $state(new Date().getMonth());
