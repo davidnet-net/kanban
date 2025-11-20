@@ -1,5 +1,5 @@
 {
-  "kanban": {
-    "loading": "Getting your Kanban boards in germany, {display_name}."
-  }
+	"kanban": {
+		"loading": "Getting your Kanban boards in germany, {display_name}."
+	}
 }
