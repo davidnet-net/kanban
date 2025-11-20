@@ -592,15 +592,22 @@
 		$_("kanban.dates.month.december")
 	];
 
-	const DAYS = [
-		$_("kanban.dates.day.mon"),
-		$_("kanban.dates.day.tue"),
-		$_("kanban.dates.day.wed"),
-		$_("kanban.dates.day.thu"),
-		$_("kanban.dates.day.fri"),
-		$_("kanban.dates.day.sat"),
-		$_("kanban.dates.day.sun")
-	];
+	// Dynamic weekday order based on preference
+	const DAYS = $derived(() => {
+		const base = [
+			$_("kanban.dates.day.sun"),
+			$_("kanban.dates.day.mon"),
+			$_("kanban.dates.day.tue"),
+			$_("kanban.dates.day.wed"),
+			$_("kanban.dates.day.thu"),
+			$_("kanban.dates.day.fri"),
+			$_("kanban.dates.day.sat")
+		];
+
+		return si?.preferences.firstDay === "sunday"
+			? base // Sunday-first
+			: base.slice(1).concat(base[0]); // Monday-first
+	});
 
 	let year: number = $state(new Date().getFullYear());
 	let month: number = $state(new Date().getMonth());
@@ -615,9 +622,17 @@
 		return monthLengths[monthIndex];
 	}
 
+	// Convert JS weekday (Sunday=0) to Monday-first or Sunday-first
+	function getWeekdayIndex(jsDay: number, firstDay: string) {
+		if (firstDay === "sunday") return jsDay; // JS default is Sunday-first
+		return (jsDay + 6) % 7; // Convert Sunday=0 → 6
+	}
+
 	function buildMonthGrid(year: number, monthIndex: number) {
 		const daysInMonth = getDaysInMonth(year, monthIndex);
-		const firstDay = new Date(year, monthIndex, 1).getDay();
+
+		const jsDay = new Date(year, monthIndex, 1).getDay();
+		const firstDay = getWeekdayIndex(jsDay, si.preferences.firstDay);
 
 		const weeks: (number | null)[][] = [];
 		let currentWeek: (number | null)[] = new Array(7).fill(null);
