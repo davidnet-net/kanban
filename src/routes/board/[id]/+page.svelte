@@ -576,99 +576,121 @@
 	let openedCard: Card | null = $state(null);
 	let BoardAccessOverlayOpen: boolean = $state(false);
 
-	// Calendar
-	const MONTHS = [
-		$_("kanban.dates.month.january"),
-		$_("kanban.dates.month.february"),
-		$_("kanban.dates.month.march"),
-		$_("kanban.dates.month.april"),
-		$_("kanban.dates.month.may"),
-		$_("kanban.dates.month.june"),
-		$_("kanban.dates.month.july"),
-		$_("kanban.dates.month.august"),
-		$_("kanban.dates.month.september"),
-		$_("kanban.dates.month.october"),
-		$_("kanban.dates.month.november"),
-		$_("kanban.dates.month.december")
+// Calendar
+const MONTHS = [
+	$_("kanban.dates.month.january"),
+	$_("kanban.dates.month.february"),
+	$_("kanban.dates.month.march"),
+	$_("kanban.dates.month.april"),
+	$_("kanban.dates.month.may"),
+	$_("kanban.dates.month.june"),
+	$_("kanban.dates.month.july"),
+	$_("kanban.dates.month.august"),
+	$_("kanban.dates.month.september"),
+	$_("kanban.dates.month.october"),
+	$_("kanban.dates.month.november"),
+	$_("kanban.dates.month.december")
+];
+
+// Helper: return an array of weekday labels in the correct order
+function getWeekdayLabels(firstDay: string) {
+	const base = [
+		$_("kanban.dates.day.sun"),
+		$_("kanban.dates.day.mon"),
+		$_("kanban.dates.day.tue"),
+		$_("kanban.dates.day.wed"),
+		$_("kanban.dates.day.thu"),
+		$_("kanban.dates.day.fri"),
+		$_("kanban.dates.day.sat")
 	];
 
-	// Dynamic weekday order based on preference
-	const DAYS = $derived(() => {
-		const base = [
-			$_("kanban.dates.day.sun"),
-			$_("kanban.dates.day.mon"),
-			$_("kanban.dates.day.tue"),
-			$_("kanban.dates.day.wed"),
-			$_("kanban.dates.day.thu"),
-			$_("kanban.dates.day.fri"),
-			$_("kanban.dates.day.sat")
-		];
+	return firstDay === "sunday" ? base : base.slice(1).concat(base[0]); // monday-first: Mon..Sun
+}
 
-		return si?.preferences.firstDay === "sunday"
-			? base // Sunday-first
-			: base.slice(1).concat(base[0]); // Monday-first
-	});
+// IMPORTANT: produce a plain array (not a store) so your template {#each DAYS as day} works
+let DAYS: string[] = getWeekdayLabels(si.preferences.firstDay);
 
-	let year: number = $state(new Date().getFullYear());
-	let month: number = $state(new Date().getMonth());
+let year: number = $state(new Date().getFullYear());
+let month: number = $state(new Date().getMonth());
 
-	function isLeapYear(year: number) {
-		return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
-	}
+function isLeapYear(year: number) {
+	return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+}
 
-	function getDaysInMonth(year: number, monthIndex: number) {
-		const monthLengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-		if (monthIndex === 1 && isLeapYear(year)) return 29;
-		return monthLengths[monthIndex];
-	}
+function getDaysInMonth(year: number, monthIndex: number) {
+	const monthLengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+	if (monthIndex === 1 && isLeapYear(year)) return 29;
+	return monthLengths[monthIndex];
+}
 
-	// Convert JS weekday (Sunday=0) to Monday-first or Sunday-first
-	function getWeekdayIndex(jsDay: number, firstDay: string) {
-		if (firstDay === "sunday") return jsDay; // JS default is Sunday-first
-		return (jsDay + 6) % 7; // Convert Sunday=0 → 6
-	}
+// Convert JS weekday (Sunday=0) to Monday-first or Sunday-first index
+function getWeekdayIndex(jsDay: number, firstDay: string) {
+	if (firstDay === "sunday") return jsDay; // JS default is Sunday-first
+	// Monday-first: map JS 0 (Sunday) -> 6, JS 1 (Monday) -> 0, etc.
+	return (jsDay + 6) % 7;
+}
 
-	function buildMonthGrid(year: number, monthIndex: number) {
-		const daysInMonth = getDaysInMonth(year, monthIndex);
+function getIsoDate(year: number, monthIndex: number, day: number) {
+	const m = String(monthIndex + 1).padStart(2, "0");
+	const d = String(day).padStart(2, "0");
+	return `${year}-${m}-${d}`;
+}
 
-		const jsDay = new Date(year, monthIndex, 1).getDay();
-		const firstDay = getWeekdayIndex(jsDay, si.preferences.firstDay);
+function buildMonthGrid(year: number, monthIndex: number) {
+	const daysInMonth = getDaysInMonth(year, monthIndex);
 
-		const weeks: (number | null)[][] = [];
-		let currentWeek: (number | null)[] = new Array(7).fill(null);
+	// use the user's preference string directly
+	const jsDay = new Date(year, monthIndex, 1).getDay();
+	const firstDay = getWeekdayIndex(jsDay, si.preferences.firstDay);
 
-		for (let d = 0; d < daysInMonth; d++) {
-			const dayOfWeek = (firstDay + d) % 7;
-			currentWeek[dayOfWeek] = d + 1;
+	const weeks: (number | null)[][] = [];
+	let currentWeek: (number | null)[] = new Array(7).fill(null);
 
-			if (dayOfWeek === 6 || d === daysInMonth - 1) {
-				weeks.push(currentWeek);
-				currentWeek = new Array(7).fill(null);
-			}
+	for (let d = 0; d < daysInMonth; d++) {
+		const dayOfWeek = (firstDay + d) % 7;
+		currentWeek[dayOfWeek] = d + 1;
+
+		// push week on Saturday column (index 6) or at month end
+		if (dayOfWeek === 6 || d === daysInMonth - 1) {
+			weeks.push(currentWeek);
+			currentWeek = new Array(7).fill(null);
 		}
-
-		return weeks;
 	}
 
-	let grid = $derived(buildMonthGrid(year, month));
-	const calendarEvents = writable<{ [isoDate: string]: any[] }>({});
-	let currentHoverDate: string | null = null;
+	return weeks;
+}
 
-	function prevMonth() {
-		if (month === 0) {
-			month = 11;
-			year -= 1;
-		} else month -= 1;
-		grid = buildMonthGrid(year, month);
-	}
+// grid is a plain variable (array of weeks)
+let grid = buildMonthGrid(year, month);
 
-	function nextMonth() {
-		if (month === 11) {
-			month = 0;
-			year += 1;
-		} else month += 1;
-		grid = buildMonthGrid(year, month);
-	}
+// events
+const calendarEvents = writable<{ [isoDate: string]: any[] }>({});
+let currentHoverDate: string | null = null;
+
+// central refresh function: call whenever inputs change (year, month, preference)
+function refreshCalendar() {
+	DAYS = getWeekdayLabels(si.preferences.firstDay);
+	grid = buildMonthGrid(year, month);
+}
+
+// call refreshCalendar() immediately in case preference is not default
+refreshCalendar();
+
+function prevMonth() {
+	if (month === 0) {
+		month = 11;
+		year -= 1;
+	} else month -= 1;
+	refreshCalendar();
+}
+
+function nextMonth() {
+	if (month === 11) {
+		month = 0;
+		year += 1;
+	} else month += 1;
+	refreshCalendar();
+}
 </script>
 
 {#if loading}
