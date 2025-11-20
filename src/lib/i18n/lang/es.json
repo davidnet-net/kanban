@@ -1,373 +1,373 @@
 {
-	"kanban": {
-		"index": {
-			"btn": {
-				"create_board": "Crear Board",
-				"your_invites": "Tus invitaciones",
-				"invites": "Invitaciones",
-				"alt": {
-					"update_history": "Historial de actualizaciones",
-					"delete_recent_boards": "Eliminar Boards recientes"
-				}
-			},
-			"title": {
-				"loading": "Obteniendo tus Kanban boards, {display_name}.",
-				"no_boards": "Aún no tienes ningún Board.",
-				"no_boards_cta": "¡Crea uno para comenzar!",
-				"recent_boards": "Boards recientes:",
-				"no_recently_visited_boards": "No visitaste ningún Board recientemente.",
-				"favorite_boards": "Boards favoritos:",
-				"no_favorited_boards": "Aún no has marcado ningún Board como favorito.",
-				"your_boards": "Tus Boards:",
-				"no_created_boards": "Aún no has creado ningún Board.",
-				"boards_shared_with_you": "Boards compartidos contigo:",
-				"no_boards_shared_with_you": "No hay Boards compartidos contigo."
-			},
-			"images": {
-				"alt": {
-					"board_background": "Fondo del Board"
-				}
-			},
-			"modal": {
-				"ClearResetBoardsModal": {
-					"title": "¿Borrar la lista de Boards recientes?",
-					"desc": "¡Esto no se puede deshacer!",
-					"cancel": "Cancelar",
-					"clear_recent_boards": "Borrar Boards recientes"
-				}
-			},
-			"error": {
-				"something_failed": "¡Algo falló!",
-				"session_invalid": "Sesión inválida"
-			},
-			"toast": {
-				"recent_boards_cleared": {
-					"title": "¡Boards recientes borrados!"
-				}
-			}
-		},
-		"invites": {
-			"error": {
-				"profiles_failed_to_load": {
-					"title": "¡Error al cargar el perfil!",
-					"desc": "Algunos perfiles no se pudieron cargar."
-				},
-				"network_error": {
-					"title": "¡Error de red!",
-					"desc": "Algo salió mal al obtener el perfil."
-				},
-				"failed_to_load_invites": {
-					"title": "Error al cargar las invitaciones.",
-					"desc": "No se pudieron obtener tus invitaciones."
-				},
-				"failed_to_accept_invite": {
-					"title": "Error al aceptar la invitación.",
-					"desc": "No se pudo unir al Board."
-				},
-				"invite_declined_failed": {
-					"title": "Error al rechazar la invitación",
-					"desc": "No se pudo rechazar la invitación."
-				}
-			},
-			"toast": {
-				"invite_accepted": {
-					"title": "¡Invitación aceptada!",
-					"desc": "Ahora eres parte del Board."
-				},
-				"invite_declined": {
-					"title": "Invitación rechazada",
-					"desc": "Has rechazado la invitación."
-				}
-			},
-			"btn": {
-				"back": "Atrás",
-				"accept": "Aceptar",
-				"deny": "Rechazar"
-			},
-			"title": {
-				"my_board_invites": "Mis invitaciones de Board",
-				"you_have_no_pending_board_invites": "No tienes invitaciones de Board pendientes.",
-				"invited_by": "invitado por"
-			}
-		},
-		"create": {
-			"option": {
-				"private": "Privado",
-				"public": "Público"
-			},
-			"error": {
-				"something_failed": {
-					"title": "¡Algo falló!"
-				}
-			},
-			"toast": {
-				"board_created": {
-					"title": "¡Board creado!",
-					"desc": "Board {board_name} creado."
-				}
-			},
-			"title": {
-				"create_an_new_board": "Crear un nuevo Board",
-				"board_visibility": "Visibilidad del Board"
-			},
-			"field": {
-				"name_of_the_new_board": {
-					"label": "Nombre del nuevo Board:",
-					"placeholder": "Ingresa el nombre del nuevo Board.",
-					"rules": "El nombre debe tener un máximo de 20 caracteres y no puede contener caracteres especiales."
-				}
-			},
-			"btn": {
-				"cancel": "Cancelar",
-				"create_new_board": "Crear nuevo Board"
-			}
-		},
-		"board": {
-			"id": {
-				"edit": {
-					"option": {
-						"private": "Privado",
-						"public": "Público"
-					},
-					"error": {
-						"something_failed": "¡Algo falló!",
-						"update_failed": "¡La actualización falló!"
-					},
-					"toast": {
-						"board_update_successfull": {
-							"title": "¡Board actualizado!",
-							"desc": "Board {board_name} actualizado."
-						}
-					},
-					"title": {
-						"edit_board": "Editar Board:",
-						"current_settings": "¡Estas son tus configuraciones actuales!",
-						"board_visibility": "Visibilidad del Board:"
-					},
-					"field": {
-						"board_name": {
-							"label": "Nombre:",
-							"placeholder": "Ingresa el nuevo nombre del Board.",
-							"invalid": "El nombre debe tener un máximo de 20 caracteres y no puede contener caracteres especiales."
-						}
-					},
-					"btn": {
-						"cancel": "Cancelar",
-						"edit_board": "Editar Board"
-					}
-				},
-				"error": {
-					"something_failed": "¡Algo falló!",
-					"board_not_found": "¡El Board no existe!",
-					"not_member": "No eres miembro del Board. Pide acceso al propietario.",
-					"list_cards_failed_load": "No se pudieron cargar las tarjetas de la lista {list_name}",
-					"card_title_too_long": "El título de la tarjeta es demasiado largo.",
-					"create_list_failed": "¡Error al crear la lista!",
-					"move_list_failed": "¡Error al mover la lista!",
-					"card_move_failed": "¡Error al mover la tarjeta!",
-					"no_lists": "No hay listas disponibles."
-				},
-				"toast": {
-					"favorited_board": {
-						"title": "Board marcado como favorito:"
-					},
-					"unfavorited_board": {
-						"title": "Board quitado de favoritos:"
-					},
-					"deleted_board": {
-						"title": "Board eliminado:"
-					},
-					"left_board": {
-						"title": "Board abandonado:"
-					}
-				},
-				"title": {
-					"loading": "Cargando Board {board_name}.",
-					"getting_ready": "Preparando todo.",
-					"unhandled_view": "Vista no manejada."
-				},
-				"btn": {
-					"my_boards": "Mis Boards",
-					"back": "Atrás",
-					"remove_favorite": "Quitar Board de favoritos.",
-					"add_favorite": "Agregar Board a favoritos.",
-					"share": "Compartir",
-					"add_new_card": "Agregar nueva tarjeta",
-					"add_new_list": "Agregar nueva lista",
-					"previous_month": "Mes anterior",
-					"next_month": "Mes siguiente",
-					"today": "Hoy"
-				},
-				"dropdown": {
-					"view": {
-						"calendar": "Calendario",
-						"label": "Vista"
-					},
-					"board_more_actions": {
-						"label": "Más acciones.",
-						"leave_board": "Abandonar Board",
-						"delete_board": "Eliminar Board",
-						"edit_board": "Editar Board",
-						"change_background": "Cambiar fondo del Board"
-					},
-					"list_more_actions": {
-						"label": "Más acciones.",
-						"delete_list": "Eliminar lista",
-						"move_left": "Mover a la izquierda",
-						"move_right": "Mover a la derecha"
-					}
-				},
-				"field": {
-					"new_card": {
-						"placeholder": "Título de la nueva tarjeta."
-					},
-					"new_list": {
-						"placeholder": "Título de la nueva lista."
-					}
-				},
-				"modal": {
-					"BoardDelModal": {
-						"cancel": "Cancelar",
-						"delete_board": "Eliminar Board",
-						"title": "¿Estás seguro de que quieres eliminar {board_name}?",
-						"desc": "¡Esto no se puede deshacer!"
-					},
-					"BoardLeaveModal": {
-						"title": "¿Estás seguro de que quieres abandonar {board_name}?",
-						"desc": "No podrás volver hasta que el propietario te invite de nuevo.",
-						"cancel": "Cancelar",
-						"leave": "Abandonar Board"
-					}
-				}
-			}
-		},
-		"dates": {
-			"month": {
-				"january": "Enero",
-				"february": "Febrero",
-				"march": "Marzo",
-				"april": "Abril",
-				"may": "Mayo",
-				"june": "Junio",
-				"july": "Julio",
-				"august": "Agosto",
-				"september": "Septiembre",
-				"october": "Octubre",
-				"november": "Noviembre",
-				"december": "Diciembre"
-			},
-			"day": {
-				"mon": "Lunes",
-				"tue": "Martes",
-				"wed": "Miércoles",
-				"thu": "Jueves",
-				"fri": "Viernes",
-				"sat": "Sábado",
-				"sun": "Domingo"
-			}
-		},
-		"components": {
-			"boardaccess": {
-				"error": {
-					"network": "Error de red",
-					"failed_load_board_members": "Error al cargar los miembros del Board.",
-					"failed_to_load_invites": "Error al cargar las invitaciones del Board.",
-					"user_not_found": "Usuario no encontrado.",
-					"user_already_in_board": "El usuario ya forma parte del Board.",
-					"could_not_send_invite": "No se pudo enviar la invitación.",
-					"cancel_invite_failed": "No se pudo cancelar la invitación.",
-					"remove_failed": "Error al eliminar al miembro.",
-					"remove_failed_desc": "Algo salió mal al intentar eliminar a este miembro."
-				},
-				"toast": {
-					"invite_send": {
-						"title": "¡Invitación enviada!"
-					},
-					"invite_canceled": {
-						"title": "¡Invitación cancelada!"
-					},
-					"member_removed": {
-						"title": "¡Miembro eliminado!"
-					}
-				},
-				"title": "Acceso al Board",
-				"about_alt": "Acerca del acceso al Board",
-				"close_alt": "Cerrar acceso al Board",
-				"section": {
-					"invites": "Invitaciones",
-					"members": "Miembros"
-				},
-				"no_pending_invites": "No hay invitaciones pendientes.",
-				"cancel_invite_alt": "Cancelar invitación",
-				"view_members": "Ver miembros",
-				"remove_member_alt": "Eliminar miembro",
-				"view_invites": "Ver invitaciones",
-				"invite": {
-					"title": "Invitar usuario",
-					"quick_connections": "Conexiones rápidas",
-					"button": "Enviar invitación",
-					"enter_user_label": "Ingresa nombre de usuario o correo electrónico",
-					"placeholder": "Buscar un usuario..."
-				},
-				"modal": {
-					"remove_title": "¿Eliminar miembro?",
-					"remove_desc": "¿Estás seguro de que deseas eliminar a {user_name} de este Board?",
-					"cancel": "Cancelar",
-					"remove": "Eliminar"
-				}
-			},
-			"cardoverlay": {
-				"error": {
-					"profile_load_error_title": "¡Error al cargar el perfil!",
-					"profile_load_error_desc": "No se pudo cargar el perfil del creador de la tarjeta.",
-					"network_error_title": "¡Error de red!",
-					"network_error_desc": "Algo salió mal al obtener los datos de la tarjeta."
-				},
-				"toast": {
-					"card_updated_title": "¡Tarjeta actualizada!",
-					"card_updated_desc": "Tus cambios en la tarjeta han sido guardados.",
-					"card_update_failed_title": "¡Error al actualizar la tarjeta!",
-					"card_update_failed_desc": "Algo salió mal al actualizar esta tarjeta.",
-					"card_deleted_title": "¡Tarjeta eliminada!",
-					"card_deletion_failed_title": "¡Error al eliminar la tarjeta!",
-					"card_deletion_failed_desc": "Algo salió mal al eliminar esta tarjeta."
-				},
-				"alt": {
-					"about_cards": "Acerca de las tarjetas",
-					"delete_card": "Eliminar tarjeta",
-					"close": "Cerrar vista de tarjeta",
-					"add_checklist_item": "Agregar elemento a la lista de verificación"
-				},
-				"btn": {
-					"add_label": "Agregar etiqueta",
-					"dates": "Fechas",
-					"add_checklist": "Agregar lista de verificación",
-					"add_attachment": "Add attachment",
-					"save": "Guardar",
-					"cancel": "Cancelar"
-				},
-				"label": {
-					"created_at": "Creado en:",
-					"created_by": "Creado por:"
-				},
-				"section": {
-					"description": "Descripción",
-					"checklist": "Lista de verificación",
-					"activity_comments": "Actividad y comentarios"
-				},
-				"placeholder": {
-					"write_description": "Escribe una descripción...",
-					"add_detailed_description": "Agrega una descripción más detallada..."
-				},
-				"field": {
-					"checklist_item_label": "Elemento de lista de verificación:",
-					"checklist_item_placeholder": "Ingresa un elemento de lista de verificación...",
-					"checklist_item_invalid": "El elemento de la lista de verificación no puede estar vacío."
-				},
-				"text": {
-					"created_card_on": "Se creó esta tarjeta el {date}."
-				}
-			}
-		}
-	}
+  "kanban": {
+    "index": {
+      "btn": {
+        "create_board": "Crear Board",
+        "your_invites": "Tus invitaciones",
+        "invites": "Invitaciones",
+        "alt": {
+          "update_history": "Historial de actualizaciones",
+          "delete_recent_boards": "Eliminar Boards recientes"
+        }
+      },
+      "title": {
+        "loading": "Obteniendo tus Kanban boards, {display_name}.",
+        "no_boards": "Aún no tienes ningún Board.",
+        "no_boards_cta": "¡Crea uno para comenzar!",
+        "recent_boards": "Boards recientes:",
+        "no_recently_visited_boards": "No visitaste ningún Board recientemente.",
+        "favorite_boards": "Boards favoritos:",
+        "no_favorited_boards": "Aún no has marcado ningún Board como favorito.",
+        "your_boards": "Tus Boards:",
+        "no_created_boards": "Aún no has creado ningún Board.",
+        "boards_shared_with_you": "Boards compartidos contigo:",
+        "no_boards_shared_with_you": "No hay Boards compartidos contigo."
+      },
+      "images": {
+        "alt": {
+          "board_background": "Fondo del Board"
+        }
+      },
+      "modal": {
+        "ClearResetBoardsModal": {
+          "title": "¿Borrar la lista de Boards recientes?",
+          "desc": "¡Esto no se puede deshacer!",
+          "cancel": "Cancelar",
+          "clear_recent_boards": "Borrar Boards recientes"
+        }
+      },
+      "error": {
+        "something_failed": "¡Algo falló!",
+        "session_invalid": "Sesión inválida"
+      },
+      "toast": {
+        "recent_boards_cleared": {
+          "title": "¡Boards recientes borrados!"
+        }
+      }
+    },
+    "invites": {
+      "error": {
+        "profiles_failed_to_load": {
+          "title": "¡Error al cargar el perfil!",
+          "desc": "Algunos perfiles no se pudieron cargar."
+        },
+        "network_error": {
+          "title": "¡Error de red!",
+          "desc": "Algo salió mal al obtener el perfil."
+        },
+        "failed_to_load_invites": {
+          "title": "Error al cargar las invitaciones.",
+          "desc": "No se pudieron obtener tus invitaciones."
+        },
+        "failed_to_accept_invite": {
+          "title": "Error al aceptar la invitación.",
+          "desc": "No se pudo unir al Board."
+        },
+        "invite_declined_failed": {
+          "title": "Error al rechazar la invitación",
+          "desc": "No se pudo rechazar la invitación."
+        }
+      },
+      "toast": {
+        "invite_accepted": {
+          "title": "¡Invitación aceptada!",
+          "desc": "Ahora eres parte del Board."
+        },
+        "invite_declined": {
+          "title": "Invitación rechazada",
+          "desc": "Has rechazado la invitación."
+        }
+      },
+      "btn": {
+        "back": "Atrás",
+        "accept": "Aceptar",
+        "deny": "Rechazar"
+      },
+      "title": {
+        "my_board_invites": "Mis invitaciones de Board",
+        "you_have_no_pending_board_invites": "No tienes invitaciones de Board pendientes.",
+        "invited_by": "invitado por"
+      }
+    },
+    "create": {
+      "option": {
+        "private": "Privado",
+        "public": "Público"
+      },
+      "error": {
+        "something_failed": {
+          "title": "¡Algo falló!"
+        }
+      },
+      "toast": {
+        "board_created": {
+          "title": "¡Board creado!",
+          "desc": "Board {board_name} creado."
+        }
+      },
+      "title": {
+        "create_an_new_board": "Crear un nuevo Board",
+        "board_visibility": "Visibilidad del Board"
+      },
+      "field": {
+        "name_of_the_new_board": {
+          "label": "Nombre del nuevo Board:",
+          "placeholder": "Ingresa el nombre del nuevo Board.",
+          "rules": "El nombre debe tener un máximo de 20 caracteres y no puede contener caracteres especiales."
+        }
+      },
+      "btn": {
+        "cancel": "Cancelar",
+        "create_new_board": "Crear nuevo Board"
+      }
+    },
+    "board": {
+      "id": {
+        "edit": {
+          "option": {
+            "private": "Privado",
+            "public": "Público"
+          },
+          "error": {
+            "something_failed": "¡Algo falló!",
+            "update_failed": "¡La actualización falló!"
+          },
+          "toast": {
+            "board_update_successfull": {
+              "title": "¡Board actualizado!",
+              "desc": "Board {board_name} actualizado."
+            }
+          },
+          "title": {
+            "edit_board": "Editar Board:",
+            "current_settings": "¡Estas son tus configuraciones actuales!",
+            "board_visibility": "Visibilidad del Board:"
+          },
+          "field": {
+            "board_name": {
+              "label": "Nombre:",
+              "placeholder": "Ingresa el nuevo nombre del Board.",
+              "invalid": "El nombre debe tener un máximo de 20 caracteres y no puede contener caracteres especiales."
+            }
+          },
+          "btn": {
+            "cancel": "Cancelar",
+            "edit_board": "Editar Board"
+          }
+        },
+        "error": {
+          "something_failed": "¡Algo falló!",
+          "board_not_found": "¡El Board no existe!",
+          "not_member": "No eres miembro del Board. Pide acceso al propietario.",
+          "list_cards_failed_load": "No se pudieron cargar las tarjetas de la lista {list_name}",
+          "card_title_too_long": "El título de la tarjeta es demasiado largo.",
+          "create_list_failed": "¡Error al crear la lista!",
+          "move_list_failed": "¡Error al mover la lista!",
+          "card_move_failed": "¡Error al mover la tarjeta!",
+          "no_lists": "No hay listas disponibles."
+        },
+        "toast": {
+          "favorited_board": {
+            "title": "Board marcado como favorito:"
+          },
+          "unfavorited_board": {
+            "title": "Board quitado de favoritos:"
+          },
+          "deleted_board": {
+            "title": "Board eliminado:"
+          },
+          "left_board": {
+            "title": "Board abandonado:"
+          }
+        },
+        "title": {
+          "loading": "Cargando Board {board_name}.",
+          "getting_ready": "Preparando todo.",
+          "unhandled_view": "Vista no manejada."
+        },
+        "btn": {
+          "my_boards": "Mis Boards",
+          "back": "Atrás",
+          "remove_favorite": "Quitar Board de favoritos.",
+          "add_favorite": "Agregar Board a favoritos.",
+          "share": "Compartir",
+          "add_new_card": "Agregar nueva tarjeta",
+          "add_new_list": "Agregar nueva lista",
+          "previous_month": "Mes anterior",
+          "next_month": "Mes siguiente",
+          "today": "Hoy"
+        },
+        "dropdown": {
+          "view": {
+            "calendar": "Calendario",
+            "label": "Vista"
+          },
+          "board_more_actions": {
+            "label": "Más acciones.",
+            "leave_board": "Abandonar Board",
+            "delete_board": "Eliminar Board",
+            "edit_board": "Editar Board",
+            "change_background": "Cambiar fondo del Board"
+          },
+          "list_more_actions": {
+            "label": "Más acciones.",
+            "delete_list": "Eliminar lista",
+            "move_left": "Mover a la izquierda",
+            "move_right": "Mover a la derecha"
+          }
+        },
+        "field": {
+          "new_card": {
+            "placeholder": "Título de la nueva tarjeta."
+          },
+          "new_list": {
+            "placeholder": "Título de la nueva lista."
+          }
+        },
+        "modal": {
+          "BoardDelModal": {
+            "cancel": "Cancelar",
+            "delete_board": "Eliminar Board",
+            "title": "¿Estás seguro de que quieres eliminar {board_name}?",
+            "desc": "¡Esto no se puede deshacer!"
+          },
+          "BoardLeaveModal": {
+            "title": "¿Estás seguro de que quieres abandonar {board_name}?",
+            "desc": "No podrás volver hasta que el propietario te invite de nuevo.",
+            "cancel": "Cancelar",
+            "leave": "Abandonar Board"
+          }
+        }
+      }
+    },
+    "dates": {
+      "month": {
+        "january": "Enero",
+        "february": "Febrero",
+        "march": "Marzo",
+        "april": "Abril",
+        "may": "Mayo",
+        "june": "Junio",
+        "july": "Julio",
+        "august": "Agosto",
+        "september": "Septiembre",
+        "october": "Octubre",
+        "november": "Noviembre",
+        "december": "Diciembre"
+      },
+      "day": {
+        "mon": "Lunes",
+        "tue": "Martes",
+        "wed": "Miércoles",
+        "thu": "Jueves",
+        "fri": "Viernes",
+        "sat": "Sábado",
+        "sun": "Domingo"
+      }
+    },
+    "components": {
+      "boardaccess": {
+        "error": {
+          "network": "Error de red",
+          "failed_load_board_members": "Error al cargar los miembros del Board.",
+          "failed_to_load_invites": "Error al cargar las invitaciones del Board.",
+          "user_not_found": "Usuario no encontrado.",
+          "user_already_in_board": "El usuario ya forma parte del Board.",
+          "could_not_send_invite": "No se pudo enviar la invitación.",
+          "cancel_invite_failed": "No se pudo cancelar la invitación.",
+          "remove_failed": "Error al eliminar al miembro.",
+          "remove_failed_desc": "Algo salió mal al intentar eliminar a este miembro."
+        },
+        "toast": {
+          "invite_send": {
+            "title": "¡Invitación enviada!"
+          },
+          "invite_canceled": {
+            "title": "¡Invitación cancelada!"
+          },
+          "member_removed": {
+            "title": "¡Miembro eliminado!"
+          }
+        },
+        "title": "Acceso al Board",
+        "about_alt": "Acerca del acceso al Board",
+        "close_alt": "Cerrar acceso al Board",
+        "section": {
+          "invites": "Invitaciones",
+          "members": "Miembros"
+        },
+        "no_pending_invites": "No hay invitaciones pendientes.",
+        "cancel_invite_alt": "Cancelar invitación",
+        "view_members": "Ver miembros",
+        "remove_member_alt": "Eliminar miembro",
+        "view_invites": "Ver invitaciones",
+        "invite": {
+          "title": "Invitar usuario",
+          "quick_connections": "Conexiones rápidas",
+          "button": "Enviar invitación",
+          "enter_user_label": "Ingresa nombre de usuario o correo electrónico",
+          "placeholder": "Buscar un usuario..."
+        },
+        "modal": {
+          "remove_title": "¿Eliminar miembro?",
+          "remove_desc": "¿Estás seguro de que deseas eliminar a {user_name} de este Board?",
+          "cancel": "Cancelar",
+          "remove": "Eliminar"
+        }
+      },
+      "cardoverlay": {
+        "error": {
+          "profile_load_error_title": "¡Error al cargar el perfil!",
+          "profile_load_error_desc": "No se pudo cargar el perfil del creador de la tarjeta.",
+          "network_error_title": "¡Error de red!",
+          "network_error_desc": "Algo salió mal al obtener los datos de la tarjeta."
+        },
+        "toast": {
+          "card_updated_title": "¡Tarjeta actualizada!",
+          "card_updated_desc": "Tus cambios en la tarjeta han sido guardados.",
+          "card_update_failed_title": "¡Error al actualizar la tarjeta!",
+          "card_update_failed_desc": "Algo salió mal al actualizar esta tarjeta.",
+          "card_deleted_title": "¡Tarjeta eliminada!",
+          "card_deletion_failed_title": "¡Error al eliminar la tarjeta!",
+          "card_deletion_failed_desc": "Algo salió mal al eliminar esta tarjeta."
+        },
+        "alt": {
+          "about_cards": "Acerca de las tarjetas",
+          "delete_card": "Eliminar tarjeta",
+          "close": "Cerrar vista de tarjeta",
+          "add_checklist_item": "Agregar elemento a la lista de verificación"
+        },
+        "btn": {
+          "add_label": "Agregar etiqueta",
+          "dates": "Fechas",
+          "add_checklist": "Agregar lista de verificación",
+          "add_attachment": "Add attachment",
+          "save": "Guardar",
+          "cancel": "Cancelar"
+        },
+        "label": {
+          "created_at": "Creado en:",
+          "created_by": "Creado por:"
+        },
+        "section": {
+          "description": "Descripción",
+          "checklist": "Lista de verificación",
+          "activity_comments": "Actividad y comentarios"
+        },
+        "placeholder": {
+          "write_description": "Escribe una descripción...",
+          "add_detailed_description": "Agrega una descripción más detallada..."
+        },
+        "field": {
+          "checklist_item_label": "Elemento de lista de verificación:",
+          "checklist_item_placeholder": "Ingresa un elemento de lista de verificación...",
+          "checklist_item_invalid": "El elemento de la lista de verificación no puede estar vacío."
+        },
+        "text": {
+          "created_card_on": "Se creó esta tarjeta el {date}."
+        }
+      }
+    }
+  }
 }

@@ -1,373 +1,373 @@
 {
-	"kanban": {
-		"index": {
-			"btn": {
-				"create_board": "Board aanmaken",
-				"your_invites": "Uw uitnodigingen",
-				"invites": "Uitnodigingen",
-				"alt": {
-					"update_history": "Update geschiedenis",
-					"delete_recent_boards": "Verwijder recente boards"
-				}
-			},
-			"title": {
-				"loading": "Uw Kanban boards inladen, {display_name}.",
-				"no_boards": "U heeft nog geen boards.",
-				"no_boards_cta": "Creëer er één om te beginnen!",
-				"recent_boards": "Recente boards:",
-				"no_recently_visited_boards": "U heeft onlangs nog geen board bezocht.",
-				"favorite_boards": "Favoriete boards:",
-				"no_favorited_boards": "U heeft nog geen favoriete boards",
-				"your_boards": "Uw boards:",
-				"no_created_boards": "U heeft nog geen boards gecreëerd",
-				"boards_shared_with_you": "Boards gedeeld met u:",
-				"no_boards_shared_with_you": "Er zijn geen boards met u gedeeld"
-			},
-			"images": {
-				"alt": {
-					"board_background": "Board achtergrond"
-				}
-			},
-			"modal": {
-				"ClearResetBoardsModal": {
-					"title": "Wis recente boards?",
-					"desc": "Dit kan niet ongedaan gemaakt worden!",
-					"cancel": "Annuleren",
-					"clear_recent_boards": "Wis recente boards"
-				}
-			},
-			"error": {
-				"something_failed": "Er is iets fout gegaan!",
-				"session_invalid": "Sessie ongeldig"
-			},
-			"toast": {
-				"recent_boards_cleared": {
-					"title": "Recent boarden gewist!"
-				}
-			}
-		},
-		"invites": {
-			"error": {
-				"profiles_failed_to_load": {
-					"title": "Profiel laden mislukt!",
-					"desc": "Sommige profiel(en) konden niet geladen worden."
-				},
-				"network_error": {
-					"title": "Netwerk fout!",
-					"desc": "Er is iets misgegaan bij het ophalen van het profiel."
-				},
-				"failed_to_load_invites": {
-					"title": "Uitnodigingen inladen mislukt.",
-					"desc": "Kon uw uitnodigingen niet ophalen."
-				},
-				"failed_to_accept_invite": {
-					"title": "Uitnodiging accepteren mislukt.",
-					"desc": "Mislukt om aan te sluiten bij het board."
-				},
-				"invite_declined_failed": {
-					"title": "Uitnodiging weigeren mislukt.",
-					"desc": "Kon de uitnodiging niet weigeren."
-				}
-			},
-			"toast": {
-				"invite_accepted": {
-					"title": "Uitnodiging geaccepteerd!",
-					"desc": "U bent nu lid van het board."
-				},
-				"invite_declined": {
-					"title": "Uitnodiging geweigerd",
-					"desc": "U heeft de uitnodiging geweigerd."
-				}
-			},
-			"btn": {
-				"back": "Terug",
-				"accept": "Accepteer",
-				"deny": "Weiger"
-			},
-			"title": {
-				"my_board_invites": "Mijn board uitnodigingen",
-				"you_have_no_pending_board_invites": "U heeft nog geen board uitnodigingen.",
-				"invited_by": "Uitgenodigd door"
-			}
-		},
-		"create": {
-			"option": {
-				"private": "Privé",
-				"public": "Openbaar"
-			},
-			"error": {
-				"something_failed": {
-					"title": "Er is iets fout gegaan!"
-				}
-			},
-			"toast": {
-				"board_created": {
-					"title": "Board gecreëerd!",
-					"desc": "Board {board_name} gecreëerd."
-				}
-			},
-			"title": {
-				"create_an_new_board": "Creëer een nieuw board",
-				"board_visibility": "Board zichtbaarheid"
-			},
-			"field": {
-				"name_of_the_new_board": {
-					"label": "Naam van het nieuwe board:",
-					"placeholder": "Voer een nieuwe boardnaam in.",
-					"rules": "Naam mag maximaal 20 karakters hebben. Er mogen geen speciale karakters inzitten."
-				}
-			},
-			"btn": {
-				"cancel": "Annuleer",
-				"create_new_board": "Creëer een nieuw board"
-			}
-		},
-		"board": {
-			"id": {
-				"edit": {
-					"option": {
-						"private": "Privé",
-						"public": "Openbaar"
-					},
-					"error": {
-						"something_failed": "Er is iets fout gegaan!",
-						"update_failed": "Update mislukt!"
-					},
-					"toast": {
-						"board_update_successfull": {
-							"title": "Board geupdate!",
-							"desc": "Board {board_name} geupdate."
-						}
-					},
-					"title": {
-						"edit_board": "Bewerk board:",
-						"current_settings": "Dit zijn uw huidige instellingen!",
-						"board_visibility": "Board zichtbaarheid:"
-					},
-					"field": {
-						"board_name": {
-							"label": "Naam:",
-							"placeholder": "Voer een nieuwe boardnaam in.",
-							"invalid": "Naam mag maximaal 20 karakters hebben. Er mogen geen speciale karakters inzitten."
-						}
-					},
-					"btn": {
-						"cancel": "Annuleer",
-						"edit_board": "Bewerk board:"
-					}
-				},
-				"error": {
-					"something_failed": "Er is iets fout gegaan!",
-					"board_not_found": "Board bestaat niet!",
-					"not_member": "U bent geen lid van het board. Vraag de eigenaar voor toegang.",
-					"list_cards_failed_load": "Kon de kaarten van de lijst {list_name} niet inladen",
-					"card_title_too_long": "Kaart titel is te lang.",
-					"create_list_failed": "Lijst creëeren mislukt!",
-					"move_list_failed": "Lijst verplaatsen mislukt!",
-					"card_move_failed": "Kaart verplaatsen mislukt!",
-					"no_lists": "Geen lijsten beschikbaar."
-				},
-				"toast": {
-					"favorited_board": {
-						"title": "Gefavoriet board:"
-					},
-					"unfavorited_board": {
-						"title": "Niet-gefavoriet board:"
-					},
-					"deleted_board": {
-						"title": "Verwijder board:"
-					},
-					"left_board": {
-						"title": "Board verlaten:"
-					}
-				},
-				"title": {
-					"loading": "Board {board_name} inladen.",
-					"getting_ready": "Dingen klaarzetten.",
-					"unhandled_view": "Niet-afgehandelde weergave."
-				},
-				"btn": {
-					"my_boards": "Mijn boards",
-					"back": "Terug",
-					"remove_favorite": "Verwijder board van favorieten.",
-					"add_favorite": "Voeg board toe aan favorieten.",
-					"share": "Deel",
-					"add_new_card": "Voeg nieuwe kaart toe",
-					"add_new_list": "Voeg nieuwe lijst toe",
-					"previous_month": "Vorige maand",
-					"next_month": "Volgende maand",
-					"today": "Vandaag"
-				},
-				"dropdown": {
-					"view": {
-						"calendar": "Kalendar",
-						"label": "Weergave"
-					},
-					"board_more_actions": {
-						"label": "Meer acties.",
-						"leave_board": "Verlaat board",
-						"delete_board": "Verwijder board",
-						"edit_board": "Bewerk board",
-						"change_background": "Verander board achtergrond"
-					},
-					"list_more_actions": {
-						"label": "Meer acties.",
-						"delete_list": "Verwijder lijst",
-						"move_left": "Verplaats naar links",
-						"move_right": "Verplaats naar rechts"
-					}
-				},
-				"field": {
-					"new_card": {
-						"placeholder": "Nieuwe kaart titel."
-					},
-					"new_list": {
-						"placeholder": "Nieuwe lijst titel."
-					}
-				},
-				"modal": {
-					"BoardDelModal": {
-						"cancel": "Annuleer",
-						"delete_board": "Verwijder board",
-						"title": "Weet u zeker dat u {board_name} wilt verwijderen?",
-						"desc": "Dit kan niet ongedaan gemaakt worden!"
-					},
-					"BoardLeaveModal": {
-						"title": "Weet u zeker dat u {board_name} wilt verlaten?",
-						"desc": "U kunt niet terug komen totdat de eigenaar u weer uitnodigd.",
-						"cancel": "Annuleer",
-						"leave": "Verlaat board"
-					}
-				}
-			}
-		},
-		"dates": {
-			"month": {
-				"january": "Januari",
-				"february": "Februari",
-				"march": "Maart",
-				"april": "April",
-				"may": "Mei",
-				"june": "Juni",
-				"july": "Juli",
-				"august": "Augustus",
-				"september": "September",
-				"october": "Oktober",
-				"november": "November",
-				"december": "December"
-			},
-			"day": {
-				"mon": "Maandag",
-				"tue": "Dinsdag",
-				"wed": "Woensdag",
-				"thu": "Donderdag",
-				"fri": "Vrijdag",
-				"sat": "Zaterdag",
-				"sun": "Zondag"
-			}
-		},
-		"components": {
-			"boardaccess": {
-				"error": {
-					"network": "Netwerk fout",
-					"failed_load_board_members": "Inladen van board leden mislukt.",
-					"failed_to_load_invites": "Inladen van board uitnodigingen mislukt.",
-					"user_not_found": "Gebruiker niet gevonden.",
-					"user_already_in_board": "Gebruiker is al een deel van dit board.",
-					"could_not_send_invite": "Kon de uitnodiging niet versturen.",
-					"cancel_invite_failed": "Kon de uitnodiging niet annuleren.",
-					"remove_failed": "Lid verwijderen mislukt.",
-					"remove_failed_desc": "Er is iets fout gegaan terwijl u dit lid probeerde te verwijderen."
-				},
-				"toast": {
-					"invite_send": {
-						"title": "Uitnodiging verzonden!"
-					},
-					"invite_canceled": {
-						"title": "Uitnodiging geannuleerd!"
-					},
-					"member_removed": {
-						"title": "Lid verwijderd!"
-					}
-				},
-				"title": "Board toegang",
-				"about_alt": "Over board toegang",
-				"close_alt": "Sluit board toegang",
-				"section": {
-					"invites": "Uitnodigingen",
-					"members": "Leden"
-				},
-				"no_pending_invites": "Geen afwachtende uitnodigingen.",
-				"cancel_invite_alt": "Annuleer uitnodiging",
-				"view_members": "Bekijk leden",
-				"remove_member_alt": "Verwijder lid",
-				"view_invites": "Bekijk uitnodigingen",
-				"invite": {
-					"title": "Nodig gebruiker uit",
-					"quick_connections": "Snelle connecties",
-					"button": "Stuur uitnodiging",
-					"enter_user_label": "Voer gebruikersnaam of e-mail in",
-					"placeholder": "Zoek voor een gebruiker..."
-				},
-				"modal": {
-					"remove_title": "Lid verwijderen?",
-					"remove_desc": "Weet u zeker dat u {user_name} wilt verwijderen van dit board?",
-					"cancel": "Annuleer",
-					"remove": "Verwijder"
-				}
-			},
-			"cardoverlay": {
-				"error": {
-					"profile_load_error_title": "Profiel inladen mislukt!",
-					"profile_load_error_desc": "Kon het profiel van de kaart creëerder niet inladen.",
-					"network_error_title": "Netwerk fout!",
-					"network_error_desc": "Er is iets fout gegaan bij het ophalen van de kaartdata."
-				},
-				"toast": {
-					"card_updated_title": "Kaart geupdate!",
-					"card_updated_desc": "De veranderingen van de kaart zijn opgeslagen.",
-					"card_update_failed_title": "Kaart updaten mislukt!",
-					"card_update_failed_desc": "Er is iets misgegaan bij het updaten van deze kaart.",
-					"card_deleted_title": "Kaart verwijderd!",
-					"card_deletion_failed_title": "Kaart verwijderen mislukt!",
-					"card_deletion_failed_desc": "Er is iets misgegaan met het verwijderen van deze kaart."
-				},
-				"alt": {
-					"about_cards": "Over kaarten",
-					"delete_card": "Verwijder kaarten",
-					"close": "Sluit kaart overlay",
-					"add_checklist_item": "Voeg checklist item toe"
-				},
-				"btn": {
-					"add_label": "Voeg label toe",
-					"dates": "Datums",
-					"add_checklist": "Voeg checklist toe",
-					"add_attachment": "Voeg bestand toe",
-					"save": "Opslaan",
-					"cancel": "Annuleer"
-				},
-				"label": {
-					"created_at": "Gecreëerd op:",
-					"created_by": "Gecreëerd door:"
-				},
-				"section": {
-					"description": "Beschrijving",
-					"checklist": "Checklist",
-					"activity_comments": "Activiteit & opmerkingen"
-				},
-				"placeholder": {
-					"write_description": "Schrijf een beschrijving...",
-					"add_detailed_description": "Voeg een meer gedetaileerde beschrijving toe..."
-				},
-				"field": {
-					"checklist_item_label": "Checklist item:",
-					"checklist_item_placeholder": "Voer checklist item in...",
-					"checklist_item_invalid": "Checklist item kan niet leeg zijn."
-				},
-				"text": {
-					"created_card_on": "Deze kaart is gecreëerd op {date}."
-				}
-			}
-		}
-	}
+  "kanban": {
+    "index": {
+      "btn": {
+        "create_board": "Board aanmaken",
+        "your_invites": "Uw uitnodigingen",
+        "invites": "Uitnodigingen",
+        "alt": {
+          "update_history": "Update geschiedenis",
+          "delete_recent_boards": "Verwijder recente boards"
+        }
+      },
+      "title": {
+        "loading": "Uw Kanban boards inladen, {display_name}.",
+        "no_boards": "U heeft nog geen boards.",
+        "no_boards_cta": "Creëer er één om te beginnen!",
+        "recent_boards": "Recente boards:",
+        "no_recently_visited_boards": "U heeft onlangs nog geen board bezocht.",
+        "favorite_boards": "Favoriete boards:",
+        "no_favorited_boards": "U heeft nog geen favoriete boards",
+        "your_boards": "Uw boards:",
+        "no_created_boards": "U heeft nog geen boards gecreëerd",
+        "boards_shared_with_you": "Boards gedeeld met u:",
+        "no_boards_shared_with_you": "Er zijn geen boards met u gedeeld"
+      },
+      "images": {
+        "alt": {
+          "board_background": "Board achtergrond"
+        }
+      },
+      "modal": {
+        "ClearResetBoardsModal": {
+          "title": "Wis recente boards?",
+          "desc": "Dit kan niet ongedaan gemaakt worden!",
+          "cancel": "Annuleren",
+          "clear_recent_boards": "Wis recente boards"
+        }
+      },
+      "error": {
+        "something_failed": "Er is iets fout gegaan!",
+        "session_invalid": "Sessie ongeldig"
+      },
+      "toast": {
+        "recent_boards_cleared": {
+          "title": "Recent boarden gewist!"
+        }
+      }
+    },
+    "invites": {
+      "error": {
+        "profiles_failed_to_load": {
+          "title": "Profiel laden mislukt!",
+          "desc": "Sommige profiel(en) konden niet geladen worden."
+        },
+        "network_error": {
+          "title": "Netwerk fout!",
+          "desc": "Er is iets misgegaan bij het ophalen van het profiel."
+        },
+        "failed_to_load_invites": {
+          "title": "Uitnodigingen inladen mislukt.",
+          "desc": "Kon uw uitnodigingen niet ophalen."
+        },
+        "failed_to_accept_invite": {
+          "title": "Uitnodiging accepteren mislukt.",
+          "desc": "Mislukt om aan te sluiten bij het board."
+        },
+        "invite_declined_failed": {
+          "title": "Uitnodiging weigeren mislukt.",
+          "desc": "Kon de uitnodiging niet weigeren."
+        }
+      },
+      "toast": {
+        "invite_accepted": {
+          "title": "Uitnodiging geaccepteerd!",
+          "desc": "U bent nu lid van het board."
+        },
+        "invite_declined": {
+          "title": "Uitnodiging geweigerd",
+          "desc": "U heeft de uitnodiging geweigerd."
+        }
+      },
+      "btn": {
+        "back": "Terug",
+        "accept": "Accepteer",
+        "deny": "Weiger"
+      },
+      "title": {
+        "my_board_invites": "Mijn board uitnodigingen",
+        "you_have_no_pending_board_invites": "U heeft nog geen board uitnodigingen.",
+        "invited_by": "Uitgenodigd door"
+      }
+    },
+    "create": {
+      "option": {
+        "private": "Privé",
+        "public": "Openbaar"
+      },
+      "error": {
+        "something_failed": {
+          "title": "Er is iets fout gegaan!"
+        }
+      },
+      "toast": {
+        "board_created": {
+          "title": "Board gecreëerd!",
+          "desc": "Board {board_name} gecreëerd."
+        }
+      },
+      "title": {
+        "create_an_new_board": "Creëer een nieuw board",
+        "board_visibility": "Board zichtbaarheid"
+      },
+      "field": {
+        "name_of_the_new_board": {
+          "label": "Naam van het nieuwe board:",
+          "placeholder": "Voer een nieuwe boardnaam in.",
+          "rules": "Naam mag maximaal 20 karakters hebben. Er mogen geen speciale karakters inzitten."
+        }
+      },
+      "btn": {
+        "cancel": "Annuleer",
+        "create_new_board": "Creëer een nieuw board"
+      }
+    },
+    "board": {
+      "id": {
+        "edit": {
+          "option": {
+            "private": "Privé",
+            "public": "Openbaar"
+          },
+          "error": {
+            "something_failed": "Er is iets fout gegaan!",
+            "update_failed": "Update mislukt!"
+          },
+          "toast": {
+            "board_update_successfull": {
+              "title": "Board geupdate!",
+              "desc": "Board {board_name} geupdate."
+            }
+          },
+          "title": {
+            "edit_board": "Bewerk board:",
+            "current_settings": "Dit zijn uw huidige instellingen!",
+            "board_visibility": "Board zichtbaarheid:"
+          },
+          "field": {
+            "board_name": {
+              "label": "Naam:",
+              "placeholder": "Voer een nieuwe boardnaam in.",
+              "invalid": "Naam mag maximaal 20 karakters hebben. Er mogen geen speciale karakters inzitten."
+            }
+          },
+          "btn": {
+            "cancel": "Annuleer",
+            "edit_board": "Bewerk board:"
+          }
+        },
+        "error": {
+          "something_failed": "Er is iets fout gegaan!",
+          "board_not_found": "Board bestaat niet!",
+          "not_member": "U bent geen lid van het board. Vraag de eigenaar voor toegang.",
+          "list_cards_failed_load": "Kon de kaarten van de lijst {list_name} niet inladen",
+          "card_title_too_long": "Kaart titel is te lang.",
+          "create_list_failed": "Lijst creëeren mislukt!",
+          "move_list_failed": "Lijst verplaatsen mislukt!",
+          "card_move_failed": "Kaart verplaatsen mislukt!",
+          "no_lists": "Geen lijsten beschikbaar."
+        },
+        "toast": {
+          "favorited_board": {
+            "title": "Gefavoriet board:"
+          },
+          "unfavorited_board": {
+            "title": "Niet-gefavoriet board:"
+          },
+          "deleted_board": {
+            "title": "Verwijder board:"
+          },
+          "left_board": {
+            "title": "Board verlaten:"
+          }
+        },
+        "title": {
+          "loading": "Board {board_name} inladen.",
+          "getting_ready": "Dingen klaarzetten.",
+          "unhandled_view": "Niet-afgehandelde weergave."
+        },
+        "btn": {
+          "my_boards": "Mijn boards",
+          "back": "Terug",
+          "remove_favorite": "Verwijder board van favorieten.",
+          "add_favorite": "Voeg board toe aan favorieten.",
+          "share": "Deel",
+          "add_new_card": "Voeg nieuwe kaart toe",
+          "add_new_list": "Voeg nieuwe lijst toe",
+          "previous_month": "Vorige maand",
+          "next_month": "Volgende maand",
+          "today": "Vandaag"
+        },
+        "dropdown": {
+          "view": {
+            "calendar": "Kalendar",
+            "label": "Weergave"
+          },
+          "board_more_actions": {
+            "label": "Meer acties.",
+            "leave_board": "Verlaat board",
+            "delete_board": "Verwijder board",
+            "edit_board": "Bewerk board",
+            "change_background": "Verander board achtergrond"
+          },
+          "list_more_actions": {
+            "label": "Meer acties.",
+            "delete_list": "Verwijder lijst",
+            "move_left": "Verplaats naar links",
+            "move_right": "Verplaats naar rechts"
+          }
+        },
+        "field": {
+          "new_card": {
+            "placeholder": "Nieuwe kaart titel."
+          },
+          "new_list": {
+            "placeholder": "Nieuwe lijst titel."
+          }
+        },
+        "modal": {
+          "BoardDelModal": {
+            "cancel": "Annuleer",
+            "delete_board": "Verwijder board",
+            "title": "Weet u zeker dat u {board_name} wilt verwijderen?",
+            "desc": "Dit kan niet ongedaan gemaakt worden!"
+          },
+          "BoardLeaveModal": {
+            "title": "Weet u zeker dat u {board_name} wilt verlaten?",
+            "desc": "U kunt niet terug komen totdat de eigenaar u weer uitnodigd.",
+            "cancel": "Annuleer",
+            "leave": "Verlaat board"
+          }
+        }
+      }
+    },
+    "dates": {
+      "month": {
+        "january": "Januari",
+        "february": "Februari",
+        "march": "Maart",
+        "april": "April",
+        "may": "Mei",
+        "june": "Juni",
+        "july": "Juli",
+        "august": "Augustus",
+        "september": "September",
+        "october": "Oktober",
+        "november": "November",
+        "december": "December"
+      },
+      "day": {
+        "mon": "Maandag",
+        "tue": "Dinsdag",
+        "wed": "Woensdag",
+        "thu": "Donderdag",
+        "fri": "Vrijdag",
+        "sat": "Zaterdag",
+        "sun": "Zondag"
+      }
+    },
+    "components": {
+      "boardaccess": {
+        "error": {
+          "network": "Netwerk fout",
+          "failed_load_board_members": "Inladen van board leden mislukt.",
+          "failed_to_load_invites": "Inladen van board uitnodigingen mislukt.",
+          "user_not_found": "Gebruiker niet gevonden.",
+          "user_already_in_board": "Gebruiker is al een deel van dit board.",
+          "could_not_send_invite": "Kon de uitnodiging niet versturen.",
+          "cancel_invite_failed": "Kon de uitnodiging niet annuleren.",
+          "remove_failed": "Lid verwijderen mislukt.",
+          "remove_failed_desc": "Er is iets fout gegaan terwijl u dit lid probeerde te verwijderen."
+        },
+        "toast": {
+          "invite_send": {
+            "title": "Uitnodiging verzonden!"
+          },
+          "invite_canceled": {
+            "title": "Uitnodiging geannuleerd!"
+          },
+          "member_removed": {
+            "title": "Lid verwijderd!"
+          }
+        },
+        "title": "Board toegang",
+        "about_alt": "Over board toegang",
+        "close_alt": "Sluit board toegang",
+        "section": {
+          "invites": "Uitnodigingen",
+          "members": "Leden"
+        },
+        "no_pending_invites": "Geen afwachtende uitnodigingen.",
+        "cancel_invite_alt": "Annuleer uitnodiging",
+        "view_members": "Bekijk leden",
+        "remove_member_alt": "Verwijder lid",
+        "view_invites": "Bekijk uitnodigingen",
+        "invite": {
+          "title": "Nodig gebruiker uit",
+          "quick_connections": "Snelle connecties",
+          "button": "Stuur uitnodiging",
+          "enter_user_label": "Voer gebruikersnaam of e-mail in",
+          "placeholder": "Zoek voor een gebruiker..."
+        },
+        "modal": {
+          "remove_title": "Lid verwijderen?",
+          "remove_desc": "Weet u zeker dat u {user_name} wilt verwijderen van dit board?",
+          "cancel": "Annuleer",
+          "remove": "Verwijder"
+        }
+      },
+      "cardoverlay": {
+        "error": {
+          "profile_load_error_title": "Profiel inladen mislukt!",
+          "profile_load_error_desc": "Kon het profiel van de kaart creëerder niet inladen.",
+          "network_error_title": "Netwerk fout!",
+          "network_error_desc": "Er is iets fout gegaan bij het ophalen van de kaartdata."
+        },
+        "toast": {
+          "card_updated_title": "Kaart geupdate!",
+          "card_updated_desc": "De veranderingen van de kaart zijn opgeslagen.",
+          "card_update_failed_title": "Kaart updaten mislukt!",
+          "card_update_failed_desc": "Er is iets misgegaan bij het updaten van deze kaart.",
+          "card_deleted_title": "Kaart verwijderd!",
+          "card_deletion_failed_title": "Kaart verwijderen mislukt!",
+          "card_deletion_failed_desc": "Er is iets misgegaan met het verwijderen van deze kaart."
+        },
+        "alt": {
+          "about_cards": "Over kaarten",
+          "delete_card": "Verwijder kaarten",
+          "close": "Sluit kaart overlay",
+          "add_checklist_item": "Voeg checklist item toe"
+        },
+        "btn": {
+          "add_label": "Voeg label toe",
+          "dates": "Datums",
+          "add_checklist": "Voeg checklist toe",
+          "add_attachment": "Voeg bestand toe",
+          "save": "Opslaan",
+          "cancel": "Annuleer"
+        },
+        "label": {
+          "created_at": "Gecreëerd op:",
+          "created_by": "Gecreëerd door:"
+        },
+        "section": {
+          "description": "Beschrijving",
+          "checklist": "Checklist",
+          "activity_comments": "Activiteit & opmerkingen"
+        },
+        "placeholder": {
+          "write_description": "Schrijf een beschrijving...",
+          "add_detailed_description": "Voeg een meer gedetaileerde beschrijving toe..."
+        },
+        "field": {
+          "checklist_item_label": "Checklist item:",
+          "checklist_item_placeholder": "Voer checklist item in...",
+          "checklist_item_invalid": "Checklist item kan niet leeg zijn."
+        },
+        "text": {
+          "created_card_on": "Deze kaart is gecreëerd op {date}."
+        }
+      }
+    }
+  }
 }
