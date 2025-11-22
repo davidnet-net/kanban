@@ -1,15 +1,7 @@
 {
   "kanban": {
     "index": {
-      "btn": {
-        "create_board": "Crear Board",
-        "your_invites": "Tus invitaciones",
-        "invites": "Invitaciones",
-        "alt": {
-          "update_history": "Historial de actualizaciones",
-          "delete_recent_boards": "Eliminar Boards recientes"
-        }
-      },
+      
       "title": {
         "loading": "Obteniendo tus Kanban boards, {display_name}.",
         "no_boards": "Aún no tienes ningún Board.",
