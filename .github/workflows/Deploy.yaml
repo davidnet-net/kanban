@@ -48,6 +48,19 @@ jobs:
                         git reset --hard origin/main
                       fi
 
+                      # -------------------------------
+                      # Write commit info to .env
+                      # -------------------------------
+                      COMMIT_HASH=$(git rev-parse HEAD)
+                      COMMIT_URL="https://github.com/${{ github.repository }}/commit/$COMMIT_HASH"
+
+                      echo "VITE_COMMIT_HASH=$COMMIT_HASH" > .env
+                      echo "VITE_COMMIT_URL=$COMMIT_URL" >> .env
+                      echo "Commit info written to .env: $COMMIT_HASH"
+
+                      # -------------------------------
+                      # Build and deploy Docker containers
+                      # -------------------------------
                       echo "Building updated containers..."
                       docker compose build --pull --no-cache
 
