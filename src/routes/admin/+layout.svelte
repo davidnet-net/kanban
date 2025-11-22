@@ -3,7 +3,8 @@
 	import Error from "$lib/components/Error.svelte";
 	import type { SessionInfo } from "$lib/types";
 	import { onMount } from "svelte";
-	import { refreshAccessToken, getSessionInfo, isAuthenticated, Loader } from "@davidnet/svelte-ui";
+	import { refreshAccessToken, getSessionInfo, isAuthenticated, Loader, authFetch, toast } from "@davidnet/svelte-ui";
+	import { authapiurl } from "$lib/config";
 
 	let correlationID = crypto.randomUUID();
 	let error = false;
@@ -20,6 +21,23 @@
 
 			if (!si || si.email_verified === 0) {
 				window.location.href = "https://account.davidnet.net/verify/email/check/" + si?.email;
+				return;
+			}
+
+			const res = await authFetch(authapiurl + "policy/check", correlationID);
+			if (!res.ok) {
+				error = true;
+				toast({
+					"position": "bottom-left",
+					"title": "Policy check failed!",
+					"appearance": "danger",
+					"icon": "policy_alert"
+				})
+			}
+			const data = await res.json();
+			const acceptedpolicies = data.accepted ?? false;
+			if (!acceptedpolicies) {
+				window.location.href = "https://davidnet.net/legal/accept";
 				return;
 			}
 
