@@ -24,23 +24,6 @@
 				return;
 			}
 
-			const res = await authFetch(authapiurl + "policy/check", correlationID);
-			if (!res.ok) {
-				error = true;
-				toast({
-					"position": "bottom-left",
-					"title": "Policy check failed!",
-					"appearance": "danger",
-					"icon": "policy_alert"
-				})
-			}
-			const data = await res.json();
-			const acceptedpolicies = data.accepted ?? false;
-			if (!acceptedpolicies) {
-				window.location.href = "https://davidnet.net/legal/accept";
-				return;
-			}
-
 			Authenticated = true;
 			setInterval(
 				() => {

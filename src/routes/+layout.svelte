@@ -10,7 +10,13 @@
 		LinkIconButton,
 		getSessionInfo,
 		isAuthenticated,
-		refreshAccessToken
+		refreshAccessToken,
+
+		toast,
+
+		authFetch
+
+
 	} from "@davidnet/svelte-ui";
 	import { onMount } from "svelte";
 	import type { SessionInfo } from "$lib/types";
@@ -18,6 +24,7 @@
 	import "$lib/i18n/i18n";
 	import { isLocaleLoaded, setAppLanguage } from "$lib/i18n/i18n";
 	import { get } from "svelte/store";
+	import { authapiurl } from "$lib/config";
 
 	let { children } = $props();
 
@@ -66,6 +73,23 @@
 
 			authed = true;
 			setAppLanguage(si.preferences.language);
+
+			const res = await authFetch(authapiurl + "policy/check", correlationID);
+			if (!res.ok) {
+				toast({
+					"position": "bottom-left",
+					"title": "Policy check failed!",
+					"appearance": "danger",
+					"icon": "policy_alert"
+				})
+				return;
+			}
+			const data = await res.json();
+			const acceptedpolicies = data.accepted ?? false;
+			if (!acceptedpolicies) {
+				window.location.href = "https://davidnet.net/legal/accept";
+				return;
+			}
 
 			setInterval(() => {
 				refreshAccessToken(correlationID, true, false);
