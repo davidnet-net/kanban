@@ -37,10 +37,24 @@
 	});
 </script>
 
-{#if error}
-	<Error pageName="Admin" errorMSG="Unknown" />
-{:else if Authenticated}
-	<slot />
-{:else}
-	<Loader/>
-{/if}
+<div id="background">
+	{#if error}
+		<Error pageName="Admin" errorMSG="Unknown" />
+	{:else if Authenticated}
+		<slot />
+	{:else}
+		<Loader/>
+	{/if}
+</div>
+
+<style>
+	#background {
+		background-color: var(--token-color-surface-sunken-normal);
+		padding: 4rem 5rem;
+		padding-top: 0rem;
+		border-radius: 1rem;
+		width: 300px;
+		height: 680px;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+	}
+</style>
