@@ -84,7 +84,7 @@
 	</FlexWrapper>
 	<FlexWrapper direction="row" gap="var(--token-space-6)">
 		<div class="info">
-			<Icon icon="deployed_code" />
+			<Icon icon="view_kanban" />
 			{#if commitUrl === "unknown"}
 				<span style="white-space: nowrap;">Account | Version Unknown</span>
 			{:else}

@@ -10,7 +10,8 @@ register('en', () => import('./lang/en.json'));
 register('de', () => import('./lang/de.json'));
 register('nl', () => import('./lang/nl.json'));
 register('es', () => import('./lang/es.json'));
-
+register('nl', () => import('./lang/nl.json'));
+register('es', () => import('./lang/es.json'));
 // ------------------------------
 // Region aliases
 // ------------------------------
