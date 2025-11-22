@@ -65,7 +65,7 @@
 			{#if commitUrl === "unknown"}
 				<span style="white-space: nowrap;">Account | Version Unknown</span>
 			{:else}
-				<span style="white-space: nowrap;">Account | <a href={commitUrl}>{commitHash.slice(0, 7)}</a></span>
+				<span style="white-space: nowrap;">Kanban | <a href={commitUrl}>{commitHash.slice(0, 7)}</a></span>
 			{/if}
 		</div>
 	</FlexWrapper>
