@@ -24,11 +24,33 @@
 		missing: string[];
 	};
 
+	// Deep flattener for nested i18n keys
+	function flatten(obj: Record<string, any>, prefix = ""): Record<string, any> {
+		const out: Record<string, any> = {};
+
+		for (const [key, value] of Object.entries(obj)) {
+			const path = prefix ? `${prefix}.${key}` : key;
+
+			if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+				Object.assign(out, flatten(value, path));
+			} else {
+				out[path] = value;
+			}
+		}
+
+		return out;
+	}
+
 	function getCoverage(base: Record<string, any>, target: Record<string, any>, locale: string): CoverageReport {
-		const keys = Object.keys(base);
-		const translatedKeys = keys.filter((key) => key in target);
-		const coverage = (translatedKeys.length / keys.length) * 100;
-		const missing = keys.filter((key) => !(key in target));
+		const flatBase = flatten(base);
+		const flatTarget = flatten(target);
+
+		const baseKeys = Object.keys(flatBase);
+		const translated = baseKeys.filter((k) => k in flatTarget);
+		const missing = baseKeys.filter((k) => !(k in flatTarget));
+
+		const coverage = (translated.length / baseKeys.length) * 100;
+
 		return { locale, coverage, missing };
 	}
 
@@ -36,6 +58,7 @@
 		.filter(([key]) => key !== baseLocaleKey)
 		.map(([localeKey, localeData]) => getCoverage(baseLocale, localeData, localeKey));
 </script>
+
 
 <Space height="var(--token-space-4)" />
 <FlexWrapper width="100%" justifycontent="space-around" direction="row">

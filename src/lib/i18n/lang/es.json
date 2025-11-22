@@ -1,6 +1,51 @@
 {
   "kanban": {
-
+    "index": {
+      "btn": {
+        "create_board": "Crear Board",
+        "your_invites": "Tus invitaciones",
+        "invites": "Invitaciones",
+        "alt": {
+          "update_history": "Historial de actualizaciones",
+          "delete_recent_boards": "Eliminar Boards recientes"
+        }
+      },
+      "title": {
+        "loading": "Obteniendo tus Kanban boards, {display_name}.",
+        "no_boards": "Aún no tienes ningún Board.",
+        "no_boards_cta": "¡Crea uno para comenzar!",
+        "recent_boards": "Boards recientes:",
+        "no_recently_visited_boards": "No visitaste ningún Board recientemente.",
+        "favorite_boards": "Boards favoritos:",
+        "no_favorited_boards": "Aún no has marcado ningún Board como favorito.",
+        "your_boards": "Tus Boards:",
+        "no_created_boards": "Aún no has creado ningún Board.",
+        "boards_shared_with_you": "Boards compartidos contigo:",
+        "no_boards_shared_with_you": "No hay Boards compartidos contigo."
+      },
+      "images": {
+        "alt": {
+          "board_background": "Fondo del Board"
+        }
+      },
+      "modal": {
+        "ClearResetBoardsModal": {
+          "title": "¿Borrar la lista de Boards recientes?",
+          "desc": "¡Esto no se puede deshacer!",
+          "cancel": "Cancelar",
+          "clear_recent_boards": "Borrar Boards recientes"
+        }
+      },
+      "error": {
+        "something_failed": "¡Algo falló!",
+        "session_invalid": "Sesión inválida"
+      },
+      "toast": {
+        "recent_boards_cleared": {
+          "title": "¡Boards recientes borrados!"
+        }
+      }
+    },
     "invites": {
       "error": {
         "profiles_failed_to_load": {
