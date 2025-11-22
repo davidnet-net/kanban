@@ -9,10 +9,12 @@
 	import de from "$lib/i18n/lang/de.json";
 	import en from "$lib/i18n/lang/en.json";
 	import es from "$lib/i18n/lang/es.json";
-	import nl from "$lib/i18n/lang/nl.json";
-
+	import fr from "$lib/i18n/lang/fr.json";
+	import nl from "$lib/i18n/lang/es.json";
+	import pt from "$lib/i18n/lang/pt.json";
+	
 	// Add all your locales here
-	const locales = { de, en, es, nl };
+	const locales = { de, en, es, fr, nl, pt };
 
 	// Base locale to compare against
 	const baseLocaleKey = "en";
