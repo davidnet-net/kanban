@@ -1,0 +1,172 @@
+<script lang="ts">
+	import { goto } from "$app/navigation";
+	import { page } from "$app/state";
+	import { kanbanapiurl } from "$lib/config";
+	import type { SessionInfo } from "$lib/types";
+	import { authFetch, Button, FlexWrapper, getSessionInfo, refreshAccessToken, Space, toast } from "@davidnet/svelte-ui";
+	import { onMount } from "svelte";
+	import { _ } from "svelte-i18n";
+
+	type Image = {
+		link: string;
+		author: {
+			name: string;
+			link: string;
+		};
+	};
+
+	const images: Image[] = [
+		{
+			link: "https://cdn.pixabay.com/photo/2024/01/11/17/07/leaves-8502212_960_720.jpg",
+			author: { link: "https://pixabay.com/users/heikiwi-35444888/", name: "HeiKiwi" }
+		},
+		{
+			link: "https://cdn.pixabay.com/photo/2025/10/23/05/43/bird-9910830_960_720.jpg",
+			author: { link: "https://pixabay.com/users/bitnikgao-38671825/", name: "bitnikgao" }
+		},
+		{
+			link: "https://cdn.pixabay.com/photo/2025/09/07/10/32/mountain-layers-9820349_960_720.jpg",
+			author: { link: "https://pixabay.com/users/ahmetyuksek-45995253/", name: "ahmetyuksek" }
+		},
+		{
+			link: "https://cdn.pixabay.com/photo/2018/01/14/23/12/nature-3082832_960_720.jpg",
+			author: { link: "https://pixabay.com/nl/users/jplenio-7645255/", name: "jplenio" }
+		}
+	];
+
+	const board_id = page.params.id;
+	const correlationID = crypto.randomUUID();
+	let si: SessionInfo | null = $state(null);
+	let selected_image: Image | null = $state(null);
+
+	onMount(async () => {
+		await refreshAccessToken(correlationID, true, false);
+		si = await getSessionInfo(correlationID, true);
+	});
+
+	async function setbackground() {
+		if (!selected_image) return;
+
+		try {
+			const res = await authFetch(`${kanbanapiurl}board/set-background`, correlationID, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					board_id: Number(board_id),
+					background_url: selected_image.link
+				})
+			});
+
+			if (!res.ok) {
+				const err = await res.json();
+				console.error("Failed to update background:", err);
+				return;
+			}
+
+			toast({
+				title: $_('kanban.board.id.background.toast.saved'),
+				icon: "celebration",
+				appearance: "success",
+				position: "bottom-left",
+				autoDismiss: 5000
+			});
+			goto("/board/" + board_id);
+		} catch (err) {
+			toast({
+				title: $_('kanban.board.id.background.toast.save_error'),
+				icon: "crisis_alert",
+				appearance: "danger",
+				position: "bottom-left",
+				autoDismiss: 5000
+			});
+			console.error(err);
+		}
+	}
+</script>
+
+<h1>{$_('kanban.board.id.background.title')}</h1>
+<Button iconbefore="arrow_back" onClick={() => history.back()}>{$_('kanban.board.id.background.btn.back')}</Button>
+<Space height="var(--token-space-3)" />
+
+<div class="boards-grid">
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	{#each images as image}
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<div 
+			class="board-card {selected_image === image ? 'selected' : ''}" 
+			onclick={() => selected_image = image}
+		>
+			<img src={image.link} alt="Board background" aria-hidden="true" />
+			<div class="overlay">
+				<a href={image.author.link} target="_blank" rel="noopener noreferrer">
+					{image.author.name}
+				</a>
+			</div>
+		</div>
+	{/each}
+</div>
+
+<FlexWrapper direction="row" gap="var(--token-space-1)">
+	<Button appearance="primary" onClick={setbackground} disabled={!selected_image}>{$_('kanban.board.id.background.btn.set_background')}</Button>
+	<Button iconbefore="arrow_back" onClick={() => history.back()}>{$_('kanban.board.id.background.btn.back')}</Button>
+</FlexWrapper>
+
+<style>
+	.boards-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+		gap: var(--token-space-3);
+		margin: var(--token-space-2) auto;
+		width: 100%;
+		max-width: 1000px;
+	}
+
+	.board-card {
+		position: relative;
+		border-radius: 1rem;
+		overflow: hidden;
+		cursor: pointer;
+		background: var(--token-color-surface-raised-normal);
+		transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.2s ease;
+		border: 3px solid transparent;
+	}
+
+	.board-card.selected {
+		border-color: var(--token-color-primary-normal);
+	}
+
+	.board-card:hover {
+		transform: translateY(-4px);
+		background: var(--token-color-surface-raised-hover);
+		box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+	}
+
+	.board-card img {
+		width: 100%;
+		height: 140px;
+		object-fit: cover;
+		display: block;
+	}
+
+	.overlay {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		background: rgba(0, 0, 0, 0.5);
+		color: #fff;
+		text-align: center;
+		padding: 0.5rem;
+		opacity: 0;
+		transition: opacity 0.3s ease;
+	}
+
+	.board-card:hover .overlay {
+		opacity: 1;
+	}
+
+	.overlay a {
+		color: #fff;
+		text-decoration: underline;
+	}
+</style>

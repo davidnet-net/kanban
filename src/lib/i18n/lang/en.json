@@ -238,6 +238,17 @@
             "cancel": "Cancel",
             "leave": "Leave board"
           }
+        },
+        "background": {
+          "toast": {
+            "saved": "Background updated.",
+            "save_error": "Failed to update background!"
+          },
+          "title": "Select a board background",
+          "btn": {
+            "back": "Back",
+            "set_background": "Set background"
+          }
         }
       }
     },

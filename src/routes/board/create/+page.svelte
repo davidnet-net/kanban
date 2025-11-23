@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
+	import { page } from "$app/state";
 	import { kanbanapiurl } from "$lib/config";
 	import { Button, Dropdown, FlexWrapper, Space, TextField, toast, authFetch } from "@davidnet/svelte-ui";
 	let boardname: string = "";
@@ -37,7 +38,7 @@
 					name: boardname,
 					is_public: visibility === "public",
 					background_url:
-						"https://trello-backgrounds.s3.amazonaws.com/SharedBackground/480x320/90a5611273ca04096a9b9145d68847c0/photo-1742845918430-c6093f93f740.webp" //TODO
+						"https://cdn.pixabay.com/photo/2025/09/07/10/32/mountain-layers-9820349_960_720.jpg" //TODO
 				})
 			});
 
