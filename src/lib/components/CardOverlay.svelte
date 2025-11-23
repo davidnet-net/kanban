@@ -190,6 +190,7 @@
 				autoDismiss: 3000
 			});
 		}
+		await loadChecklist();
 	}
 
 	function handleKey(e: KeyboardEvent) {
@@ -322,14 +323,12 @@
 												invalid={false}
 												invalidMessage={$_("kanban.components.cardoverlay.field.checklist_item_invalid")}
 												width="85%"
+												onEnter={add_checklist_item}
 											/>
 											<IconButton
 												icon="add"
 												disabled={addchecklistvalue.length === 0}
-												onClick={async () => {
-													await add_checklist_item();
-													await loadChecklist(); // refresh after adding
-												}}
+												onClick={add_checklist_item}
 												alt={$_("kanban.components.cardoverlay.alt.add_checklist_item")}
 												appearance="primary"
 											/>
