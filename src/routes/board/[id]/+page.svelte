@@ -200,6 +200,9 @@
 
 				si = await getSessionInfo(correlationID, false);
 
+				// ensure calendar reflects user preference right after session info is available
+				refreshCalendar();
+
 				try {
 					const data = await authFetch(`${kanbanapiurl}board/is_favorited`, { board_id: id });
 					board_favorited.set(data.favorited);
@@ -614,7 +617,7 @@
 	}
 
 	// IMPORTANT: produce a plain array (not a store) so your template {#each DAYS as day} works
-	let DAYS: string[] = $derived(getWeekdayLabels("monday")); // DO FROM PREFERENCES TEMFIX
+	let DAYS: string[] = $state(getWeekdayLabels("monday")); // DO FROM PREFERENCES TEMFIX
 
 	let year: number = $state(new Date().getFullYear());
 	let month: number = $state(new Date().getMonth());
@@ -644,17 +647,18 @@
 
 	function buildMonthGrid(year: number, monthIndex: number) {
 		const daysInMonth = getDaysInMonth(year, monthIndex);
-		const firstDay = new Date(year, monthIndex, 1).getDay();
+		const firstDayPref = String(si?.preferences?.firstDay ?? "monday");
 
 		const weeks: (number | null)[][] = [];
 		let currentWeek: (number | null)[] = new Array(7).fill(null);
 
-		for (let d = 0; d < daysInMonth; d++) {
-			const dayOfWeek = (firstDay + d) % 7;
-			currentWeek[dayOfWeek] = d + 1;
+		for (let d = 1; d <= daysInMonth; d++) {
+			const jsDay = new Date(year, monthIndex, d).getDay(); // 0=Sun..6=Sat
+			const col = getWeekdayIndex(jsDay, firstDayPref);
+			currentWeek[col] = d;
 
-			// push week on Saturday column (index 6) or at month end
-			if (dayOfWeek === 6 || d === daysInMonth - 1) {
+			// push week on last column (index 6) or at month end
+			if (col === 6 || d === daysInMonth) {
 				weeks.push(currentWeek);
 				currentWeek = new Array(7).fill(null);
 			}
@@ -672,7 +676,8 @@
 
 	// central refresh function: call whenever inputs change (year, month, preference)
 	function refreshCalendar() {
-		DAYS = getWeekdayLabels(String(si?.preferences.firstDay));
+		const firstDayPref = String(si?.preferences?.firstDay ?? "monday");
+		DAYS = getWeekdayLabels(firstDayPref);
 		grid = buildMonthGrid(year, month);
 	}
 
@@ -931,36 +936,40 @@
 						</FlexWrapper>
 
 						<!-- List cards (DnD enabled to move to calendar) -->
-						<div class="cards">
-							{#each $cards[CalendarListID] ?? [] as card (card.id)}
+						<div
+							class="cards"
+							use:dndzone={{
+								items: $cards[CalendarListID] ?? [],
+								flipDurationMs: 200,
+								type: "card",
+								dropFromOthersDisabled: false,
+								dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" },
+								delayTouchStart: true
+							}}
+							onconsider={(e) => cards.update((c) => ({ ...c, [(CalendarListID as string)]: e.detail.items }))}
+							onfinalize={(e) => {
+								// update list positions and persist via existing helper
+								moveCard(e, (CalendarListID as string));
+
+								// remove any cards that were dropped into this list from calendarEvents
+								const movedIds = (e.detail.items || []).map((i) => i.id);
+								if (movedIds.length) {
+									calendarEvents.update((evts) => {
+										const updated: { [k: string]: any[] } = {};
+										for (const k in evts) {
+											updated[k] = evts[k].filter((card) => !movedIds.includes(card.id));
+										}
+										return updated;
+									});
+								}
+							}}
+						>
+								{#each $cards[(CalendarListID as string)] ?? [] as card (card.id)}
 								<div
 									class="card"
-									use:dndzone={{
-										items: [$cards[CalendarListID].find((c) => c.id === card.id)],
-										type: "card",
-										dropFromOthersDisabled: false,
-										flipDurationMs: 200,
-										dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" }
-									}}
-									onfinalize={(e) => {
-										const movedCard = e.detail.items[0];
-										if (!movedCard) return;
-
-										// voeg toe aan eerste dag of een fallback dag
-										const todayIso = getIsoDate(year, month, 1);
-										calendarEvents.update((evts) => {
-											const currentCards = evts[todayIso] ?? [];
-											return { ...evts, [todayIso]: [...currentCards, movedCard] };
-										});
-
-										// verwijder uit lijst
-										const sourceListId = movedCard.listId;
-										if (sourceListId) {
-											cards.update((c) => ({
-												...c,
-												[sourceListId]: c[sourceListId].filter((card) => card.id !== movedCard.id)
-											}));
-										}
+									data-id={card.id}
+									Onclick={() => {
+										openedCard = card;
 									}}
 								>
 									{card.name}
@@ -1010,21 +1019,27 @@
 														dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" }
 													}}
 													onfinalize={(e) => {
-														const movedCard = e.detail.items.find(
-															(c) =>
-																!$calendarEvents[getIsoDate(year, month, day)]?.some(
-																	(existing) => existing.id === c.id
-																)
+														const iso = getIsoDate(year, month, day);
+														const movedCandidates = e.detail.items || [];
+														if (!movedCandidates.length) return;
+
+														const movedCard = movedCandidates.find(
+															(c) => !(( $calendarEvents[iso] ?? [] ).some((existing) => existing.id === c.id))
 														);
 														if (!movedCard) return;
 
-														// Voeg kaart toe aan deze dag
+														// Remove the card from any other calendar day and add to target day
 														calendarEvents.update((evts) => {
-															const currentCards = evts[getIsoDate(year, month, day)] ?? [];
-															return { ...evts, [getIsoDate(year, month, day)]: [...currentCards, movedCard] };
+															const updated: { [k: string]: any[] } = {};
+															for (const k in evts) {
+																updated[k] = evts[k].filter((card) => card.id !== movedCard.id);
+															}
+															const currentCards = updated[iso] ?? [];
+															updated[iso] = [...currentCards, movedCard];
+															return updated;
 														});
 
-														// Verwijder uit source list
+														// Remove from source list if it was dragged from a list
 														const sourceListId = movedCard.listId;
 														if (sourceListId) {
 															cards.update((c) => ({
