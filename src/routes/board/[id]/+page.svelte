@@ -900,6 +900,7 @@
 				</div>
 			</div>
 		{:else if view === "calendar"}
+			<Space height="var(--token-space-4)"/>
 			<FlexWrapper height="100%" width="100%">
 				<div class="calendar-container">
 					<div class="calendar-header">
@@ -951,14 +952,13 @@
 									? 'today'
 									: ''}"
 							>
-								<FlexWrapper height="100%">
+								<FlexWrapper height="100%" overflowX="scroll">
 									{#if day}
 										{day}
-										<FlexWrapper height="80%" width="100%">
-											<div style="height: 100%; width: 100%; overflow-x: auto;">
-												<h1>Yap</h1>
-
-											</div>
+										<FlexWrapper height="80%" width="100%" overflowX="auto">
+											<FlexWrapper height="100%" overflowX="auto">
+												<h3>Content</h3>
+											</FlexWrapper>
 										</FlexWrapper>
 									{/if}
 								</FlexWrapper>
@@ -986,7 +986,7 @@
 				<p>{getFirstDayIndex(year, month, firstDayPref)}</p>
 
 				<!-- Show number of days in each month -->
-				<h2 style="text-align: left;">Month days (current year)</h2>
+				<h2 style="text-align: left;">Month day</h2>
 				{#each MONTHDAYS(year) as days, i}
 					<p>{MONTHS[i]}: {days} days</p>
 				{/each}
