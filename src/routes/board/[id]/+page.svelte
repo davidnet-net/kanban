@@ -920,7 +920,7 @@
 					{/if}
 				</div>
 			</div>
-		{:else if view === "calendar"}
+		{:else if view === "calendar" && si?.internal}
 			<div class="lists">
 				{#if CalendarListID}
 					<!-- Select which list to display on calendar -->
@@ -1074,6 +1074,11 @@
 					</div>
 				{/if}
 			</div>
+		{:else if view === "calendar" && !si?.internal}
+			<FlexWrapper width="100%" height="100%">
+				<Icon icon="sync_problem" color="var(--token-color-text-danger)" size="10rem"/>
+				<Loader/>
+			</FlexWrapper>
 		{:else}
 			<h1>{$_("kanban.board.id.title.unhandled_view")}</h1>
 			<Loader />
