@@ -614,7 +614,7 @@
 	}
 
 	// IMPORTANT: produce a plain array (not a store) so your template {#each DAYS as day} works
-	let DAYS: string[] = getWeekdayLabels("monday"); // DO FROM PREFERENCES TEMFIX
+	let DAYS: string[] = $derived(getWeekdayLabels("monday")); // DO FROM PREFERENCES TEMFIX
 
 	let year: number = $state(new Date().getFullYear());
 	let month: number = $state(new Date().getMonth());
@@ -664,7 +664,7 @@
 	}
 
 	// grid is a plain variable (array of weeks)
-	let grid = buildMonthGrid(year, month);
+	let grid = $derived(buildMonthGrid(year, month));
 
 	// events
 	const calendarEvents = writable<{ [isoDate: string]: any[] }>({});
