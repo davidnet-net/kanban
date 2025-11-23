@@ -29,7 +29,7 @@
 	import { _ } from "svelte-i18n";
 
 	const id = page.params.id;
-	let view: "kanban" | "calendar" | "calendardebug" = $state("calendar");
+	let view: "kanban" | "calendar" | "calendardebug" = $state("kanban");
 
 	let loading = $state(true);
 
