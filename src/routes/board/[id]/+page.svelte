@@ -29,7 +29,7 @@
 	import { _ } from "svelte-i18n";
 
 	const id = page.params.id;
-	let view: "kanban" | "calendar" = $state("kanban");
+	let view: "kanban" | "calendar" | "calendardebug" = $state("calendar");
 
 	let loading = $state(true);
 
@@ -60,9 +60,6 @@
 	let can_edit = $state(false);
 	let is_owner = $state(false);
 	let si: SessionInfo | null = $state(null);
-
-	// Calendar
-	let CalendarListID: string | null = $state(null);
 
 	function showError(msg: string) {
 		if (common_error) {
@@ -148,11 +145,6 @@
 			if (!res.ok) throw new Error(`HTTP ${res.status}`);
 			const data = await res.json();
 			lists.set(data);
-
-			// CalendarListID (Default view on calendar list)
-			if (data.length > 0 && !CalendarListID) {
-				CalendarListID = data[0].id;
-			}
 		} catch (e) {
 			console.warn(e);
 			showError(String(e));
@@ -200,9 +192,6 @@
 
 				si = await getSessionInfo(correlationID, false);
 
-				// ensure calendar reflects user preference right after session info is available
-				refreshCalendar();
-
 				try {
 					const data = await authFetch(`${kanbanapiurl}board/is_favorited`, { board_id: id });
 					board_favorited.set(data.favorited);
@@ -215,6 +204,7 @@
 			await fetchBoard();
 			await fetchLists();
 			await fetchCardsForAllLists();
+			await loadCalendar();
 
 			if (authencated && si && $boardMeta?.owner == si?.userId) {
 				is_owner = true;
@@ -585,7 +575,18 @@
 	let openedCard: Card | null = $state(null);
 	let BoardAccessOverlayOpen: boolean = $state(false);
 
+	// ----
 	// Calendar
+	// ----
+	const today: Date = new Date();
+	let year: number = $state(today.getUTCFullYear());
+	let month: number = $state(today.getUTCMonth());
+	let firstDayPref: string = $state("monday");
+
+	async function loadCalendar() {
+		firstDayPref = si?.preferences.firstDay ?? "monday";
+	}
+
 	const MONTHS = [
 		$_("kanban.dates.month.january"),
 		$_("kanban.dates.month.february"),
@@ -601,9 +602,8 @@
 		$_("kanban.dates.month.december")
 	];
 
-	// Helper: return an array of weekday labels in the correct order
-	function getWeekdayLabels(firstDay: string) {
-		const base = [
+	const DAYS = $derived(() => {
+		const sunday = [
 			$_("kanban.dates.day.sun"),
 			$_("kanban.dates.day.mon"),
 			$_("kanban.dates.day.tue"),
@@ -612,92 +612,70 @@
 			$_("kanban.dates.day.fri"),
 			$_("kanban.dates.day.sat")
 		];
+		const monday = [
+			$_("kanban.dates.day.mon"),
+			$_("kanban.dates.day.tue"),
+			$_("kanban.dates.day.wed"),
+			$_("kanban.dates.day.thu"),
+			$_("kanban.dates.day.fri"),
+			$_("kanban.dates.day.sat"),
+			$_("kanban.dates.day.sun")
+		];
 
-		return firstDay === "sunday" ? base : base.slice(1).concat(base[0]); // monday-first: Mon..Sun
-	}
+		if (firstDayPref === "monday") {
+			return monday;
+		} else {
+			return sunday;
+		}
+	});
 
-	// IMPORTANT: produce a plain array (not a store) so your template {#each DAYS as day} works
-	let DAYS: string[] = $state(getWeekdayLabels("monday")); // DO FROM PREFERENCES TEMFIX
-
-	let year: number = $state(new Date().getFullYear());
-	let month: number = $state(new Date().getMonth());
-
-	function isLeapYear(year: number) {
-		return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
-	}
-
-	function getDaysInMonth(year: number, monthIndex: number) {
-		const monthLengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-		if (monthIndex === 1 && isLeapYear(year)) return 29;
-		return monthLengths[monthIndex];
-	}
-
-	// Convert JS weekday (Sunday=0) to Monday-first or Sunday-first index
-	function getWeekdayIndex(jsDay: number, firstDay: string) {
-		if (firstDay === "sunday") return jsDay; // JS default is Sunday-first
-		// Monday-first: map JS 0 (Sunday) -> 6, JS 1 (Monday) -> 0, etc.
-		return (jsDay + 6) % 7;
-	}
-
-	function getIsoDate(year: number, monthIndex: number, day: number) {
-		const m = String(monthIndex + 1).padStart(2, "0");
-		const d = String(day).padStart(2, "0");
-		return `${year}-${m}-${d}`;
-	}
-
-	function buildMonthGrid(year: number, monthIndex: number) {
-		const daysInMonth = getDaysInMonth(year, monthIndex);
-		const firstDayPref = String(si?.preferences?.firstDay ?? "monday");
-
-		const weeks: (number | null)[][] = [];
-		let currentWeek: (number | null)[] = new Array(7).fill(null);
-
-		for (let d = 1; d <= daysInMonth; d++) {
-			const jsDay = new Date(year, monthIndex, d).getDay(); // 0=Sun..6=Sat
-			const col = getWeekdayIndex(jsDay, firstDayPref);
-			currentWeek[col] = d;
-
-			// push week on last column (index 6) or at month end
-			if (col === 6 || d === daysInMonth) {
-				weeks.push(currentWeek);
-				currentWeek = new Array(7).fill(null);
-			}
+	const MONTHDAYS = $derived((year: number) => {
+		function isLeapYear(year: number): boolean {
+			return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 		}
 
-		return weeks;
+		const leap = isLeapYear(year);
+		const monthDays: number[] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+		const monthDaysLeap: number[] = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+		if (leap) {
+			return monthDaysLeap;
+		} else {
+			return monthDays;
+		}
+	});
+
+	function getFirstDayIndex(year: number, month: number, firstDayPref: string): number {
+		const firstDay = new Date(year, month, 1).getDay(); // 0 = Sunday, 1 = Monday, ...
+		if (firstDayPref === "monday") {
+			// Shift so Monday = 0
+			return firstDay === 0 ? 6 : firstDay - 1;
+		}
+		return firstDay; // Sunday = 0
 	}
 
-	// grid is a plain variable (array of weeks)
-	let grid = $derived(buildMonthGrid(year, month));
+	function getCalendarGrid(year: number, month: number, firstDayPref: string): (number | null)[] {
+		const monthDays = MONTHDAYS(year);
+		const firstDayIndex = getFirstDayIndex(year, month, firstDayPref);
 
-	// events
-	const calendarEvents = writable<{ [isoDate: string]: any[] }>({});
-	let currentHoverDate: string | null = null;
+		const grid: (number | null)[] = [];
 
-	// central refresh function: call whenever inputs change (year, month, preference)
-	function refreshCalendar() {
-		const firstDayPref = String(si?.preferences?.firstDay ?? "monday");
-		DAYS = getWeekdayLabels(firstDayPref);
-		grid = buildMonthGrid(year, month);
-	}
+		// Empty slots before the 1st
+		for (let i = 0; i < firstDayIndex; i++) {
+			grid.push(null);
+		}
 
-	// call refreshCalendar() immediately in case preference is not default
-	refreshCalendar();
+		// Fill in the days of the month
+		for (let day = 1; day <= monthDays[month]; day++) {
+			grid.push(day);
+		}
 
-	function prevMonth() {
-		if (month === 0) {
-			month = 11;
-			year -= 1;
-		} else month -= 1;
-		refreshCalendar();
-	}
+		// Pad remaining cells to reach 42 (6 rows × 7 columns)
+		while (grid.length < 42) {
+			grid.push(null);
+		}
 
-	function nextMonth() {
-		if (month === 11) {
-			month = 0;
-			year += 1;
-		} else month += 1;
-		refreshCalendar();
+		return grid;
 	}
 </script>
 
@@ -725,7 +703,8 @@
 					iconbefore="view_kanban"
 					actions={[
 						{ label: "Kanban", value: "kanban" },
-						{ label: $_("kanban.board.id.dropdown.view.calendar"), value: "calendar" }
+						{ label: $_("kanban.board.id.dropdown.view.calendar"), value: "calendar" },
+						{ label: "CALENDARDEBUG", value: "calendardebug" }
 					]}
 					bind:value={view}
 					appearance="subtle"
@@ -920,165 +899,143 @@
 					{/if}
 				</div>
 			</div>
-		{:else if view === "calendar" && si?.internal}
-			<div class="lists">
-				{#if CalendarListID}
-					<!-- Select which list to display on calendar -->
-					<div class="list">
-						<FlexWrapper width="100%">
-							<Dropdown
-								appearance="subtle"
-								bind:value={CalendarListID}
-								actions={$lists.length > 0
-									? $lists.map((l) => ({ label: l.name, value: l.id }))
-									: [{ label: $_("kanban.board.id.error.no_lists"), value: null }]}
-							/>
-						</FlexWrapper>
-
-						<!-- List cards (DnD enabled to move to calendar) -->
-						<div
-							class="cards"
-							use:dndzone={{
-								items: $cards[CalendarListID] ?? [],
-								flipDurationMs: 200,
-								type: "card",
-								dropFromOthersDisabled: false,
-								dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" },
-								delayTouchStart: true
-							}}
-							onconsider={(e) => cards.update((c) => ({ ...c, [(CalendarListID as string)]: e.detail.items }))}
-							onfinalize={(e) => {
-								// update list positions and persist via existing helper
-								moveCard(e, (CalendarListID as string));
-
-								// remove any cards that were dropped into this list from calendarEvents
-								const movedIds = (e.detail.items || []).map((i) => i.id);
-								if (movedIds.length) {
-									calendarEvents.update((evts) => {
-										const updated: { [k: string]: any[] } = {};
-										for (const k in evts) {
-											updated[k] = evts[k].filter((card) => !movedIds.includes(card.id));
-										}
-										return updated;
-									});
+		{:else if view === "calendar"}
+			<FlexWrapper height="100%" width="100%">
+				<div class="calendar-container">
+					<div class="calendar-header">
+						<IconButton
+							icon="chevron_backward"
+							alt="Month back"
+							onClick={() => {
+								month--;
+								if (month < 0) {
+									month = 11;
+									year--;
 								}
 							}}
-						>
-								{#each $cards[(CalendarListID as string)] ?? [] as card (card.id)}
-								<div
-									class="card"
-									data-id={card.id}
-									Onclick={() => {
-										openedCard = card;
-									}}
-								>
-									{card.name}
-								</div>
-							{/each}
-						</div>
-					</div>
-
-					<!-- Calendar Grid -->
-					<div class="calendar">
-						<FlexWrapper direction="row" width="100%" gap="var(--token-space-3)">
-							<FlexWrapper direction="row" width="100%" gap="var(--token-space-3)">
-								<IconButton icon="chevron_backward" onClick={prevMonth} alt={$_("kanban.board.id.btn.previous_month")} />
-								<h2>{MONTHS[month]} {year}</h2>
-								<IconButton icon="chevron_forward" onClick={nextMonth} alt={$_("kanban.board.id.btn.next_month")} />
-							</FlexWrapper>
+						/>
+						<h2>{MONTHS[month]} {year}</h2>
+						<div>
 							<Button
 								onClick={() => {
-									const today = new Date();
-									year = today.getFullYear();
-									month = today.getMonth();
-								}}
-								appearance="subtle">{$_("kanban.board.id.btn.today")}</Button
+									year = today.getUTCFullYear();
+									month = today.getUTCMonth();
+								}}>{$_("kanban.board.id.btn.today")}</Button
 							>
-						</FlexWrapper>
-
-						<div class="calendar-grid-header">
-							{#each DAYS as day (day)}
-								<div class="cell-header">{day}</div>
-							{/each}
-						</div>
-
-						<div class="calendar-grid-container">
-							{#each grid as week (week)}
-								<div class="calendar-grid">
-									{#each week as day (day)}
-										<div class="cell">
-											{#if day !== null}
-												<!-- Elke cel is een eigen dndzone -->
-												<div
-													class="cell-content"
-													use:dndzone={{
-														items: $calendarEvents[getIsoDate(year, month, day)] ?? [],
-														type: "card",
-														dropFromOthersDisabled: false,
-														flipDurationMs: 200,
-														dropTargetStyle: { border: "2px dashed rgba(128,128,128,0.5)" }
-													}}
-													onfinalize={(e) => {
-														const iso = getIsoDate(year, month, day);
-														const destItems = e.detail.items || [];
-
-														// If destination items are empty, nothing to do
-														if (!destItems.length) return;
-
-														const movedIds = destItems.map((i) => i.id);
-
-														// Remove moved cards from other calendar days and ensure dest day contains destItems
-														calendarEvents.update((evts) => {
-															const updated: { [k: string]: any[] } = {};
-															for (const k in evts) {
-																updated[k] = evts[k].filter((card) => !movedIds.includes(card.id));
-															}
-
-															// Merge dest items into the iso day (avoid duplicates)
-															const current = updated[iso] ?? [];
-															const merged = [...current];
-															for (const it of destItems) {
-																if (!merged.some((c) => c.id === it.id)) merged.push(it);
-															}
-															updated[iso] = merged;
-															return updated;
-														});
-
-														// Remove moved cards from any lists they belonged to (drag from list -> calendar)
-														const toRemoveFromLists = destItems.filter((it) => it.listId).map((it) => ({ id: it.id, listId: it.listId }));
-														if (toRemoveFromLists.length) {
-															cards.update((c) => {
-																const updated = { ...c };
-																for (const r of toRemoveFromLists) {
-																	if (!updated[r.listId]) continue;
-																	updated[r.listId] = updated[r.listId].filter((card) => card.id !== r.id);
-																}
-																return updated;
-															});
-														}
-													}}
-												>
-													<div class="cell-date">{day}</div>
-													{#each $calendarEvents[getIsoDate(year, month, day)] ?? [] as card (card.id)}
-														<div class="example-event">{card.name}</div>
-													{/each}
-												</div>
-											{:else}
-												<div class="cell"><div class="cell-content"></div></div>
-											{/if}
-										</div>
-									{/each}
-								</div>
-							{/each}
+							<IconButton
+								icon="chevron_forward"
+								alt="Month back"
+								onClick={() => {
+									month++;
+									if (month > 11) {
+										month = 0;
+										year++;
+									}
+								}}
+							/>
 						</div>
 					</div>
-				{/if}
-			</div>
-		{:else if view === "calendar" && !si?.internal}
-			<FlexWrapper width="100%" height="100%">
-				<Icon icon="sync_problem" color="var(--token-color-text-danger)" size="10rem"/>
-				<Loader/>
+
+					<!-- Weekday header -->
+					<div class="calendar-row">
+						{#each DAYS() as day}
+							<div class="calendar-cell header">{day}</div>
+						{/each}
+					</div>
+
+					<!-- Calendar grid -->
+					<div class="calendar-grid">
+						{#each getCalendarGrid(year, month, firstDayPref) as day}
+							<div
+								class="calendar-cell {day === today.getDate() && month === today.getMonth() && year === today.getFullYear()
+									? 'today'
+									: ''}"
+							>
+								<FlexWrapper height="100%">
+									{#if day}
+										{day}
+										<FlexWrapper height="80%" width="100%">
+											<div style="height: 100%; width: 100%; overflow-x: auto;">
+												<h1>Yap</h1>
+
+											</div>
+										</FlexWrapper>
+									{/if}
+								</FlexWrapper>
+							</div>
+						{/each}
+					</div>
+				</div>
 			</FlexWrapper>
+		{:else if view === "calendardebug"}
+			<div style="min-height: 100%; min-width: 100%; overflow-x: auto; overflow-y: auto; background-color:black; padding: 3rem;">
+				<h1>Debug</h1>
+
+				<!-- Show user preference for first day -->
+				<p>First day preference: {firstDayPref}</p>
+				<p>Month: {month} - {MONTHS[month]}</p>
+				<p>Year: {year}</p>
+				<!-- Show days of the week -->
+				<h2 style="text-align: left;">Weekdays</h2>
+				{#each DAYS() as day}
+					<p>{day}</p>
+				{/each}
+
+				<!-- Show first day index of current month -->
+				<h2 style="text-align: left;">First day index</h2>
+				<p>{getFirstDayIndex(year, month, firstDayPref)}</p>
+
+				<!-- Show number of days in each month -->
+				<h2 style="text-align: left;">Month days (current year)</h2>
+				{#each MONTHDAYS(year) as days, i}
+					<p>{MONTHS[i]}: {days} days</p>
+				{/each}
+
+				<!-- Show calendar grid for current month -->
+				<h2 style="text-align: left;">Calendar Grid</h2>
+				<div style="display: grid; grid-template-columns: repeat(7, 2rem); gap: 0.2rem;">
+					{#each getCalendarGrid(year, month, firstDayPref) as day}
+						<div style="text-align: center; border: 1px solid #ccc; padding: 0.2rem;">
+							{day ?? "x"}
+							<div style="height: 100%;"></div>
+						</div>
+					{/each}
+				</div>
+				<FlexWrapper direction="row">
+					<IconButton
+						icon="chevron_backward"
+						alt="Month back"
+						onClick={() => {
+							month--;
+							if (month < 0) {
+								month = 11;
+								year--;
+							}
+						}}
+					/>
+					<h2>{MONTHS[month]} {year}</h2>
+					<div>
+						<Button
+							onClick={() => {
+								year = today.getUTCFullYear();
+								month = today.getUTCMonth();
+							}}>{$_("kanban.board.id.btn.today")}</Button
+						>
+						<IconButton
+							icon="chevron_forward"
+							alt="Month back"
+							onClick={() => {
+								month++;
+								if (month > 11) {
+									month = 0;
+									year++;
+								}
+							}}
+						/>
+					</div>
+				</FlexWrapper>
+				<Space height="10rem;" />
+			</div>
 		{:else}
 			<h1>{$_("kanban.board.id.title.unhandled_view")}</h1>
 			<Loader />
@@ -1145,6 +1102,82 @@
 {/if}
 
 <style>
+	.calendar-container {
+		display: flex;
+		flex-direction: column;
+		width: 90%;
+		height: 90%;
+		flex-grow: 1;
+		background: var(--token-color-surface-sunken-normal);
+		border-radius: 1rem;
+		padding: 1rem;
+		box-sizing: border-box;
+		gap: 0.5rem;
+		overflow: hidden;
+	}
+
+	.calendar-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 0.5rem;
+		color: var(--token-color-text-default);
+	}
+
+	.calendar-header h2 {
+		margin: 0 1rem;
+		font-size: 1.25rem;
+		font-weight: 600;
+	}
+
+	.calendar-row {
+		display: grid;
+		grid-template-columns: repeat(7, 1fr);
+		text-align: center;
+		margin-bottom: 0.2rem;
+		background-color: var(--token-color-surface-overlay-normal);
+		border-radius: 1rem;
+	}
+
+	.calendar-cell.header {
+		font-weight: bold;
+		border-radius: 0rem;
+		color: var(--token-color-text-default);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.calendar-grid {
+		display: grid;
+		grid-template-columns: repeat(7, 1fr);
+		grid-template-rows: repeat(6, 1fr);
+		gap: 0.3rem;
+		flex: 1;
+	}
+
+	.calendar-cell {
+		border: 1px solid rgba(9, 30, 66, 0.15);
+		border-radius: 6px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+		color: var(--token-color-text-default-secondary);
+		background-color: var(--token-color-surface-raised-normal);
+		font-weight: 500;
+		transition: background 0.2s;
+	}
+
+	.calendar-cell.today {
+		color: var(--token-color-background-primary-normal);
+	}
+
+	.calendar-cell:hover {
+		background-color: var(--token-color-surface-raised-hover);
+	}
+
 	#board-nav {
 		height: 48px;
 		width: calc(100% - 3rem);
@@ -1296,113 +1329,10 @@
 		padding-top: var(--token-space-2);
 	}
 
-	.calendar {
-		width: 80%;
-		height: 100%;
-		display: flex;
-		flex-direction: column;
-		background: var(--token-color-surface-sunken-normal);
-		padding: 1rem;
-		border-radius: 1rem;
-		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-		box-sizing: border-box;
-	}
-
 	h2 {
 		text-align: center;
 		margin-bottom: 1rem;
 		font-weight: 600;
 		color: var(--token-color-text-default);
-	}
-
-	.calendar-grid-header {
-		display: grid;
-		grid-template-columns: repeat(7, 1fr);
-		text-align: center;
-		margin-bottom: 0.5rem;
-	}
-
-	.cell-header {
-		font-weight: 600;
-		padding: 0.5rem 0;
-		border-bottom: 2px solid #ddd;
-		color: var(--token-color-text-default);
-	}
-
-	.calendar-grid-container {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-		overflow-y: auto;
-	}
-
-	.calendar-grid {
-		display: grid;
-		grid-template-columns: repeat(7, 1fr);
-		flex: 1;
-		gap: 0.5rem;
-	}
-
-	.cell {
-		display: flex;
-		flex-direction: column;
-		min-height: 100px;
-		background: var(--token-color-surface-raised-normal);
-		border-radius: 0.5rem;
-		padding: 0.5rem;
-		box-sizing: border-box;
-		transition:
-			transform 0.15s ease,
-			box-shadow 0.15s ease;
-		cursor: pointer;
-	}
-
-	.cell:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-	}
-
-	.cell-date {
-		font-weight: 600;
-		margin-bottom: 0.4rem;
-		color: var(--token-color-text-default);
-		display: flex;
-		flex-direction: row;
-		width: 100%;
-		justify-content: center;
-	}
-
-	.cell-content {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-	}
-
-	.example-event {
-		background: #e3f2fd;
-		color: #0d47a1;
-		padding: 0.25rem 0.5rem;
-		border-radius: 0.3rem;
-		font-size: 0.75rem;
-		text-align: center;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	/* Scrollbar style for better look */
-	.calendar-grid-container::-webkit-scrollbar {
-		width: 8px;
-	}
-
-	.calendar-grid-container::-webkit-scrollbar-thumb {
-		background: rgba(0, 0, 0, 0.2);
-		border-radius: 4px;
-	}
-
-	.calendar-grid-container::-webkit-scrollbar-track {
-		background: transparent;
 	}
 </style>
