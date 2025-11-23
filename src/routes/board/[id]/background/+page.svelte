@@ -3,7 +3,7 @@
 	import { page } from "$app/state";
 	import { kanbanapiurl } from "$lib/config";
 	import type { SessionInfo } from "$lib/types";
-	import { authFetch, Button, FlexWrapper, getSessionInfo, refreshAccessToken, Space, toast } from "@davidnet/svelte-ui";
+	import { authFetch, Button, FlexWrapper, getSessionInfo, Icon, refreshAccessToken, Space, toast } from "@davidnet/svelte-ui";
 	import { onMount } from "svelte";
 	import { _ } from "svelte-i18n";
 
@@ -64,7 +64,7 @@
 			}
 
 			toast({
-				title: $_('kanban.board.id.background.toast.saved'),
+				title: $_("kanban.board.id.background.toast.saved"),
 				icon: "celebration",
 				appearance: "success",
 				position: "bottom-left",
@@ -73,7 +73,7 @@
 			goto("/board/" + board_id);
 		} catch (err) {
 			toast({
-				title: $_('kanban.board.id.background.toast.save_error'),
+				title: $_("kanban.board.id.background.toast.save_error"),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "bottom-left",
@@ -84,18 +84,15 @@
 	}
 </script>
 
-<h1>{$_('kanban.board.id.background.title')}</h1>
-<Button iconbefore="arrow_back" onClick={() => history.back()}>{$_('kanban.board.id.background.btn.back')}</Button>
+<h1>{$_("kanban.board.id.background.title")}</h1>
+<Button iconbefore="arrow_back" onClick={() => history.back()}>{$_("kanban.board.id.background.btn.back")}</Button>
 <Space height="var(--token-space-3)" />
 
 <div class="boards-grid">
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	{#each images as image}
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
-		<div 
-			class="board-card {selected_image === image ? 'selected' : ''}" 
-			onclick={() => selected_image = image}
-		>
+		<div class="board-card {selected_image === image ? 'selected' : ''}" onclick={() => (selected_image = image)}>
 			<img src={image.link} alt="Board background" aria-hidden="true" />
 			<div class="overlay">
 				<a href={image.author.link} target="_blank" rel="noopener noreferrer">
@@ -104,11 +101,21 @@
 			</div>
 		</div>
 	{/each}
+	<div class="board-card">
+		<div class="tijdelijk">
+			<FlexWrapper height="100%" width="100%">
+				<Icon icon="add" size="120px"/>
+			</FlexWrapper>
+		</div>
+		<div class="overlay">
+			Upload your own picture
+		</div>
+	</div>
 </div>
 
 <FlexWrapper direction="row" gap="var(--token-space-1)">
-	<Button appearance="primary" onClick={setbackground} disabled={!selected_image}>{$_('kanban.board.id.background.btn.set_background')}</Button>
-	<Button iconbefore="arrow_back" onClick={() => history.back()}>{$_('kanban.board.id.background.btn.back')}</Button>
+	<Button appearance="primary" onClick={setbackground} disabled={!selected_image}>{$_("kanban.board.id.background.btn.set_background")}</Button>
+	<Button iconbefore="arrow_back" onClick={() => history.back()}>{$_("kanban.board.id.background.btn.back")}</Button>
 </FlexWrapper>
 
 <style>
@@ -127,7 +134,10 @@
 		overflow: hidden;
 		cursor: pointer;
 		background: var(--token-color-surface-raised-normal);
-		transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.2s ease;
+		transition:
+			transform 0.3s ease,
+			box-shadow 0.3s ease,
+			border 0.2s ease;
 		border: 3px solid transparent;
 	}
 
@@ -142,6 +152,13 @@
 	}
 
 	.board-card img {
+		width: 100%;
+		height: 140px;
+		object-fit: cover;
+		display: block;
+	}
+
+	.tijdelijk {
 		width: 100%;
 		height: 140px;
 		object-fit: cover;
