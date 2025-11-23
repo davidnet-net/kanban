@@ -306,60 +306,64 @@
 						{/if}
 					</div>
 
-					<div>
-						<h4>{$_("kanban.components.cardoverlay.section.checklist")}</h4>
-						{#if showchecklist}
-							<div>
-								<!-- Add new checklist item -->
-								<div class="checklist-adder">
-									<FlexWrapper direction="row" justifycontent="flex-start" alignitems="center" gap="var(--token-space-1);">
-										<TextField
-											label={$_("kanban.components.cardoverlay.field.checklist_item_label")}
-											type="text"
-											placeholder={$_("kanban.components.cardoverlay.field.checklist_item_placeholder")}
-											bind:value={addchecklistvalue}
-											invalid={false}
-											invalidMessage={$_("kanban.components.cardoverlay.field.checklist_item_invalid")}
-											width="85%"
-										/>
-										<IconButton
-											icon="add"
-											disabled={addchecklistvalue.length === 0}
-											onClick={async () => {
-												await add_checklist_item();
-												await loadChecklist(); // refresh after adding
-											}}
-											alt={$_("kanban.components.cardoverlay.alt.add_checklist_item")}
-											appearance="primary"
-										/>
-									</FlexWrapper>
+					{#if checklistItems.length > 0 || showchecklist}
+						<div>
+							<h4>{$_("kanban.components.cardoverlay.section.checklist")}</h4>
+							{#if showchecklist}
+								<div>
+									<!-- Add new checklist item -->
+									<div class="checklist-adder">
+										<FlexWrapper direction="row" justifycontent="flex-start" alignitems="center" gap="var(--token-space-1);">
+											<TextField
+												label={$_("kanban.components.cardoverlay.field.checklist_item_label")}
+												type="text"
+												placeholder={$_("kanban.components.cardoverlay.field.checklist_item_placeholder")}
+												bind:value={addchecklistvalue}
+												invalid={false}
+												invalidMessage={$_("kanban.components.cardoverlay.field.checklist_item_invalid")}
+												width="85%"
+											/>
+											<IconButton
+												icon="add"
+												disabled={addchecklistvalue.length === 0}
+												onClick={async () => {
+													await add_checklist_item();
+													await loadChecklist(); // refresh after adding
+												}}
+												alt={$_("kanban.components.cardoverlay.alt.add_checklist_item")}
+												appearance="primary"
+											/>
+										</FlexWrapper>
+									</div>
 								</div>
-							</div>
-						{/if}
-						<!-- Render checklist items -->
-						<ul class="checklist-items">
-							{#each checklistItems as item (item.id)}
-								<li class="checklist-item">
-									<button
-										class="check-circle"
-										aria-label={$_("kanban.components.cardoverlay.alt.toggle_checklist_item")}
-										onclick={() => toggleChecklistItem(item.id)}
-										style="background-color: {item.is_checked ? 'var(--token-color-background-success-normal)' : 'transparent'}"
-									>
-										{item.is_checked ? "✔" : ""}
-									</button>
+							{/if}
+							<!-- Render checklist items -->
+							<ul class="checklist-items">
+								{#each checklistItems as item (item.id)}
+									<li class="checklist-item">
+										<button
+											class="check-circle"
+											aria-label={$_("kanban.components.cardoverlay.alt.toggle_checklist_item")}
+											onclick={() => toggleChecklistItem(item.id)}
+											style="background-color: {item.is_checked
+												? 'var(--token-color-background-success-normal)'
+												: 'transparent'}"
+										>
+											{item.is_checked ? "✔" : ""}
+										</button>
 
-									<span class="checklist-name">{item.name}</span>
-									<IconButton
-										icon="delete"
-										appearance="subtle"
-										onClick={() => deleteChecklistItem(item.id)}
-										alt="Delete checklist item"
-									/>
-								</li>
-							{/each}
-						</ul>
-					</div>
+										<span class="checklist-name">{item.name}</span>
+										<IconButton
+											icon="delete"
+											appearance="subtle"
+											onClick={() => deleteChecklistItem(item.id)}
+											alt="Delete checklist item"
+										/>
+									</li>
+								{/each}
+							</ul>
+						</div>
+					{/if}
 				</div>
 
 				<div class="activity-container">
