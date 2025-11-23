@@ -1020,32 +1020,41 @@
 													}}
 													onfinalize={(e) => {
 														const iso = getIsoDate(year, month, day);
-														const movedCandidates = e.detail.items || [];
-														if (!movedCandidates.length) return;
+														const destItems = e.detail.items || [];
 
-														const movedCard = movedCandidates.find(
-															(c) => !(( $calendarEvents[iso] ?? [] ).some((existing) => existing.id === c.id))
-														);
-														if (!movedCard) return;
+														// If destination items are empty, nothing to do
+														if (!destItems.length) return;
 
-														// Remove the card from any other calendar day and add to target day
+														const movedIds = destItems.map((i) => i.id);
+
+														// Remove moved cards from other calendar days and ensure dest day contains destItems
 														calendarEvents.update((evts) => {
 															const updated: { [k: string]: any[] } = {};
 															for (const k in evts) {
-																updated[k] = evts[k].filter((card) => card.id !== movedCard.id);
+																updated[k] = evts[k].filter((card) => !movedIds.includes(card.id));
 															}
-															const currentCards = updated[iso] ?? [];
-															updated[iso] = [...currentCards, movedCard];
+
+															// Merge dest items into the iso day (avoid duplicates)
+															const current = updated[iso] ?? [];
+															const merged = [...current];
+															for (const it of destItems) {
+																if (!merged.some((c) => c.id === it.id)) merged.push(it);
+															}
+															updated[iso] = merged;
 															return updated;
 														});
 
-														// Remove from source list if it was dragged from a list
-														const sourceListId = movedCard.listId;
-														if (sourceListId) {
-															cards.update((c) => ({
-																...c,
-																[sourceListId]: c[sourceListId].filter((card) => card.id !== movedCard.id)
-															}));
+														// Remove moved cards from any lists they belonged to (drag from list -> calendar)
+														const toRemoveFromLists = destItems.filter((it) => it.listId).map((it) => ({ id: it.id, listId: it.listId }));
+														if (toRemoveFromLists.length) {
+															cards.update((c) => {
+																const updated = { ...c };
+																for (const r of toRemoveFromLists) {
+																	if (!updated[r.listId]) continue;
+																	updated[r.listId] = updated[r.listId].filter((card) => card.id !== r.id);
+																}
+																return updated;
+															});
 														}
 													}}
 												>
