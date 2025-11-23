@@ -11,12 +11,8 @@
 		getSessionInfo,
 		isAuthenticated,
 		refreshAccessToken,
-
 		toast,
-
 		authFetch
-
-
 	} from "@davidnet/svelte-ui";
 	import { onMount } from "svelte";
 	import type { SessionInfo } from "$lib/types";
@@ -58,16 +54,12 @@
 			}
 
 			if (!(await isAuthenticated(correlationID)) || !si) {
-				window.location.href =
-					"https://account.davidnet.net/login?redirect=" +
-					encodeURIComponent(page.url.toString());
+				window.location.href = "https://account.davidnet.net/login?redirect=" + encodeURIComponent(page.url.toString());
 				return;
 			}
 
 			if (!si || si.email_verified === 0) {
-				window.location.href =
-					"https://account.davidnet.net/verify/email/check/" +
-					si?.email;
+				window.location.href = "https://account.davidnet.net/verify/email/check/" + si?.email;
 				return;
 			}
 
@@ -77,31 +69,32 @@
 			const res = await authFetch(authapiurl + "policy/check", correlationID);
 			if (!res.ok) {
 				toast({
-					"position": "bottom-left",
-					"title": "Policy check failed!",
-					"appearance": "danger",
-					"icon": "policy_alert"
-				})
+					position: "bottom-left",
+					title: "Policy check failed!",
+					appearance: "danger",
+					icon: "policy_alert"
+				});
 				return;
 			}
 			const data = await res.json();
 			const acceptedpolicies = data.accepted ?? false;
 			if (!acceptedpolicies) {
-				window.location.href = "https://davidnet.net/legal/accept";
+				window.location.href = "https://davidnet.net/legal/accept?redirect=" + encodeURIComponent(page.url.toString());
 				return;
 			}
 
-			setInterval(() => {
-				refreshAccessToken(correlationID, true, false);
-			}, 12 * 60 * 1000);
+			setInterval(
+				() => {
+					refreshAccessToken(correlationID, true, false);
+				},
+				12 * 60 * 1000
+			);
 		} catch (e) {
 			console.error("Session error:", e);
 		}
 
 		if (!authed) {
-			window.location.href =
-				"https://account.davidnet.net/login?redirect=" +
-				encodeURIComponent(page.url.toString());
+			window.location.href = "https://account.davidnet.net/login?redirect=" + encodeURIComponent(page.url.toString());
 		}
 	});
 </script>
@@ -113,35 +106,18 @@
 {#if fontsLoaded}
 	<nav id="main-nav">
 		<div class="nav-left">
-			<LinkIconButton
-				icon="apps"
-				alt="Davidnet Home"
-				href="https://home.davidnet.net"
-				appearance="subtle"
-			/>
+			<LinkIconButton icon="apps" alt="Davidnet Home" href="https://home.davidnet.net" appearance="subtle" />
 			<a href="/">Kanban</a>
 		</div>
 		<div class="nav-center">Davidnet</div>
 		<div class="nav-right">
 			<ThemeMenu />
-			<Avatar
-				id={String(si?.userId)}
-				owner
-				name={si?.display_name}
-				presence="online"
-				src={si?.profilePicture}
-			/>
+			<Avatar id={String(si?.userId)} owner name={si?.display_name} presence="online" src={si?.profilePicture} />
 		</div>
 	</nav>
 {/if}
 
-<FlexWrapper
-	direction="column"
-	height="calc(100vh - 48px);"
-	width="100%;"
-	justifycontent="center"
-	alignitems="center"
->
+<FlexWrapper direction="column" height="calc(100vh - 48px);" width="100%;" justifycontent="center" alignitems="center">
 	{#if fontsLoaded && $isLocaleLoaded}
 		{@render children?.()}
 	{:else}z-index
