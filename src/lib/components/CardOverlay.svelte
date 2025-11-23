@@ -17,8 +17,16 @@
 	let creation_date: string = $state("");
 	let owner: ProfileResponse | null = $state(null);
 	let loaded = $state(false);
-	let addchecklist: string | undefined = $state(undefined);
+	let addchecklistvalue: string = $state("");
 	let showchecklist = $state(false);
+	let checklistItems = $state<
+		Array<{
+			is_checked: any;
+			id: number;
+			name: string;
+			card_id: number;
+		}>
+	>([]);
 
 	onMount(async () => {
 		creation_date = await formatDate_PREFERREDTIME(openedCard.created_at, correlationID);
@@ -32,8 +40,26 @@
 			return;
 		}
 
+		await loadChecklist();
 		loaded = true;
 	});
+
+	async function loadChecklist() {
+		try {
+			const res = await authFetch(kanbanapiurl + "card/get-checklist", { card_id: openedCard.id });
+			checklistItems = res.items || [];
+		} catch (err) {
+			console.error("Failed to load checklist:", err);
+			toast({
+				title: $_("kanban.components.cardoverlay.toast.checklist_load_failed_title"),
+				desc: $_("kanban.components.cardoverlay.toast.checklist_load_failed_desc"),
+				icon: "crisis_alert",
+				appearance: "danger",
+				position: "top-center",
+				autoDismiss: 3000
+			});
+		}
+	}
 
 	const token = String(get(accessToken));
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -48,6 +74,7 @@
 			body: JSON.stringify(body)
 		});
 		if (!res.ok) throw new Error(`HTTP ${res.status}`);
+		if (res.status === 204) return null;
 		return res.json();
 	}
 
@@ -66,8 +93,8 @@
 
 			if (!res.ok) {
 				toast({
-					title: $_('kanban.components.cardoverlay.error.profile_load_error_title'),
-					desc: $_('kanban.components.cardoverlay.error.profile_load_error_desc'),
+					title: $_("kanban.components.cardoverlay.error.profile_load_error_title"),
+					desc: $_("kanban.components.cardoverlay.error.profile_load_error_desc"),
 					icon: "crisis-alert",
 					appearance: "danger",
 					position: "top-center",
@@ -80,8 +107,8 @@
 		} catch (err) {
 			console.error("fetchProfile error:", err);
 			toast({
-				title: $_('kanban.components.cardoverlay.error.network_error_title'),
-				desc: $_('kanban.components.cardoverlay.error.network_error_desc'),
+				title: $_("kanban.components.cardoverlay.error.network_error_title"),
+				desc: $_("kanban.components.cardoverlay.error.network_error_desc"),
 				icon: "crisis-alert",
 				appearance: "danger",
 				position: "top-center",
@@ -97,8 +124,8 @@
 		try {
 			await authFetch(kanbanapiurl + "card/change-description", { card_id: openedCard.id, description: description });
 			toast({
-				title: $_('kanban.components.cardoverlay.toast.card_updated_title'),
-				desc: $_('kanban.components.cardoverlay.toast.card_updated_desc'),
+				title: $_("kanban.components.cardoverlay.toast.card_updated_title"),
+				desc: $_("kanban.components.cardoverlay.toast.card_updated_desc"),
 				icon: "check",
 				appearance: "success",
 				position: "bottom-left",
@@ -106,8 +133,8 @@
 			});
 		} catch {
 			toast({
-				title: $_('kanban.components.cardoverlay.toast.card_update_failed_title'),
-				desc: $_('kanban.components.cardoverlay.toast.card_update_failed_desc'),
+				title: $_("kanban.components.cardoverlay.toast.card_update_failed_title"),
+				desc: $_("kanban.components.cardoverlay.toast.card_update_failed_desc"),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "top-center",
@@ -121,7 +148,7 @@
 		try {
 			await authFetch(kanbanapiurl + "card/delete", { card_id: openedCard.id, board_id: board_id });
 			toast({
-				title: $_('kanban.components.cardoverlay.toast.card_deleted_title'),
+				title: $_("kanban.components.cardoverlay.toast.card_deleted_title"),
 				desc: "",
 				icon: "delete_forever",
 				appearance: "success",
@@ -131,8 +158,32 @@
 			closeOverlay();
 		} catch {
 			toast({
-				title: $_('kanban.components.cardoverlay.toast.card_deletion_failed_title'),
-				desc: $_('kanban.components.cardoverlay.toast.card_deletion_failed_desc'),
+				title: $_("kanban.components.cardoverlay.toast.card_deletion_failed_title"),
+				desc: $_("kanban.components.cardoverlay.toast.card_deletion_failed_desc"),
+				icon: "crisis_alert",
+				appearance: "danger",
+				position: "top-center",
+				autoDismiss: 3000
+			});
+		}
+	}
+
+	async function add_checklist_item() {
+		try {
+			const name = addchecklistvalue;
+			addchecklistvalue = "";
+			await authFetch(kanbanapiurl + "card/create-checklist-item", { card_id: openedCard.id, name: name });
+			toast({
+				title: $_("kanban.components.cardoverlay.toast.checklist_add_title"),
+				desc: name,
+				icon: "add_task",
+				appearance: "success",
+				position: "bottom-left",
+				autoDismiss: 3000
+			});
+		} catch {
+			toast({
+				title: $_("kanban.components.cardoverlay.toast.checklist_add_fail_title"),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "top-center",
@@ -147,6 +198,38 @@
 			saveDescription();
 		}
 	}
+
+	async function toggleChecklistItem(itemId: number) {
+		try {
+			await authFetch(kanbanapiurl + "card/toggle-checklist-item", { item_id: itemId });
+			await loadChecklist(); // refresh after toggle
+		} catch (err) {
+			console.error(err);
+			toast({
+				title: "Checklist update failed",
+				icon: "crisis_alert",
+				appearance: "danger",
+				position: "top-center",
+				autoDismiss: 3000
+			});
+		}
+	}
+
+	async function deleteChecklistItem(itemId: number) {
+		try {
+			await authFetch(kanbanapiurl + "card/delete-checklist-item", { item_id: itemId });
+			await loadChecklist(); // refresh after deletion
+		} catch (err) {
+			console.error(err);
+			toast({
+				title: "Checklist deletion failed",
+				icon: "crisis_alert",
+				appearance: "danger",
+				position: "top-center",
+				autoDismiss: 3000
+			});
+		}
+	}
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -157,85 +240,134 @@
 			<header class="header">
 				<h2>{openedCard.name}</h2>
 				<div>
-					<IconButton icon="help" disabled appearance="subtle" onClick={() => {}} alt={$_('kanban.components.cardoverlay.alt.about_cards')} />
-					<IconButton icon="delete_forever" appearance="danger" onClick={deletecard} alt={$_('kanban.components.cardoverlay.alt.delete_card')} />
-					<IconButton icon="close" appearance="primary" onClick={closeOverlay} alt={$_('kanban.components.cardoverlay.alt.close')} />
+					<IconButton
+						icon="help"
+						disabled
+						appearance="subtle"
+						onClick={() => {}}
+						alt={$_("kanban.components.cardoverlay.alt.about_cards")}
+					/>
+					<IconButton
+						icon="delete_forever"
+						appearance="danger"
+						onClick={deletecard}
+						alt={$_("kanban.components.cardoverlay.alt.delete_card")}
+					/>
+					<IconButton icon="close" appearance="primary" onClick={closeOverlay} alt={$_("kanban.components.cardoverlay.alt.close")} />
 				</div>
 			</header>
 
 			<div class="container">
 				<div class="card-body">
 					<div class="action-bar">
-						<Button onClick={() => {}} iconbefore="new_label">{$_('kanban.components.cardoverlay.btn.add_label')}</Button>
-						<Button onClick={() => {}} iconbefore="calendar_clock">{$_('kanban.components.cardoverlay.btn.dates')}</Button>
+						<Button onClick={() => {}} iconbefore="new_label">{$_("kanban.components.cardoverlay.btn.add_label")}</Button>
+						<Button onClick={() => {}} iconbefore="calendar_clock">{$_("kanban.components.cardoverlay.btn.dates")}</Button>
 						<Button
 							onClick={() => {
-								showchecklist = true;
+								showchecklist = !showchecklist;
 							}}
-							iconbefore="checklist">{$_('kanban.components.cardoverlay.btn.add_checklist')}</Button>
-						<Button onClick={() => {}} iconbefore="attach_file_add">{$_('kanban.components.cardoverlay.btn.add_attachment')}</Button>
+							iconbefore="checklist">{$_("kanban.components.cardoverlay.btn.add_checklist")}</Button
+						>
+						<Button onClick={() => {}} iconbefore="attach_file_add">{$_("kanban.components.cardoverlay.btn.add_attachment")}</Button>
 					</div>
 
 					<div class="meta-bar">
-						<div><bold>{$_('kanban.components.cardoverlay.label.created_at')}</bold><br />{creation_date}</div>
+						<div><bold>{$_("kanban.components.cardoverlay.label.created_at")}</bold><br />{creation_date}</div>
 
 						{#if owner!.profile.display_name === owner!.profile.username}
-							<div><bold>{$_('kanban.components.cardoverlay.label.created_by')}</bold><br />@{owner!.profile.username}</div>
+							<div><bold>{$_("kanban.components.cardoverlay.label.created_by")}</bold><br />@{owner!.profile.username}</div>
 						{:else}
 							<div>
-								<bold>{$_('kanban.components.cardoverlay.label.created_by')}</bold><br />{owner!.profile.display_name} <span class="secondary">@{owner!.profile.username}</span>
+								<bold>{$_("kanban.components.cardoverlay.label.created_by")}</bold><br />{owner!.profile.display_name}
+								<span class="secondary">@{owner!.profile.username}</span>
 							</div>
 						{/if}
 					</div>
 
 					<div class="description">
-						<h4>{$_('kanban.components.cardoverlay.section.description')}</h4>
+						<h4>{$_("kanban.components.cardoverlay.section.description")}</h4>
 						{#if editing}
 							<textarea
 								bind:value={description}
 								onkeydown={handleKey}
 								class="description-input"
-								placeholder={$_('kanban.components.cardoverlay.placeholder.write_description')}
+								placeholder={$_("kanban.components.cardoverlay.placeholder.write_description")}
 								rows="4"
 							></textarea>
 							<div class="actions">
-								<Button appearance="primary" onClick={saveDescription}>{$_('kanban.components.cardoverlay.btn.save')}</Button>
-								<Button appearance="subtle" onClick={() => (editing = false)}>{$_('kanban.components.cardoverlay.btn.cancel')}</Button>
+								<Button appearance="primary" onClick={saveDescription}>{$_("kanban.components.cardoverlay.btn.save")}</Button>
+								<Button appearance="subtle" onClick={() => (editing = false)}>{$_("kanban.components.cardoverlay.btn.cancel")}</Button
+								>
 							</div>
 						{:else}
 							<div class="description-preview" onclick={() => (editing = true)}>
-								{@html marked(description || $_('kanban.components.cardoverlay.placeholder.add_detailed_description'))}
+								{@html marked(description || $_("kanban.components.cardoverlay.placeholder.add_detailed_description"))}
 							</div>
 						{/if}
 					</div>
 
-					{#if showchecklist}
-						<div>
-							<h4>{$_('kanban.components.cardoverlay.section.checklist')}</h4>
-							<div class="checklist-adder">
-								<FlexWrapper direction="row" gap="var(--token-space-3);">
-									<TextField
-										label={$_('kanban.components.cardoverlay.field.checklist_item_label')}
-										type="text"
-										placeholder={$_('kanban.components.cardoverlay.field.checklist_item_placeholder')}
-										bind:value={addchecklist}
-										invalid={false}
-										invalidMessage={$_('kanban.components.cardoverlay.field.checklist_item_invalid')}
-										width="85%"
-									/>
-									<IconButton icon="add" onClick={() => {}} alt={$_('kanban.components.cardoverlay.alt.add_checklist_item')} appearance="primary" />
-								</FlexWrapper>
+					<div>
+						<h4>{$_("kanban.components.cardoverlay.section.checklist")}</h4>
+						{#if showchecklist}
+							<div>
+								<!-- Add new checklist item -->
+								<div class="checklist-adder">
+									<FlexWrapper direction="row" justifycontent="flex-start" alignitems="center" gap="var(--token-space-1);">
+										<TextField
+											label={$_("kanban.components.cardoverlay.field.checklist_item_label")}
+											type="text"
+											placeholder={$_("kanban.components.cardoverlay.field.checklist_item_placeholder")}
+											bind:value={addchecklistvalue}
+											invalid={false}
+											invalidMessage={$_("kanban.components.cardoverlay.field.checklist_item_invalid")}
+											width="85%"
+										/>
+										<IconButton
+											icon="add"
+											disabled={addchecklistvalue.length === 0}
+											onClick={async () => {
+												await add_checklist_item();
+												await loadChecklist(); // refresh after adding
+											}}
+											alt={$_("kanban.components.cardoverlay.alt.add_checklist_item")}
+											appearance="primary"
+										/>
+									</FlexWrapper>
+								</div>
 							</div>
-						</div>
-					{/if}
+						{/if}
+						<!-- Render checklist items -->
+						<ul class="checklist-items">
+							{#each checklistItems as item (item.id)}
+								<li class="checklist-item">
+									<button
+										class="check-circle"
+										aria-label={$_("kanban.components.cardoverlay.alt.toggle_checklist_item")}
+										onclick={() => toggleChecklistItem(item.id)}
+										style="background-color: {item.is_checked ? 'var(--token-color-background-success-normal)' : 'transparent'}"
+									>
+										{item.is_checked ? "✔" : ""}
+									</button>
+
+									<span class="checklist-name">{item.name}</span>
+									<IconButton
+										icon="delete"
+										appearance="subtle"
+										onClick={() => deleteChecklistItem(item.id)}
+										alt="Delete checklist item"
+									/>
+								</li>
+							{/each}
+						</ul>
+					</div>
 				</div>
 
 				<div class="activity-container">
-					<h3>{$_('kanban.components.cardoverlay.section.activity_comments')}</h3>
+					<h3>{$_("kanban.components.cardoverlay.section.activity_comments")}</h3>
 					<div class="activity">
-						<img crossorigin="anonymous" src="https://account.davidnet.net/placeholder.png" aria-hidden="true" alt="" />
+						<img crossorigin="anonymous" src={owner!.profile.avatar_url} aria-hidden="true" alt="" />
 						<a href="https://account.davidnet.net/profile/{openedCard.owner}">{owner!.profile.display_name}</a>
-						{$_('kanban.components.cardoverlay.text.created_card_on', {values: {date: creation_date}})}<br />
+						{$_("kanban.components.cardoverlay.text.created_card_on", { values: { date: creation_date } })}<br />
 					</div>
 				</div>
 			</div>
@@ -246,7 +378,6 @@
 		{/if}
 	</div>
 </div>
-
 
 <style>
 	.blanket {
@@ -403,5 +534,39 @@
 		margin-top: 0.5rem;
 		display: flex;
 		gap: 0.5rem;
+	}
+
+	.checklist-items {
+		margin-top: 1rem;
+		padding-left: 0;
+		list-style: none;
+	}
+
+	.checklist-item {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		background-color: var(--token-color-surface-overlay-normal);
+		padding: 0.5rem;
+		border-radius: 0.5rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.check-circle {
+		width: 1.2rem;
+		height: 1.2rem;
+		border: 2px solid var(--token-color-text-default-secondary);
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		background-color: transparent;
+		color: var(--token-color-text-default-normal);
+	}
+
+	.checklist-name {
+		flex: 1;
+		word-break: break-word;
 	}
 </style>

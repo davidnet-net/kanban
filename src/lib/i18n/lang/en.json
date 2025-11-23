@@ -330,13 +330,18 @@
           "card_update_failed_desc": "Something went wrong while updating this card.",
           "card_deleted_title": "Card deleted!",
           "card_deletion_failed_title": "Failed to delete card!",
-          "card_deletion_failed_desc": "Something went wrong while deleting this card."
+          "card_deletion_failed_desc": "Something went wrong while deleting this card.",
+          "checklist_load_failed_title": "Checklist loading failed!",
+          "checklist_load_failed_desc": "Error",
+          "checklist_add_title": "Checklist item added!",
+          "checklist_add_fail_title": "Couldn't add checklist item!"
         },
         "alt": {
           "about_cards": "About cards",
           "delete_card": "Delete card",
           "close": "Close card overlay",
-          "add_checklist_item": "Add checklist item"
+          "add_checklist_item": "Add checklist item",
+          "toggle_checklist_item": "Toggle checklist item"
         },
         "btn": {
           "add_label": "Add label",
