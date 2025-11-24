@@ -165,7 +165,7 @@
 	<Button iconbefore="arrow_back" onClick={() => history.back()}>{$_("kanban.board.id.background.btn.back")}</Button>
 </FlexWrapper>
 
-<Space height="var(--token-space-6)/>
+<Space height="var(--token-space-6)" />
 
 <style>
 	.boards-grid {
