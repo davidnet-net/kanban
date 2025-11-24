@@ -175,7 +175,8 @@
 		margin: var(--token-space-2) auto;
 		width: 100%;
 		max-width: 1000px;
-		overflow-y: scroll;
+		overflow-y: auto;
+		height: 90%;
 	}
 
 	.board-card {
