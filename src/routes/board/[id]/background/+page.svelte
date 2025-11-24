@@ -25,6 +25,30 @@
 			author: { link: "https://pixabay.com/users/bitnikgao-38671825/", name: "bitnikgao" }
 		},
 		{
+			link: "https://cdn.pixabay.com/photo/2025/09/19/05/48/mountain-range-9842371_1280.jpg",
+			author: { link: "https://pixabay.com/users/ahmetyuksek-45995253/", name: "ahmetyuksek" }
+		},
+		{
+			link: "https://cdn.pixabay.com/photo/2022/11/05/19/56/bachalpsee-7572681_1280.jpg",
+			author: { link: "https://pixabay.com/users/himmelstraeume-28503001/", name: "Himmelstraeume" }
+		},
+		{
+			link: "https://cdn.pixabay.com/photo/2022/10/24/17/50/mountains-7544027_1280.jpg",
+			author: { link: "https://pixabay.com/users/parsleyball-17749603/", name: "ParsleyBall" }
+		},
+		{
+			link: "https://cdn.pixabay.com/photo/2018/02/06/22/43/painting-3135875_1280.jpg",
+			author: { link: "https://pixabay.com//users/mondschwinge-1453918/", name: "Mondschwinge" }
+		},
+		{
+			link: "https://cdn.pixabay.com/photo/2022/09/21/17/02/blue-background-7470781_1280.jpg",
+			author: { link: "https://pixabay.com/nl/users/molnarszabolcserdely-2742379/", name: "MolnarSzabolcsErdely" }
+		},
+		{
+			link: "https://cdn.pixabay.com/photo/2018/02/06/22/43/painting-3135875_1280.jpg",
+			author: { link: "https://pixabay.com//users/mondschwinge-1453918/", name: "Mondschwinge" }
+		},
+		{
 			link: "https://cdn.pixabay.com/photo/2025/09/07/10/32/mountain-layers-9820349_960_720.jpg",
 			author: { link: "https://pixabay.com/users/ahmetyuksek-45995253/", name: "ahmetyuksek" }
 		},
