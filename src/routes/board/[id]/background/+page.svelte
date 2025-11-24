@@ -133,7 +133,6 @@
 </script>
 
 <h1>{$_("kanban.board.id.background.title")}</h1>
-<Button iconbefore="arrow_back" onClick={() => history.back()}>{$_("kanban.board.id.background.btn.back")}</Button>
 <Space height="var(--token-space-3)" />
 
 <div class="boards-grid">
@@ -166,6 +165,8 @@
 	<Button iconbefore="arrow_back" onClick={() => history.back()}>{$_("kanban.board.id.background.btn.back")}</Button>
 </FlexWrapper>
 
+<Space height="var(--token-space-6)/>
+
 <style>
 	.boards-grid {
 		display: grid;
@@ -174,6 +175,7 @@
 		margin: var(--token-space-2) auto;
 		width: 100%;
 		max-width: 1000px;
+		overflow-y: scroll;
 	}
 
 	.board-card {
@@ -190,7 +192,7 @@
 	}
 
 	.board-card.selected {
-		border-color: var(--token-color-primary-normal);
+		border-color: var(--token-color-focusring);
 	}
 
 	.board-card:hover {
