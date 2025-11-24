@@ -45,16 +45,40 @@
 			author: { link: "https://pixabay.com/nl/users/molnarszabolcserdely-2742379/", name: "MolnarSzabolcsErdely" }
 		},
 		{
-			link: "https://cdn.pixabay.com/photo/2018/02/06/22/43/painting-3135875_1280.jpg",
-			author: { link: "https://pixabay.com//users/mondschwinge-1453918/", name: "Mondschwinge" }
-		},
-		{
 			link: "https://cdn.pixabay.com/photo/2025/09/07/10/32/mountain-layers-9820349_960_720.jpg",
 			author: { link: "https://pixabay.com/users/ahmetyuksek-45995253/", name: "ahmetyuksek" }
 		},
 		{
+			link: "https://cdn.pixabay.com/photo/2023/05/01/18/06/windmill-7963566_1280.jpg",
+			author: { link: "https://pixabay.com/users/manfredrichter-4055600/", name: "manfredrichter" }
+		},
+		{
+			link: "https://cdn.pixabay.com/photo/2020/10/05/10/51/cat-5628953_1280.jpg",
+			author: { link: "https://pixabay.com/users/nennieinszweidrei-10084616/", name: "Nennieinszweidrei" }
+		},
+		{
+			link: "https://cdn.pixabay.com/photo/2015/11/16/14/43/cat-1045782_1280.jpg",
+			author: { link: "https://pixabay.com/nl/users/cocoparisienne-127419/", name: "cocoparisienne" }
+		},
+		{
+			link: "https://cdn.pixabay.com/photo/2025/11/04/15/22/amsterdam-9936659_1280.jpg",
+			author: { link: "https://pixabay.com/nl/users/rianne_schillermclean-16944533/", name: "Rianne_SchillerMclean" }
+		},
+		{
+			link: "https://cdn.pixabay.com/photo/2020/02/09/17/29/amsterdam-4833927_960_720.jpg",
+			author: { link: "https://pixabay.com/nl/users/lena1-326348/", name: "lena1" }
+		},
+		{
+			link: "https://cdn.pixabay.com/photo/2025/02/07/16/55/flower-9390610_1280.jpg",
+			author: { link: "https://pixabay.com/users/heikiwi-35444888/", name: "HeiKiwi" }
+		},
+		{
+			link: "https://cdn.pixabay.com/photo/2024/11/21/14/43/dahlia-9214046_960_720.jpg",
+			author: { link: "https://pixabay.com/users/heikiwi-35444888/", name: "HeiKiwi" }
+		},
+		{
 			link: "https://cdn.pixabay.com/photo/2018/01/14/23/12/nature-3082832_960_720.jpg",
-			author: { link: "https://pixabay.com/nl/users/jplenio-7645255/", name: "jplenio" }
+			author: { link: "https://pixabay.com/users/jplenio-7645255/", name: "jplenio" }
 		}
 	];
 
