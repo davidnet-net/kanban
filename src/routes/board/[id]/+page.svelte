@@ -1025,10 +1025,18 @@
 									<FlexWrapper height="100%" width="100%" direction="column" gap="4px">
 										<span class="day-number">{day}</span>
 
-										<FlexWrapper height="100%" width="100%" direction="column" gap="var(--token-space-1)" overflowY="scroll" justifycontent="flex-start">
-											<Space height="var(--token-space-1)"/>
+										<FlexWrapper
+											height="100%"
+											width="100%"
+											direction="column"
+											gap="var(--token-space-1)"
+											overflowY="scroll"
+											justifycontent="flex-start"
+										>
+											<Space height="var(--token-space-1)" />
 											{#if dayCards}
-												{#each dayCards as card} <!--Add support for card color card.color -->
+												{#each dayCards as card}
+													<!--Add support for card color card.color -->
 													<Button
 														appearance="primary"
 														stretchwidth
@@ -1434,5 +1442,40 @@
 		margin-bottom: 1rem;
 		font-weight: 600;
 		color: var(--token-color-text-default);
+	}
+
+	@media screen and (max-width: 1440px), screen and (max-height: 900px) {
+		.calendar-container {
+			/* Sta verticaal scrollen toe */
+			overflow-y: auto;
+			display: block; /* Verander flex naar block zodat scrollen beter werkt */
+		}
+
+		.calendar-grid {
+			/* Forceer dat de grid uitrekt in plaats van in 1 scherm te passen */
+			flex: none;
+			height: auto;
+
+			/* Belangrijk: Geef elke rij een minimale hoogte (bijv. 150px) 
+               Zodat de cellen niet geplet worden */
+			grid-template-rows: repeat(6, minmax(150px, 1fr));
+		}
+
+		.calendar-header {
+			/* Zorg dat de header netjes blijft staan of mee scrollt, 
+               afhankelijk van voorkeur. Hier scrolt hij mee. */
+			position: sticky;
+			top: 0;
+			background: var(--token-color-surface-sunken-normal);
+			z-index: 10;
+			padding-bottom: 0.5rem;
+		}
+
+		.calendar-row {
+			/* Sticky header voor de dagen van de week */
+			position: sticky;
+			top: 60px; /* Ongeveer de hoogte van de calendar-header */
+			z-index: 9;
+		}
 	}
 </style>
