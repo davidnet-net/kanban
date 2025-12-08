@@ -361,7 +361,8 @@
           "add_attachment": "Add attachment",
           "save": "Save",
           "cancel": "Cancel",
-          "close_date_setter": "Close dates."
+          "close_date_setter": "Close dates",
+          "clear_dates": "Clear dates"
         },
         "label": {
           "created_at": "Created at:",
