@@ -122,8 +122,6 @@
 			</div>
 
 			<div class="section">
-				<BlockNote appearance="success" title="Kalendar werkt!">De facking kalendar werkt nu eindelijk. 🥳🥳🥳</BlockNote>
-
 				<h2 class="section-title">{$_("kanban.index.title.recent_boards")}</h2>
 				{#if recent_boards.length > 0}
 					<div class="boards-grid">
