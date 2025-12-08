@@ -196,17 +196,18 @@
         max-width: 1200px;
         margin: 0 auto;
         padding: 0 var(--token-space-3);
-        width: 95%;
+        width: 100%;
         display: flex;
         flex-direction: column;
-        height: 95%;
+        height: 100%;
     }
 
     .boards-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
         gap: var(--token-space-3);
-        width: 100%;
+        width: 95%;
+		height: 95%;
         padding: 4px; /* Space for outline/shadow */
     }
 
