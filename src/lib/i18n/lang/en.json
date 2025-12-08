@@ -345,7 +345,9 @@
           "checklist_load_failed_title": "Checklist loading failed!",
           "checklist_load_failed_desc": "Error",
           "checklist_add_title": "Checklist item added!",
-          "checklist_add_fail_title": "Couldn't add checklist item!"
+          "checklist_add_fail_title": "Couldn't add checklist item!",
+          "date_error_title": "Invalid Date Range",
+          "date_error_desc": "The start date cannot be later than the due date."
         },
         "alt": {
           "about_cards": "About cards",

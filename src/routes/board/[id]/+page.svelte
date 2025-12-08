@@ -677,6 +677,72 @@
 
 		return grid;
 	}
+
+	// Helper: format a Date object to "YYYY-MM-DD" key
+	function getDateKey(date: Date): string {
+		const y = date.getFullYear();
+		const m = String(date.getMonth() + 1).padStart(2, "0");
+		const d = String(date.getDate()).padStart(2, "0");
+		return `${y}-${m}-${d}`;
+	}
+
+	// Helper: Generate array of "YYYY-MM-DD" keys between two dates
+	function getDateRange(startStr: string, endStr: string): string[] {
+		const start = new Date(startStr);
+		const end = new Date(endStr);
+		const keys: string[] = [];
+
+		// Safety check: prevent infinite loops if data is bad
+		if (start > end) return [getDateKey(start)];
+
+		const current = new Date(start);
+		while (current <= end) {
+			keys.push(getDateKey(current));
+			current.setDate(current.getDate() + 1);
+		}
+		return keys;
+	}
+
+	// This creates a Map where Key="2023-10-01" and Value=[Card, Card]
+	// It automatically updates whenever $cards changes.
+	const calendarData = $derived.by(() => {
+		const map = new Map<string, Card[]>();
+
+		// 1. Flatten the store: Get all cards from all lists
+		// $cards is { [listId]: Card[] }, so we grab Object.values
+		const allCards = Object.values($cards).flat();
+
+		// 2. Iterate and Bucket
+		for (const card of allCards) {
+			// Skip cards with no dates
+			if (!card.start_date && !card.due_date) continue;
+
+			const dateKeys: string[] = [];
+
+			// SCENARIO A: Range (Start to Due) - Show on all days
+			if (card.start_date && card.due_date) {
+				dateKeys.push(...getDateRange(card.start_date, card.due_date));
+			}
+			// SCENARIO B: Due Date Only (Single Point)
+			else if (card.due_date) {
+				dateKeys.push(getDateKey(new Date(card.due_date)));
+			}
+			// SCENARIO C: Start Date Only (Single Point)
+			else if (card.start_date) {
+				dateKeys.push(getDateKey(new Date(card.start_date)));
+			}
+
+			// 3. Assign card to every relevant date key
+			for (const key of dateKeys) {
+				if (!map.has(key)) {
+					map.set(key, []);
+				}
+				map.get(key)!.push(card);
+			}
+		}
+
+		return map;
+	});
 </script>
 
 {#if loading}
@@ -703,8 +769,7 @@
 					iconbefore="view_kanban"
 					actions={[
 						{ label: "Kanban", value: "kanban" },
-						{ label: $_("kanban.board.id.dropdown.view.calendar"), value: "calendar" },
-						{ label: "CALENDARDEBUG", value: "calendardebug" }
+						{ label: $_("kanban.board.id.dropdown.view.calendar"), value: "calendar" }
 					]}
 					bind:value={view}
 					appearance="subtle"
@@ -947,19 +1012,38 @@
 					<!-- Calendar grid -->
 					<div class="calendar-grid">
 						{#each getCalendarGrid(year, month, firstDayPref) as day}
+							{@const dateKey = day ? `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}` : ""}
+
+							{@const dayCards = dateKey ? calendarData.get(dateKey) : []}
+
 							<div
 								class="calendar-cell {day === today.getDate() && month === today.getMonth() && year === today.getFullYear()
 									? 'today'
 									: ''}"
 							>
-								<FlexWrapper height="100%" width="100%" overflowX="scroll">
-									{#if day}
-										{day}
-										<FlexWrapper height="100%" width="100%" overflowX="auto">
-											
+								{#if day}
+									<FlexWrapper height="100%" width="100%" direction="column" gap="4px">
+										<span class="day-number">{day}</span>
+
+										<FlexWrapper height="100%" width="100%" direction="column" gap="var(--token-space-1)" overflowY="scroll" justifycontent="flex-start">
+											<Space height="var(--token-space-1)"/>
+											{#if dayCards}
+												{#each dayCards as card} <!--Add support for card color card.color -->
+													<Button
+														appearance="primary"
+														stretchwidth
+														onClick={(e) => {
+															e.stopPropagation();
+															openedCard = card;
+														}}
+													>
+														{card.name}
+													</Button>
+												{/each}
+											{/if}
 										</FlexWrapper>
-									{/if}
-								</FlexWrapper>
+									</FlexWrapper>
+								{/if}
 							</div>
 						{/each}
 					</div>
@@ -1100,7 +1184,7 @@
 {/if}
 
 <style>
-.calendar-container {
+	.calendar-container {
 		display: flex;
 		flex-direction: column;
 		width: 95%;
@@ -1179,9 +1263,9 @@
 		overflow: hidden; /* Prevent cell itself from scrolling, let inner content scroll */
 		position: relative;
 	}
-	
+
 	/* Optional: Style the scrollable content area inside the cell */
-	.calendar-cell > :global(div) { 
+	.calendar-cell > :global(div) {
 		width: 100%;
 	}
 

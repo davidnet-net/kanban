@@ -154,6 +154,19 @@
     }
 
     async function saveDates() {
+        // Enforce that start date is earlier than due date (if both are set)
+        if (startdate && duedate && startdate > duedate) {
+            toast({
+                title: $_("kanban.components.cardoverlay.toast.date_error_title") || "Invalid Date Range",
+                desc: $_("kanban.components.cardoverlay.toast.date_error_desc") || "The start date cannot be later than the due date.",
+                icon: "crisis_alert",
+                appearance: "danger",
+                position: "top-center",
+                autoDismiss: 4000
+            });
+            return;
+        }
+
         try {
             // Convert empty strings to null for the API
             const payloadStart = startdate === "" ? null : startdate;
@@ -287,8 +300,6 @@
     }
 </script>
 
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<!-- svelte-ignore a11y_click_events_have_key_events -->
 <div class="blanket" onclick={(e) => e.target === e.currentTarget && closeOverlay()} tabindex="-1" aria-modal="true">
     <div class="content">
         {#if loaded}
@@ -357,7 +368,6 @@
                                 >
                             </div>
                         {:else}
-                            <!-- svelte-ignore a11y_no_static_element_interactions -->
                             <div class="description-preview" onclick={() => (editing = true)}>
                                 {@html marked(description || $_("kanban.components.cardoverlay.placeholder.add_detailed_description"))}
                             </div>
@@ -652,7 +662,6 @@
         word-break: break-word;
     }
     
-    /* Added minimal styling for the date inputs to look decent */
     .date-input-group input {
         padding: 0.5rem;
         border-radius: 0.4rem;
