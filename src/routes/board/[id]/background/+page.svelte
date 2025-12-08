@@ -196,10 +196,10 @@
         max-width: 1200px;
         margin: 0 auto;
         padding: 0 var(--token-space-3);
-        width: 100%;
+        width: 95%;
         display: flex;
         flex-direction: column;
-        height: 100%;
+        height: 95%;
     }
 
     .boards-grid {
