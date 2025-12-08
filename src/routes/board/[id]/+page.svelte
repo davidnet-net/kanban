@@ -1464,7 +1464,6 @@
 		.calendar-header {
 			/* Zorg dat de header netjes blijft staan of mee scrollt, 
                afhankelijk van voorkeur. Hier scrolt hij mee. */
-			position: sticky;
 			top: 0;
 			background: var(--token-color-surface-sunken-normal);
 			z-index: 10;
@@ -1473,7 +1472,6 @@
 
 		.calendar-row {
 			/* Sticky header voor de dagen van de week */
-			position: sticky;
 			top: 60px; /* Ongeveer de hoogte van de calendar-header */
 			z-index: 9;
 		}
