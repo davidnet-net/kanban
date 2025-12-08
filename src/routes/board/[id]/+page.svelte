@@ -900,7 +900,7 @@
 				</div>
 			</div>
 		{:else if view === "calendar"}
-			<Space height="var(--token-space-4)"/>
+			<Space height="var(--token-space-4)" />
 			<FlexWrapper height="100%" width="100%">
 				<div class="calendar-container">
 					<div class="calendar-header">
@@ -1105,8 +1105,9 @@
 	.calendar-container {
 		display: flex;
 		flex-direction: column;
-		width: 90%;
-		height: 90%;
+		/* Updated: Use 100% to fill the parent container, allowing it to be more flexible */
+		width: 100%;
+		height: 100%;
 		flex-grow: 1;
 		background: var(--token-color-surface-sunken-normal);
 		border-radius: 1rem;
@@ -1114,6 +1115,9 @@
 		box-sizing: border-box;
 		gap: 0.5rem;
 		overflow: hidden;
+		/* Optional: Added max-width and margin for better desktop centering */
+		max-width: 900px;
+		margin: 0 auto;
 	}
 
 	.calendar-header {
@@ -1159,15 +1163,22 @@
 	.calendar-cell {
 		border: 1px solid rgba(9, 30, 66, 0.15);
 		border-radius: 6px;
+		/* Changed: Use column to stack date and content */
 		display: flex;
-		align-items: center;
-		justify-content: center;
+		flex-direction: column;
+		/* Changed: Align date/content to the top-left */
+		align-items: flex-start;
+		padding: 5px; /* Added padding for better visual spacing */
+		box-sizing: border-box;
 		width: 100%;
 		height: 100%;
 		color: var(--token-color-text-default-secondary);
 		background-color: var(--token-color-surface-raised-normal);
 		font-weight: 500;
 		transition: background 0.2s;
+		/* New: Allows the day cell content to scroll vertically */
+		overflow-y: auto;
+		overflow-x: hidden;
 	}
 
 	.calendar-cell.today {
