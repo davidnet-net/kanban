@@ -63,6 +63,11 @@ export interface Card {
 	created_at: string;
 	owner: number;
 	is_archived: boolean;
+	due_date: string | null;
+	start_date: string | null;
+	description: string | null;
+	color: string | null;
+	position: number;
 }
 
 export interface List {

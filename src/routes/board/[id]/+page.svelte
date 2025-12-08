@@ -952,13 +952,11 @@
 									? 'today'
 									: ''}"
 							>
-								<FlexWrapper height="100%" overflowX="scroll">
+								<FlexWrapper height="100%" width="100%" overflowX="scroll">
 									{#if day}
 										{day}
-										<FlexWrapper height="80%" width="100%" overflowX="auto">
-											<FlexWrapper height="100%" overflowX="auto">
-												<h3>Content</h3>
-											</FlexWrapper>
+										<FlexWrapper height="100%" width="100%" overflowX="auto">
+											
 										</FlexWrapper>
 									{/if}
 								</FlexWrapper>
@@ -1102,22 +1100,21 @@
 {/if}
 
 <style>
-	.calendar-container {
+.calendar-container {
 		display: flex;
 		flex-direction: column;
-		/* Updated: Use 100% to fill the parent container, allowing it to be more flexible */
-		width: 100%;
-		height: 100%;
+		width: 95%;
+		height: 90%;
+		border-radius: 1rem;
 		flex-grow: 1;
 		background: var(--token-color-surface-sunken-normal);
-		border-radius: 1rem;
+		/* Adjusted padding to be consistent */
 		padding: 1rem;
 		box-sizing: border-box;
 		gap: 0.5rem;
 		overflow: hidden;
-		/* Optional: Added max-width and margin for better desktop centering */
-		max-width: 900px;
-		margin: 0 auto;
+		/* Removed margin: 0 auto since we want full width */
+		margin: 0;
 	}
 
 	.calendar-header {
@@ -1126,6 +1123,7 @@
 		align-items: center;
 		margin-bottom: 0.5rem;
 		color: var(--token-color-text-default);
+		flex-shrink: 0; /* Prevents header from squishing */
 	}
 
 	.calendar-header h2 {
@@ -1140,7 +1138,8 @@
 		text-align: center;
 		margin-bottom: 0.2rem;
 		background-color: var(--token-color-surface-overlay-normal);
-		border-radius: 1rem;
+		border-radius: 0.5rem;
+		flex-shrink: 0; /* Prevents days header from squishing */
 	}
 
 	.calendar-cell.header {
@@ -1150,39 +1149,45 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		padding: 0.75rem 0; /* Added vertical padding for better look */
 	}
 
 	.calendar-grid {
 		display: grid;
 		grid-template-columns: repeat(7, 1fr);
-		grid-template-rows: repeat(6, 1fr);
-		gap: 0.3rem;
-		flex: 1;
+		grid-template-rows: repeat(6, 1fr); /* Forces 6 equal rows */
+		gap: 0.5rem; /* Increased gap slightly for better separation */
+		flex: 1; /* This makes the grid take up all remaining vertical space */
+		min-height: 0; /* Crucial for scrolling inside flex children */
+		width: 100%;
 	}
 
 	.calendar-cell {
 		border: 1px solid rgba(9, 30, 66, 0.15);
 		border-radius: 6px;
-		/* Changed: Use column to stack date and content */
 		display: flex;
 		flex-direction: column;
-		/* Changed: Align date/content to the top-left */
-		align-items: flex-start;
-		padding: 5px; /* Added padding for better visual spacing */
+		align-items: center;
+		padding: 8px;
 		box-sizing: border-box;
 		width: 100%;
-		height: 100%;
+		height: 100%; /* Fills the grid row height */
 		color: var(--token-color-text-default-secondary);
 		background-color: var(--token-color-surface-raised-normal);
 		font-weight: 500;
 		transition: background 0.2s;
-		/* New: Allows the day cell content to scroll vertically */
-		overflow-y: auto;
-		overflow-x: hidden;
+		overflow: hidden; /* Prevent cell itself from scrolling, let inner content scroll */
+		position: relative;
+	}
+	
+	/* Optional: Style the scrollable content area inside the cell */
+	.calendar-cell > :global(div) { 
+		width: 100%;
 	}
 
 	.calendar-cell.today {
 		color: var(--token-color-background-primary-normal);
+		border: 2px solid var(--token-color-background-primary-normal); /* Highlight border for today */
 	}
 
 	.calendar-cell:hover {

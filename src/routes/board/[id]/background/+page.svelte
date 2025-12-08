@@ -73,6 +73,10 @@
             author: { link: "https://pixabay.com/users/heikiwi-35444888/", name: "HeiKiwi" }
         },
         {
+            link: "https://cdn.pixabay.com/photo/2020/04/25/20/33/mountain-5092625_960_720.jpg",
+            author: { link: "https://pixabay.com/photos/mountain-horses-nature-landscape-5092625/", name: "Unknown" }
+        },
+        {
             link: "https://cdn.pixabay.com/photo/2024/11/21/14/43/dahlia-9214046_960_720.jpg",
             author: { link: "https://pixabay.com/users/heikiwi-35444888/", name: "HeiKiwi" }
         },
