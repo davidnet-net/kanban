@@ -87,8 +87,6 @@
     let si: SessionInfo | null = $state(null);
     let selected_image: Image | null = $state(null);
 
-    // Placeholder object for the "Upload" card logic if you want to make it selectable
-    // or you can handle the upload click separately.
     let isUploadSelected = $state(false);
 
     onMount(async () => {
@@ -166,7 +164,6 @@
             role="button"
             tabindex="0"
             onclick={() => {
-                // Logic for upload click, or just selecting it
                 isUploadSelected = true;
                 selected_image = null; 
             }}
@@ -193,21 +190,33 @@
 
 <style>
     .container {
+        /* Fix: Use viewport height to ensure container fits screen and inner scrolling works */
+        height: 100vh;
         max-width: 1200px;
         margin: 0 auto;
         padding: 0 var(--token-space-3);
         width: 100%;
         display: flex;
         flex-direction: column;
-        height: 100%;
+        /* Prevent the container itself from scrolling, the grid will scroll */
+        overflow: hidden;
     }
 
     .boards-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
         gap: var(--token-space-3);
-        width: 95%;
-		height: 95%;
+        
+        /* Fix: Use flex: 1 to fill remaining space instead of fixed % height */
+        flex: 1;
+        width: 100%;
+        
+        /* Fix: Enable internal scrolling */
+        overflow-y: auto;
+        
+        /* Fix: Required for flex child scrolling in some browsers */
+        min-height: 0;
+        
         padding: 4px; /* Space for outline/shadow */
     }
 
@@ -282,6 +291,8 @@
         transition: opacity 0.3s ease;
         display: flex;
         justify-content: center;
+        /* Fix: ensure padding doesn't affect width */
+        box-sizing: border-box;
     }
 
     .overlay.static {
