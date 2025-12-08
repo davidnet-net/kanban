@@ -12,13 +12,14 @@
 		toast,
 		wait,
 		authFetch,
-		getSessionInfo
+		getSessionInfo,
+		BlockNote
 	} from "@davidnet/svelte-ui";
 	import type { Board, SessionInfo } from "$lib/types";
 	import { onMount } from "svelte";
 
-	import {_} from 'svelte-i18n';
-	
+	import { _ } from "svelte-i18n";
+
 	let loading = $state(true);
 	let correlationID = crypto.randomUUID();
 	let si: SessionInfo | null = $state(null);
@@ -31,7 +32,7 @@
 
 	function showError(msg: string) {
 		toast({
-			title: $_('kanban.index.error.something_failed'),
+			title: $_("kanban.index.error.something_failed"),
 			desc: "Error: " + msg,
 			icon: "crisis_alert",
 			appearance: "danger",
@@ -43,7 +44,7 @@
 	onMount(async () => {
 		si = await getSessionInfo(correlationID, true);
 		if (!si) {
-			showError($_('kanban.index.error.session_invalid'));
+			showError($_("kanban.index.error.session_invalid"));
 			return;
 		}
 
@@ -80,7 +81,7 @@
 
 			recent_boards = [];
 			toast({
-				title: $_('kanban.index.toast.recent_boards_cleared.title'),
+				title: $_("kanban.index.toast.recent_boards_cleared.title"),
 				icon: "auto_delete",
 				appearance: "success",
 				position: "bottom-left",
@@ -95,25 +96,25 @@
 
 {#if loading}
 	<Loader />
-	<p>{$_('kanban.index.title.loading', { values: { display_name: si?.display_name}})}</p>
+	<p>{$_("kanban.index.title.loading", { values: { display_name: si?.display_name } })}</p>
 {:else}
 	<FlexWrapper justifycontent="flex-start" alignitems="flex-start" direction="column" gap="var(--token-space-2)" width="100%" height="100%">
 		{#if zeroboards}
 			<div class="no-boards">
 				<Icon icon="iframe_off" size="5rem" color="var(--token-color-text-warning)" />
-				<p>{$_('kanban.index.title.no_boards')}<br />{$_('kanban.index.title.no_boards_cta')}</p>
-				<LinkButton appearance="primary" href="/board/create">{$_('kanban.index.btn.create_board')}</LinkButton>
-				<LinkButton appearance="subtle" href="/invites">{$_('kanban.index.btn.your_invites')}</LinkButton>
+				<p>{$_("kanban.index.title.no_boards")}<br />{$_("kanban.index.title.no_boards_cta")}</p>
+				<LinkButton appearance="primary" href="/board/create">{$_("kanban.index.btn.create_board")}</LinkButton>
+				<LinkButton appearance="subtle" href="/invites">{$_("kanban.index.btn.your_invites")}</LinkButton>
 			</div>
 		{:else}
 			<Space height="var(--token-space-6)" />
 			<div class="section">
-				<LinkButton appearance="primary" href="/board/create">{$_('kanban.index.btn.create_board')}</LinkButton>
-				<LinkButton appearance="subtle" href="/invites">{$_('kanban.index.btn.invites')}</LinkButton>
+				<LinkButton appearance="primary" href="/board/create">{$_("kanban.index.btn.create_board")}</LinkButton>
+				<LinkButton appearance="subtle" href="/invites">{$_("kanban.index.btn.invites")}</LinkButton>
 				<IconButton
 					icon="auto_delete"
 					appearance="subtle"
-					alt={$_('kanban.index.btn.alt.delete_recent_boards')}
+					alt={$_("kanban.index.btn.alt.delete_recent_boards")}
 					onClick={() => {
 						showClearResetBoardsModal = true;
 					}}
@@ -121,13 +122,15 @@
 			</div>
 
 			<div class="section">
-				<h2 class="section-title">{$_('kanban.index.title.recent_boards')}</h2>
+				<BlockNote appearance="success" title="Kalendar werkt!">De facking kalendar werkt nu eindelijk. 🥳🥳🥳</BlockNote>
+
+				<h2 class="section-title">{$_("kanban.index.title.recent_boards")}</h2>
 				{#if recent_boards.length > 0}
 					<div class="boards-grid">
 						{#each recent_boards as board (board.id)}
 							<a href={"/board/" + board.id} class="board-link">
 								<div class="board-card">
-									<img src={board.background_url} alt="{$_('kanban.index.images.alt.board_background')}" aria-hidden="true" />
+									<img src={board.background_url} alt={$_("kanban.index.images.alt.board_background")} aria-hidden="true" />
 									<div class="board-info">
 										<h3>{board.name}</h3>
 									</div>
@@ -136,18 +139,18 @@
 						{/each}
 					</div>
 				{:else}
-					<p class="no-boards-section">{$_('kanban.index.title.no_recently_visited_boards')}</p>
+					<p class="no-boards-section">{$_("kanban.index.title.no_recently_visited_boards")}</p>
 				{/if}
 			</div>
 
 			<div class="section">
-				<h2 class="section-title">{$_('kanban.index.title.favorite_boards')}</h2>
+				<h2 class="section-title">{$_("kanban.index.title.favorite_boards")}</h2>
 				{#if favorite_boards.length > 0}
 					<div class="boards-grid">
 						{#each favorite_boards as board (board.id)}
 							<a href={"/board/" + board.id} class="board-link">
 								<div class="board-card">
-									<img src={board.background_url} alt="{$_('kanban.index.images.alt.board_background')}" aria-hidden="true" />
+									<img src={board.background_url} alt={$_("kanban.index.images.alt.board_background")} aria-hidden="true" />
 									<div class="board-info">
 										<h3>{board.name}</h3>
 									</div>
@@ -156,18 +159,18 @@
 						{/each}
 					</div>
 				{:else}
-					<p class="no-boards-section">{$_('kanban.index.title.no_favorited_boards')}</p>
+					<p class="no-boards-section">{$_("kanban.index.title.no_favorited_boards")}</p>
 				{/if}
 			</div>
 
 			<div class="section">
-				<h2 class="section-title">{$_('kanban.index.title.your_boards')}</h2>
+				<h2 class="section-title">{$_("kanban.index.title.your_boards")}</h2>
 				{#if boards.length > 0}
 					<div class="boards-grid">
 						{#each boards as board (board.id)}
 							<a href={"/board/" + board.id} class="board-link">
 								<div class="board-card">
-									<img src={board.background_url} alt="{$_('kanban.index.images.alt.board_background')}" aria-hidden="true" />
+									<img src={board.background_url} alt={$_("kanban.index.images.alt.board_background")} aria-hidden="true" />
 									<div class="board-info">
 										<h3>{board.name}</h3>
 									</div>
@@ -176,19 +179,19 @@
 						{/each}
 					</div>
 				{:else}
-					<p class="no-boards-section">{$_('kanban.index.title.no_created_boards')}</p>
+					<p class="no-boards-section">{$_("kanban.index.title.no_created_boards")}</p>
 				{/if}
 			</div>
 
 			<!-- Shared boards -->
 			<div class="section">
-				<h2 class="section-title">{$_('kanban.index.title.boards_shared_with_you')}</h2>
+				<h2 class="section-title">{$_("kanban.index.title.boards_shared_with_you")}</h2>
 				{#if shared_boards.length > 0}
 					<div class="boards-grid">
 						{#each shared_boards as board (board.id)}
 							<a href={"/board/" + board.id} class="board-link">
 								<div class="board-card">
-									<img src={board.background_url} alt="{$_('kanban.index.images.alt.board_background')}" aria-hidden="true" />
+									<img src={board.background_url} alt={$_("kanban.index.images.alt.board_background")} aria-hidden="true" />
 									<div class="board-info">
 										<h3>{board.name}</h3>
 									</div>
@@ -197,7 +200,7 @@
 						{/each}
 					</div>
 				{:else}
-					<p class="no-boards-section">{$_('kanban.index.title.no_boards_shared_with_you')}</p>
+					<p class="no-boards-section">{$_("kanban.index.title.no_boards_shared_with_you")}</p>
 				{/if}
 			</div>
 		{/if}
@@ -206,18 +209,18 @@
 
 {#if showClearResetBoardsModal}
 	<Modal
-		title={$_('kanban.index.modal.ClearResetBoardsModal.title')}
+		title={$_("kanban.index.modal.ClearResetBoardsModal.title")}
 		titleIcon="auto_delete"
-		desc={$_('kanban.index.modal.ClearResetBoardsModal.desc')}
+		desc={$_("kanban.index.modal.ClearResetBoardsModal.desc")}
 		hasCloseBtn
 		on:close={() => (showClearResetBoardsModal = false)}
 		options={[
 			{
 				appearance: "subtle",
-				content: $_('kanban.index.modal.ClearResetBoardsModal.cancel'),
+				content: $_("kanban.index.modal.ClearResetBoardsModal.cancel"),
 				onClick: () => (showClearResetBoardsModal = false)
 			},
-			{ appearance: "danger", content: $_('kanban.index.modal.ClearResetBoardsModal.clear_recent_boards'), onClick: clearrecentboards }
+			{ appearance: "danger", content: $_("kanban.index.modal.ClearResetBoardsModal.clear_recent_boards"), onClick: clearrecentboards }
 		]}
 	/>
 {/if}
