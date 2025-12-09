@@ -332,7 +332,8 @@
           "profile_load_error_title": "Failed to load profile!",
           "profile_load_error_desc": "Could not load the profile of the card creator.",
           "network_error_title": "Network error!",
-          "network_error_desc": "Something went wrong while fetching card data."
+          "network_error_desc": "Something went wrong while fetching card data.",
+          "comment_failed": "Failed to post comment"
         },
         "toast": {
           "card_updated_title": "Card updated!",
@@ -347,7 +348,8 @@
           "checklist_add_title": "Checklist item added!",
           "checklist_add_fail_title": "Couldn't add checklist item!",
           "date_error_title": "Invalid Date Range",
-          "date_error_desc": "The start date cannot be later than the due date."
+          "date_error_desc": "The start date cannot be later than the due date.",
+          "comment_added": "Comment added successfully"
         },
         "alt": {
           "about_cards": "About cards",
@@ -365,7 +367,8 @@
           "save": "Save",
           "cancel": "Cancel",
           "close_date_setter": "Close dates",
-          "clear_dates": "Clear dates"
+          "clear_dates": "Clear dates",
+          "post_comment": "Post"
         },
         "label": {
           "created_at": "Created at:",
@@ -378,12 +381,14 @@
         },
         "placeholder": {
           "write_description": "Write a description...",
-          "add_detailed_description": "Add a more detailed description..."
+          "add_detailed_description": "Add a more detailed description...",
+          "write_comment": "Write a comment..."
         },
         "field": {
           "checklist_item_label": "Checklist item:",
           "checklist_item_placeholder": "Enter checklist item...",
-          "checklist_item_invalid": "Checklist item cannot be empty."
+          "checklist_item_invalid": "Checklist item cannot be empty.",
+          "comment_label": "Comment:"
         },
         "text": {
           "created_card_on": "Created this card on {date}."
