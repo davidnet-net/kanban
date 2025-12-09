@@ -408,6 +408,7 @@
                     {#if showBlanket}
                         <LinkIconButton
                             icon="link"
+                            opennewtab
                             appearance="subtle"
                             href="/card/{openedCard.id}"
                             alt={$_("kanban.components.cardoverlay.alt.link_card")}
