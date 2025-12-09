@@ -66,7 +66,7 @@
 				position: "bottom-left",
 				autoDismiss: 5000
 			});
-			goto(`/board/${board.id}`);
+			goto(`/board/${board.id}/background`);
 		} catch (err) {
 			console.warn("Error creating board:", err);
 			toast({
