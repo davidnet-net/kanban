@@ -891,6 +891,12 @@
 										onClick: () => {
 											moveListRight(Number(list.id));
 										}
+									},
+									{
+										label: $_("kanban.board.id.btn.add_new_card"),
+										onClick: () => {
+											addCard(list.id);
+										}
 									}
 								]}
 							/>
