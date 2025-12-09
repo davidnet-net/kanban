@@ -10,7 +10,8 @@
 		toast,
 		accessToken,
 		formatDate_PREFERREDTIME,
-		LinkIconButton
+		LinkIconButton,
+		Space
 	} from "@davidnet/svelte-ui";
 	import { onMount } from "svelte";
 	import { get } from "svelte/store";
@@ -469,9 +470,6 @@
 					{#if showdatesetter}
 						<FlexWrapper height="100%" width="100%">
 							<FlexWrapper height="90%" width="90%" justifycontent="flex-start" alignitems="flex-start" gap="var(--token-space-2);">
-								<Button onClick={() => (showdatesetter = false)} iconbefore="close"
-									>{$_("kanban.components.cardoverlay.btn.close_date_setter")}</Button
-								>
 								<div class="date-input-group">
 									<label for="startdate" style="display:block; margin-bottom: 0.25rem;">Start Date</label>
 									<input type="date" id="startdate" name="startdate" bind:value={startdate} />
@@ -482,10 +480,17 @@
 									<input type="date" id="duedate" name="duedate" bind:value={duedate} />
 								</div>
 
-								<div class="date-actions" style="margin-top: 1rem; display:flex; gap: 0.5rem;">
+								<Space height="var(--token-space-4);" />
+
+								<FlexWrapper direction="row" gap="var(--token-space-1);">
 									<Button appearance="primary" onClick={saveDates}>{$_("kanban.components.cardoverlay.btn.save")}</Button>
 									<Button appearance="subtle" onClick={clearDates}>{$_("kanban.components.cardoverlay.btn.clear_dates")}</Button>
-								</div>
+								</FlexWrapper>
+
+								<Space height="var(--token-space-3);" />
+								<Button onClick={() => (showdatesetter = false)} iconbefore="close"
+									>{$_("kanban.components.cardoverlay.btn.close_date_setter")}</Button
+								>
 							</FlexWrapper>
 						</FlexWrapper>
 					{:else}
