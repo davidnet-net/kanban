@@ -913,6 +913,8 @@
 									class="card"
 									data-id={card.id}
 									Onclick={() => {
+             e.stopPropagation();
+		           e.preventDefault();
 										openedCard = card;
 									}}
 								>
