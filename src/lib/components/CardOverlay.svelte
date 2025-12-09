@@ -360,7 +360,7 @@
 			<div class="container">
 				<div class="card-body">
 					<div class="action-bar">
-						<Button onClick={() => {}} iconbefore="new_label">{$_("kanban.components.cardoverlay.btn.add_label")}</Button>
+						<Button disabled onClick={() => {}} iconbefore="new_label">{$_("kanban.components.cardoverlay.btn.add_label")}</Button>
 						<Button onClick={() => (showdatesetter = !showdatesetter)} iconbefore="calendar_clock"
 							>{$_("kanban.components.cardoverlay.btn.dates")}</Button
 						>
@@ -370,7 +370,7 @@
 							}}
 							iconbefore="checklist">{$_("kanban.components.cardoverlay.btn.add_checklist")}</Button
 						>
-						<Button onClick={() => {}} iconbefore="attach_file_add">{$_("kanban.components.cardoverlay.btn.add_attachment")}</Button>
+						<Button disabled onClick={() => {}} iconbefore="attach_file_add">{$_("kanban.components.cardoverlay.btn.add_attachment")}</Button>
 					</div>
 
 					<div class="meta-bar">
