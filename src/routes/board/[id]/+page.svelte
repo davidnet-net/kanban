@@ -971,7 +971,7 @@
 					<div class="calendar-header">
 						<IconButton
 							icon="chevron_backward"
-							alt="Month back"
+							alt="Previous month"
 							onClick={() => {
 								month--;
 								if (month < 0) {
@@ -990,7 +990,7 @@
 							>
 							<IconButton
 								icon="chevron_forward"
-								alt="Month back"
+								alt="Next month"
 								onClick={() => {
 									month++;
 									if (month > 11) {
