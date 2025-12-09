@@ -875,12 +875,6 @@
 								disabled={!can_edit}
 								actions={[
 									{
-										label: $_("kanban.board.id.dropdown.list_more_actions.delete_list"),
-										onClick: () => {
-											deleteList(Number(list.id), list.name);
-										}
-									},
-									{
 										label: $_("kanban.board.id.dropdown.list_more_actions.move_left"),
 										onClick: () => {
 											moveListLeft(Number(list.id));
@@ -890,6 +884,12 @@
 										label: $_("kanban.board.id.dropdown.list_more_actions.move_right"),
 										onClick: () => {
 											moveListRight(Number(list.id));
+										}
+									},
+									{
+										label: $_("kanban.board.id.dropdown.list_more_actions.delete_list"),
+										onClick: () => {
+											deleteList(Number(list.id), list.name);
 										}
 									},
 									{
