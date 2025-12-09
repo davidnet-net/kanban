@@ -7,11 +7,22 @@
     import { marked } from "marked";
     import { _ } from "svelte-i18n";
 
-    let { closeOverlay, openedCard, correlationID, board_id } = $props<{
+    let {
+        closeOverlay,
+        openedCard,
+        correlationID,
+        board_id,
+        canClose = true,
+        canDelete = true,
+        showBlanket = true
+    } = $props<{
         closeOverlay: () => void;
         openedCard: Card;
         correlationID: string;
         board_id: number;
+        canClose?: boolean;
+        canDelete?: boolean;
+        showBlanket?: boolean
     }>();
 
     console.debug(openedCard);
@@ -29,13 +40,13 @@
             card_id: number;
         }>
     >([]);
-    
+
     // Date management state
     let showdatesetter = $state(false);
 
     // FIX: Split the ISO string to get only YYYY-MM-DD for the HTML input
-    let startdate: string = $state(openedCard.start_date ? String(openedCard.start_date).split('T')[0] : "");
-    let duedate: string = $state(openedCard.due_date ? String(openedCard.due_date).split('T')[0] : "");
+    let startdate: string = $state(openedCard.start_date ? String(openedCard.start_date).split("T")[0] : "");
+    let duedate: string = $state(openedCard.due_date ? String(openedCard.due_date).split("T")[0] : "");
 
     onMount(async () => {
         creation_date = await formatDate_PREFERREDTIME(openedCard.created_at, correlationID);
@@ -172,10 +183,10 @@
             const payloadStart = startdate === "" ? null : startdate;
             const payloadDue = duedate === "" ? null : duedate;
 
-            await authFetch(kanbanapiurl + "card/change-dates", { 
-                card_id: openedCard.id, 
-                start_date: payloadStart, 
-                due_date: payloadDue 
+            await authFetch(kanbanapiurl + "card/change-dates", {
+                card_id: openedCard.id,
+                start_date: payloadStart,
+                due_date: payloadDue
             });
 
             // Update the openedCard object to reflect changes without reload
@@ -300,7 +311,7 @@
     }
 </script>
 
-<div class="blanket" onclick={(e) => e.target === e.currentTarget && closeOverlay()} tabindex="-1" aria-modal="true">
+{#snippet cardContent()}
     <div class="content">
         {#if loaded}
             <header class="header">
@@ -313,13 +324,17 @@
                         onClick={() => {}}
                         alt={$_("kanban.components.cardoverlay.alt.about_cards")}
                     />
-                    <IconButton
-                        icon="delete_forever"
-                        appearance="danger"
-                        onClick={deletecard}
-                        alt={$_("kanban.components.cardoverlay.alt.delete_card")}
-                    />
-                    <IconButton icon="close" appearance="primary" onClick={closeOverlay} alt={$_("kanban.components.cardoverlay.alt.close")} />
+                    {#if canDelete}
+                        <IconButton
+                            icon="delete_forever"
+                            appearance="danger"
+                            onClick={deletecard}
+                            alt={$_("kanban.components.cardoverlay.alt.delete_card")}
+                        />
+                    {/if}
+                    {#if canClose}
+                        <IconButton icon="close" appearance="primary" onClick={closeOverlay} alt={$_("kanban.components.cardoverlay.alt.close")} />
+                    {/if}
                 </div>
             </header>
 
@@ -368,6 +383,8 @@
                                 >
                             </div>
                         {:else}
+                            <!-- svelte-ignore a11y_click_events_have_key_events -->
+                            <!-- svelte-ignore a11y_no_static_element_interactions -->
                             <div class="description-preview" onclick={() => (editing = true)}>
                                 {@html marked(description || $_("kanban.components.cardoverlay.placeholder.add_detailed_description"))}
                             </div>
@@ -441,7 +458,7 @@
                                     <label for="startdate" style="display:block; margin-bottom: 0.25rem;">Start Date</label>
                                     <input type="date" id="startdate" name="startdate" bind:value={startdate} />
                                 </div>
-                                
+
                                 <div class="date-input-group">
                                     <label for="duedate" style="display:block; margin-bottom: 0.25rem;">Due Date</label>
                                     <input type="date" id="duedate" name="duedate" bind:value={duedate} />
@@ -469,7 +486,17 @@
             </FlexWrapper>
         {/if}
     </div>
-</div>
+{/snippet}
+
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+{#if showBlanket}
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <div class="blanket" onclick={(e) => e.target === e.currentTarget && closeOverlay()} tabindex="-1" aria-modal="true">
+        {@render cardContent()}
+    </div>
+{:else}
+    {@render cardContent()}
+{/if}
 
 <style>
     .blanket {
@@ -661,7 +688,7 @@
         flex: 1;
         word-break: break-word;
     }
-    
+
     .date-input-group input {
         padding: 0.5rem;
         border-radius: 0.4rem;
