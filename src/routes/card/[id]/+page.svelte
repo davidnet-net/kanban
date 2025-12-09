@@ -4,8 +4,9 @@
 	import { page } from "$app/state";
 	import { onMount } from "svelte";
 	import { kanbanapiurl } from "$lib/config";
-	import { accessToken, authFetch, getSessionInfo, isAuthenticated, refreshAccessToken } from "@davidnet/svelte-ui";
+	import { accessToken, authFetch, Button, getSessionInfo, isAuthenticated, refreshAccessToken, Space } from "@davidnet/svelte-ui";
 	import { get } from "svelte/store";
+	import { _ } from "svelte-i18n";
 
 	let openedCard: Card | null = $state(null);
     const id = page.params.id;
@@ -62,3 +63,5 @@
         showBlanket={false}
 	/>
 {/if}
+<Space height="var(--token-space-4)"/>
+<Button iconbefore="arrow_back" onClick={() => history.back()}>{$_("kanban.card.id.btn.back")}</Button>

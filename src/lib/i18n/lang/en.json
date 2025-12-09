@@ -354,7 +354,8 @@
           "delete_card": "Delete card",
           "close": "Close card overlay",
           "add_checklist_item": "Add checklist item",
-          "toggle_checklist_item": "Toggle checklist item"
+          "toggle_checklist_item": "Toggle checklist item",
+          "link_card": "Link card"
         },
         "btn": {
           "add_label": "Add label",
@@ -389,10 +390,10 @@
         }
       }
     },
-    "composnents": {
-      "cardoverlay": {
-        "section": {
-          "activity_comments": ""
+    "card": {
+      "id": {
+        "btn": {
+          "back": "Back"
         }
       }
     }
