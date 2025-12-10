@@ -230,7 +230,7 @@
 
             // Logic to default to list view on mobile for accessibility
             if (window.matchMedia("(max-width: 768px)").matches) {
-                    calendarview = "list";
+                    calendarview = "3day";
             }
         } finally {
             loading = false;
