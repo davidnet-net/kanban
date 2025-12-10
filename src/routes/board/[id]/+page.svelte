@@ -26,6 +26,7 @@
     import { goto } from "$app/navigation";
     import CardOverlay from "$lib/components/CardOverlay.svelte";
     import BoardAccess from "$lib/components/BoardAccess.svelte";
+    import DayOverlay from "$lib/components/DayOverlay.svelte";
     import { _ } from "svelte-i18n";
 
     const id = page.params.id;
@@ -574,6 +575,7 @@
     }
 
     let openedCard: Card | null = $state(null);
+    let openedDay: Date | null = $state(null);
     let BoardAccessOverlayOpen: boolean = $state(false);
 
     // ----
@@ -1069,15 +1071,22 @@
                     </div>
 
                     <div class="calendar-grid" style="grid-template-columns: repeat({calendarview === 'workmonth' ? 5 : 7}, 1fr);">
+                        <!-- svelte-ignore a11y_no_static_element_interactions -->
                         {#each getCalendarGrid(year, month, firstDayPref, calendarview) as day}
                             {@const dateKey = day ? `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}` : ""}
 
                             {@const dayCards = dateKey ? calendarData.get(dateKey) : []}
 
+                            <!-- svelte-ignore a11y_click_events_have_key_events -->
                             <div
                                 class="calendar-cell {day === today.getDate() && month === today.getMonth() && year === today.getFullYear()
                                     ? 'today'
                                     : ''}"
+                                onclick={() => {
+                                    if(day) {
+                                        openedDay = new Date(year, month, day);
+                                    }
+                                }}
                             >
                                 {#if day}
                                     <FlexWrapper height="100%" width="100%" direction="column" gap="4px">
@@ -1165,6 +1174,23 @@
         {openedCard}
         {correlationID}
         board_id={Number(id)}
+    />
+{/if}
+
+{#if openedDay}
+    <DayOverlay
+        closeOverlay={() => {
+            openedDay = null;
+        }}
+        date={openedDay}
+        allCards={$cards}
+        lists={$lists}
+        correlationID={correlationID}
+        board_id={Number(id)}
+        onCardSelect={(card) => {
+            openedDay = null; // Close the day overlay
+            openedCard = card; // Open the card overlay
+        }}
     />
 {/if}
 
@@ -1258,6 +1284,7 @@
         transition: background 0.2s;
         overflow: hidden; /* Prevent cell itself from scrolling, let inner content scroll */
         position: relative;
+        cursor: pointer; /* Indicates it's clickable */
     }
 
     /* Optional: Style the scrollable content area inside the cell */

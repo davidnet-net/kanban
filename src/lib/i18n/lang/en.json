@@ -397,12 +397,61 @@
         "text": {
           "created_card_on": "Created this card on {date}."
         }
-      }
-    },
-    "card": {
-      "id": {
+      },
+      "dayoverlay": {
+        "toast": {
+          "card_created": {
+            "title": "Card Created",
+            "desc": "{card_name} added to {date}"
+          },
+          "card_rescheduled": {
+            "title": "Card Rescheduled",
+            "desc": "{card_name} moved to {date}"
+          }
+        },
+        "error": {
+          "create_failed": "Failed to create card",
+          "update_failed": "Failed to update card"
+        },
+        "section": {
+          "cards_on_day": "Cards on this day ({count})"
+        },
+        "text": {
+          "no_cards": "No cards scheduled for this day.",
+          "no_results": "No matching cards found."
+        },
+        "tab": {
+          "create_new": "Create New",
+          "add_existing": "Add Existing"
+        },
+        "field": {
+          "card_title": {
+            "label": "Card Title",
+            "placeholder": "What needs to be done?"
+          },
+          "list_select": {
+            "label": "Add to List"
+          },
+          "filter_list": {
+            "label": "Filter by List",
+            "all_lists": "All Lists"
+          },
+          "search": {
+            "label": "Search Cards",
+            "placeholder": "Search by name..."
+          }
+        },
         "btn": {
-          "back": "Back"
+          "creating": "Creating...",
+          "create": "Create Card",
+          "add": "Add"
+        }
+      },
+      "card": {
+        "id": {
+          "btn": {
+            "back": "Back"
+          }
         }
       }
     }
