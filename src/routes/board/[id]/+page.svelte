@@ -31,7 +31,8 @@
 
     const id = page.params.id;
     let view: "kanban" | "calendar" | "calendardebug" = $state("kanban");
-    let calendarview: "month" | "workmonth" | "week" | "workweek" = $state("month");
+    // Updated type to include new views
+    let calendarview: "month" | "workmonth" | "week" | "workweek" | "3day" | "day" | "list" = $state("month");
 
     let loading = $state(true);
 
@@ -226,6 +227,11 @@
             setupWS(Number(id));
 
             await loadImage(String($boardMeta?.background_url));
+
+            // Logic to default to list view on mobile for accessibility
+            if (window.matchMedia("(max-width: 768px)").matches) {
+                    calendarview = "list";
+            }
         } finally {
             loading = false;
         }
@@ -609,6 +615,60 @@
         $_("kanban.dates.month.december")
     ];
 
+function formatViewDate(date: Date | null, mode: "short" | "long"): string {
+        if (!date) return "";
+
+        let timezone = "UTC";
+        // Default base format
+        let dateFormat = "DD-MM-YYYY"; 
+
+        if (si?.preferences) {
+            timezone = si.preferences.timezone || timezone;
+            if (si.preferences.dateFormat) {
+                // We only want the date part for headers (remove HH:mm if present)
+                dateFormat = si.preferences.dateFormat.split(' ')[0];
+            }
+        }
+
+        try {
+            // 1. Get the parts using the user's Timezone
+            const parts = new Intl.DateTimeFormat("en-US", {
+                timeZone: timezone,
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                weekday: mode === "long" ? "long" : "short"
+            }).formatToParts(date).reduce((acc, part) => {
+                if (part.type !== "literal") acc[part.type] = part.value;
+                return acc;
+            }, {} as Record<string, string>);
+
+            const { day, month, year, weekday } = parts;
+
+            // 2. Construct the date string based on preferences
+            let dateStr = "";
+            const fmt = dateFormat.toUpperCase();
+
+            if (fmt.startsWith("MM")) {
+                // MM-DD-YYYY
+                dateStr = `${month}-${day}-${year}`;
+            } else if (fmt.startsWith("YYYY")) {
+                // YYYY-MM-DD
+                dateStr = `${year}-${month}-${day}`;
+            } else {
+                // Default or DD-MM-YYYY
+                dateStr = `${day}-${month}-${year}`;
+            }
+
+            // 3. Return combined string (e.g. "Mon 23-10-2023" or "Monday 23-10-2023")
+            return `${weekday} ${dateStr}`;
+
+        } catch (err) {
+            console.warn("formatViewDate error", err);
+            return date.toDateString();
+        }
+    }
+
     const DAYS = $derived(() => {
         const sundayStart = [
             $_("kanban.dates.day.sun"),
@@ -628,6 +688,20 @@
             $_("kanban.dates.day.sat"),
             $_("kanban.dates.day.sun")
         ];
+
+        // Custom dynamic headers for 3-day and 1-day views
+        if (calendarview === '3day' || calendarview === 'day') {
+             // Generate array based on current grid
+             const grid = getCalendarGrid(currentDate, firstDayPref, calendarview);
+             
+             // --- CHANGED HERE: Use formatViewDate instead of .locale ---
+             return grid.map(d => formatViewDate(d, 'short'));
+        }
+
+        // For List view, we can just return a single header or handle it in the UI
+        if (calendarview === 'list') {
+            return [$_("kanban.board.id.dropdown.viewcalendar.list") || "Agenda"];
+        }
 
         let days = firstDayPref === "monday" ? mondayStart : sundayStart;
 
@@ -669,6 +743,12 @@
         const newDate = new Date(currentDate);
         if (calendarview === 'week' || calendarview === 'workweek') {
             newDate.setDate(newDate.getDate() - 7);
+        } else if (calendarview === '3day') {
+            newDate.setDate(newDate.getDate() - 3);
+        } else if (calendarview === 'day') {
+            newDate.setDate(newDate.getDate() - 1);
+        } else if (calendarview === 'list') {
+            newDate.setDate(newDate.getDate() - 7); // Move list back by a week
         } else {
             newDate.setMonth(newDate.getMonth() - 1);
         }
@@ -679,6 +759,12 @@
         const newDate = new Date(currentDate);
         if (calendarview === 'week' || calendarview === 'workweek') {
             newDate.setDate(newDate.getDate() + 7);
+        } else if (calendarview === '3day') {
+            newDate.setDate(newDate.getDate() + 3);
+        } else if (calendarview === 'day') {
+            newDate.setDate(newDate.getDate() + 1);
+        } else if (calendarview === 'list') {
+            newDate.setDate(newDate.getDate() + 7); // Move list forward by a week
         } else {
             newDate.setMonth(newDate.getMonth() + 1);
         }
@@ -689,7 +775,7 @@
         currentDate = new Date();
     }
 
-    function getCalendarGrid(currentDate: Date, firstDayPref: string, view: "month" | "workmonth" | "week" | "workweek"): (Date | null)[] {
+    function getCalendarGrid(currentDate: Date, firstDayPref: string, view: "month" | "workmonth" | "week" | "workweek" | "3day" | "day" | "list"): (Date | null)[] {
         const currentYear = currentDate.getFullYear();
         const currentMonth = currentDate.getMonth();
         const grid: (Date | null)[] = [];
@@ -749,6 +835,25 @@
             // Ensure we have at least 5 rows worth of cells so the height doesn't jump too drastically
             while (grid.length % 5 !== 0 || grid.length < 25) {
                 grid.push(null);
+            }
+        } else if (view === "3day") {
+            // --- 3 DAY LOGIC ---
+            const startDay = new Date(currentDate);
+            for (let i = 0; i < 3; i++) {
+                const day = new Date(startDay);
+                day.setDate(startDay.getDate() + i);
+                grid.push(day);
+            }
+        } else if (view === "day") {
+            // --- 1 DAY LOGIC ---
+            grid.push(new Date(currentDate));
+        } else if (view === "list") {
+            // --- LIST LOGIC (Show next 14 days vertically) ---
+            const startDay = new Date(currentDate);
+            for (let i = 0; i < 14; i++) {
+                const day = new Date(startDay);
+                day.setDate(startDay.getDate() + i);
+                grid.push(day);
             }
         } else {
             // --- WEEK & WORKWEEK LOGIC ---
@@ -857,12 +962,25 @@
     const headerTitle = $derived(() => {
         if (calendarview === 'week' || calendarview === 'workweek') {
              // Basic week title logic, e.g. "Oct 2023" or "Sep - Oct 2023"
-             // Since we use currentDate, let's just show the month/year of the focus date
-             // Ideally we'd show the range, but keep it simple to match existing style
              return `${MONTHS[month]} ${year}`;
         }
         return `${MONTHS[month]} ${year}`;
     });
+
+    // Helper for grid styling logic
+    function getGridTemplateColumns(view: string): string {
+        if (view === 'workmonth' || view === 'workweek') return 'repeat(5, 1fr)';
+        if (view === '3day') return 'repeat(3, 1fr)';
+        if (view === 'day' || view === 'list') return '1fr';
+        return 'repeat(7, 1fr)';
+    }
+
+    function getGridTemplateRows(view: string): string {
+        if (view.includes('week') || view === '3day' || view === 'day') return '1fr';
+        if (view === 'list') return 'repeat(auto-fill, minmax(100px, max-content))';
+        return 'repeat(6, 1fr)';
+    }
+
 </script>
 
 {#if loading}
@@ -1109,7 +1227,10 @@
                                     { label: $_("kanban.board.id.dropdown.viewcalendar.month"), value: "month" },
                                     { label: $_("kanban.board.id.dropdown.viewcalendar.workmonth"), value: "workmonth" },
                                     { label: "Week", value: "week" },
-                                    { label: "Work Week", value: "workweek" }
+                                    { label: "Work Week", value: "workweek" },
+                                    { label: "3 Days", value: "3day" },
+                                    { label: "Day", value: "day" },
+                                    { label: "List", value: "list" }
                                 ]}
                                 bind:value={calendarview}
                                 appearance="subtle"
@@ -1128,21 +1249,23 @@
                         </FlexWrapper>
                     </div>
 
-                    <div class="calendar-row" style="grid-template-columns: repeat({calendarview === 'workmonth' || calendarview === 'workweek' ? 5 : 7}, 1fr);">
+                    <div class="calendar-row" style="grid-template-columns: {getGridTemplateColumns(calendarview)};">
                         {#each DAYS() as day}
                             <div class="calendar-cell header">{day}</div>
                         {/each}
                     </div>
 
-                    <div class="calendar-grid" style="grid-template-columns: repeat({calendarview === 'workmonth' || calendarview === 'workweek' ? 5 : 7}, 1fr); grid-template-rows: {calendarview.includes('week') ? '1fr' : 'repeat(6, 1fr)'};">
+                    <div class="calendar-grid {calendarview === 'list' ? 'list-view' : ''}" style="grid-template-columns: {getGridTemplateColumns(calendarview)}; grid-template-rows: {getGridTemplateRows(calendarview)};">
+                        <!-- svelte-ignore a11y_no_static_element_interactions -->
                         {#each getCalendarGrid(currentDate, firstDayPref, calendarview) as dateCell}
                             {@const dateKey = dateCell ? getDateKey(dateCell) : ""}
                             {@const dayCards = dateKey ? calendarData.get(dateKey) : []}
                             {@const dayNum = dateCell ? dateCell.getDate() : null}
                             {@const isToday = dateCell && dayNum === today.getDate() && dateCell.getMonth() === today.getMonth() && dateCell.getFullYear() === today.getFullYear()}
 
+                            <!-- svelte-ignore a11y_click_events_have_key_events -->
                             <div
-                                class="calendar-cell {isToday ? 'today' : ''}"
+                                class="calendar-cell {isToday ? 'today' : ''} {calendarview === 'list' ? 'list-mode-cell' : ''}"
                                 onclick={() => {
                                     if(dateCell) {
                                         openedDay = dateCell;
@@ -1151,7 +1274,13 @@
                             >
                                 {#if dateCell}
                                     <FlexWrapper height="100%" width="100%" direction="column" gap="4px">
-                                        <span class="day-number">{dayNum}</span>
+                                        {#if calendarview === 'list'}
+                                            <span class="day-number list-header">
+                                                 {formatViewDate(dateCell, 'long')}
+                                            </span>
+                                        {:else}
+                                            <span class="day-number">{dayNum}</span>
+                                        {/if}
 
                                         <FlexWrapper
                                             height="100%"
@@ -1329,6 +1458,12 @@
         width: 100%;
     }
 
+    .calendar-grid.list-view {
+        overflow-y: auto; /* Enable scrolling for the list view */
+        display: flex; /* Flex allows easier vertical stacking than grid for variable heights */
+        flex-direction: column;
+    }
+
     .calendar-cell {
         border: 1px solid rgba(9, 30, 66, 0.15);
         border-radius: 6px;
@@ -1346,6 +1481,19 @@
         overflow: hidden; /* Prevent cell itself from scrolling, let inner content scroll */
         position: relative;
         cursor: pointer; /* Indicates it's clickable */
+    }
+
+    .calendar-cell.list-mode-cell {
+        height: auto;
+        min-height: 80px;
+        align-items: flex-start; /* Left align text in list mode */
+        margin-bottom: 0.5rem;
+    }
+
+    .day-number.list-header {
+        font-size: 1.1rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
     }
 
     /* Optional: Style the scrollable content area inside the cell */
@@ -1535,6 +1683,12 @@
             /* Belangrijk: Geef elke rij een minimale hoogte (bijv. 150px) 
                Zodat de cellen niet geplet worden */
             grid-template-rows: repeat(6, minmax(150px, 1fr));
+        }
+
+        /* Specific override for List view in mobile to ensure it behaves like a list */
+        .calendar-grid.list-view {
+             display: flex;
+             flex-direction: column;
         }
 
         .calendar-header {
