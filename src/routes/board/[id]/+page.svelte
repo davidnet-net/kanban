@@ -31,7 +31,7 @@
 
     const id = page.params.id;
     let view: "kanban" | "calendar" | "calendardebug" = $state("kanban");
-    let calendarview: "month" | "workmonth" = $state("month");
+    let calendarview: "month" | "workmonth" | "week" | "workweek" = $state("month");
 
     let loading = $state(true);
 
@@ -582,8 +582,12 @@
     // Calendar
     // ----
     const today: Date = new Date();
-    let year: number = $state(today.getUTCFullYear());
-    let month: number = $state(today.getUTCMonth());
+    // Centralized date state to handle week/month navigation unified
+    let currentDate: Date = $state(new Date());
+
+    let year = $derived(currentDate.getFullYear());
+    let month = $derived(currentDate.getMonth());
+    
     let firstDayPref: string = $state("monday");
 
     async function loadCalendar() {
@@ -627,8 +631,8 @@
 
         let days = firstDayPref === "monday" ? mondayStart : sundayStart;
 
-        // In work month, we always want Mon-Fri regardless of 'firstDayPref'
-        if (calendarview === "workmonth") {
+        // In work month/work week, we always want Mon-Fri regardless of 'firstDayPref'
+        if (calendarview === "workmonth" || calendarview === "workweek") {
             return mondayStart.slice(0, 5);
         }
 
@@ -660,14 +664,41 @@
         return firstDay; // Sunday = 0
     }
 
-    function getCalendarGrid(year: number, month: number, firstDayPref: string, view: "month" | "workmonth"): (number | null)[] {
-        const monthDays = MONTHDAYS(year);
-        const daysInMonth = monthDays[month];
-        const grid: (number | null)[] = [];
+    // Navigation logic
+    function prevInterval() {
+        const newDate = new Date(currentDate);
+        if (calendarview === 'week' || calendarview === 'workweek') {
+            newDate.setDate(newDate.getDate() - 7);
+        } else {
+            newDate.setMonth(newDate.getMonth() - 1);
+        }
+        currentDate = newDate;
+    }
+
+    function nextInterval() {
+        const newDate = new Date(currentDate);
+        if (calendarview === 'week' || calendarview === 'workweek') {
+            newDate.setDate(newDate.getDate() + 7);
+        } else {
+            newDate.setMonth(newDate.getMonth() + 1);
+        }
+        currentDate = newDate;
+    }
+
+    function goToToday() {
+        currentDate = new Date();
+    }
+
+    function getCalendarGrid(currentDate: Date, firstDayPref: string, view: "month" | "workmonth" | "week" | "workweek"): (Date | null)[] {
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth();
+        const grid: (Date | null)[] = [];
 
         if (view === "month") {
+            const monthDays = MONTHDAYS(currentYear);
+            const daysInMonth = monthDays[currentMonth];
             // --- STANDARD MONTH LOGIC ---
-            const firstDayIndex = getFirstDayIndex(year, month, firstDayPref);
+            const firstDayIndex = getFirstDayIndex(currentYear, currentMonth, firstDayPref);
 
             // Empty slots before the 1st
             for (let i = 0; i < firstDayIndex; i++) {
@@ -676,18 +707,20 @@
 
             // Fill days
             for (let day = 1; day <= daysInMonth; day++) {
-                grid.push(day);
+                grid.push(new Date(currentYear, currentMonth, day));
             }
 
             // Pad to 42 (6 rows * 7 cols)
             while (grid.length < 42) {
                 grid.push(null);
             }
-        } else {
+        } else if (view === "workmonth") {
+            const monthDays = MONTHDAYS(currentYear);
+            const daysInMonth = monthDays[currentMonth];
             // --- WORK MONTH LOGIC (Mon-Fri) ---
             
             // 1. Calculate Padding
-            const firstDayObj = new Date(year, month, 1);
+            const firstDayObj = new Date(currentYear, currentMonth, 1);
             const firstDayOfWeek = firstDayObj.getDay(); // 0=Sun, 1=Mon...
             
             let padding = 0;
@@ -704,11 +737,11 @@
 
             // 2. Fill Days (Skipping Sat/Sun)
             for (let day = 1; day <= daysInMonth; day++) {
-                const date = new Date(year, month, day);
+                const date = new Date(currentYear, currentMonth, day);
                 const dw = date.getDay();
                 // 0 is Sun, 6 is Sat
                 if (dw !== 0 && dw !== 6) {
-                    grid.push(day);
+                    grid.push(date);
                 }
             }
 
@@ -716,6 +749,39 @@
             // Ensure we have at least 5 rows worth of cells so the height doesn't jump too drastically
             while (grid.length % 5 !== 0 || grid.length < 25) {
                 grid.push(null);
+            }
+        } else {
+            // --- WEEK & WORKWEEK LOGIC ---
+            const startOfWeek = new Date(currentDate);
+            
+            // Calculate start of the week based on preference
+            const dayIdx = startOfWeek.getDay(); // 0-6 (Sun-Sat)
+            let diff = 0;
+
+            if (firstDayPref === 'monday') {
+                // If Monday is start: Mon=0, Sun=6
+                const monIndex = dayIdx === 0 ? 6 : dayIdx - 1;
+                diff = startOfWeek.getDate() - monIndex;
+            } else {
+                // If Sunday is start: Sun=0, Sat=6
+                diff = startOfWeek.getDate() - dayIdx;
+            }
+            startOfWeek.setDate(diff);
+
+            // Generate 7 days
+            for (let i = 0; i < 7; i++) {
+                const day = new Date(startOfWeek);
+                day.setDate(startOfWeek.getDate() + i);
+
+                // Filter for Work Week (skip Sun=0 and Sat=6)
+                if (view === 'workweek') {
+                    const d = day.getDay();
+                    if (d !== 0 && d !== 6) {
+                        grid.push(day);
+                    }
+                } else {
+                    grid.push(day);
+                }
             }
         }
 
@@ -786,6 +852,16 @@
         }
 
         return map;
+    });
+
+    const headerTitle = $derived(() => {
+        if (calendarview === 'week' || calendarview === 'workweek') {
+             // Basic week title logic, e.g. "Oct 2023" or "Sep - Oct 2023"
+             // Since we use currentDate, let's just show the month/year of the focus date
+             // Ideally we'd show the range, but keep it simple to match existing style
+             return `${MONTHS[month]} ${year}`;
+        }
+        return `${MONTHS[month]} ${year}`;
     });
 </script>
 
@@ -1021,23 +1097,19 @@
                     <div class="calendar-header">
                         <IconButton
                             icon="chevron_backward"
-                            alt="Previous month"
-                            onClick={() => {
-                                month--;
-                                if (month < 0) {
-                                    month = 11;
-                                    year--;
-                                }
-                            }}
+                            alt="Previous"
+                            onClick={prevInterval}
                         />
-                        <h2>{MONTHS[month]} {year}</h2>
+                        <h2>{headerTitle()}</h2>
                         <FlexWrapper direction="row" gap="var(--token-space-1)">
 
                             <Dropdown
                                 iconbefore="calendar_view_month"
                                 actions={[
                                     { label: $_("kanban.board.id.dropdown.viewcalendar.month"), value: "month" },
-                                    { label: $_("kanban.board.id.dropdown.viewcalendar.workmonth"), value: "workmonth" }
+                                    { label: $_("kanban.board.id.dropdown.viewcalendar.workmonth"), value: "workmonth" },
+                                    { label: "Week", value: "week" },
+                                    { label: "Work Week", value: "workweek" }
                                 ]}
                                 bind:value={calendarview}
                                 appearance="subtle"
@@ -1046,52 +1118,40 @@
                                 {$_("kanban.board.id.dropdown.view.label")}
                             </Dropdown>
                             <Button
-                                onClick={() => {
-                                    year = today.getUTCFullYear();
-                                    month = today.getUTCMonth();
-                                }}>{$_("kanban.board.id.btn.today")}</Button
+                                onClick={goToToday}>{$_("kanban.board.id.btn.today")}</Button
                             >
                             <IconButton
                                 icon="chevron_forward"
-                                alt="Next month"
-                                onClick={() => {
-                                    month++;
-                                    if (month > 11) {
-                                        month = 0;
-                                        year++;
-                                    }
-                                }}
+                                alt="Next"
+                                onClick={nextInterval}
                             />
                         </FlexWrapper>
                     </div>
 
-                    <div class="calendar-row" style="grid-template-columns: repeat({calendarview === 'workmonth' ? 5 : 7}, 1fr);">
+                    <div class="calendar-row" style="grid-template-columns: repeat({calendarview === 'workmonth' || calendarview === 'workweek' ? 5 : 7}, 1fr);">
                         {#each DAYS() as day}
                             <div class="calendar-cell header">{day}</div>
                         {/each}
                     </div>
 
-                    <div class="calendar-grid" style="grid-template-columns: repeat({calendarview === 'workmonth' ? 5 : 7}, 1fr);">
-                        <!-- svelte-ignore a11y_no_static_element_interactions -->
-                        {#each getCalendarGrid(year, month, firstDayPref, calendarview) as day}
-                            {@const dateKey = day ? `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}` : ""}
-
+                    <div class="calendar-grid" style="grid-template-columns: repeat({calendarview === 'workmonth' || calendarview === 'workweek' ? 5 : 7}, 1fr); grid-template-rows: {calendarview.includes('week') ? '1fr' : 'repeat(6, 1fr)'};">
+                        {#each getCalendarGrid(currentDate, firstDayPref, calendarview) as dateCell}
+                            {@const dateKey = dateCell ? getDateKey(dateCell) : ""}
                             {@const dayCards = dateKey ? calendarData.get(dateKey) : []}
+                            {@const dayNum = dateCell ? dateCell.getDate() : null}
+                            {@const isToday = dateCell && dayNum === today.getDate() && dateCell.getMonth() === today.getMonth() && dateCell.getFullYear() === today.getFullYear()}
 
-                            <!-- svelte-ignore a11y_click_events_have_key_events -->
                             <div
-                                class="calendar-cell {day === today.getDate() && month === today.getMonth() && year === today.getFullYear()
-                                    ? 'today'
-                                    : ''}"
+                                class="calendar-cell {isToday ? 'today' : ''}"
                                 onclick={() => {
-                                    if(day) {
-                                        openedDay = new Date(year, month, day);
+                                    if(dateCell) {
+                                        openedDay = dateCell;
                                     }
                                 }}
                             >
-                                {#if day}
+                                {#if dateCell}
                                     <FlexWrapper height="100%" width="100%" direction="column" gap="4px">
-                                        <span class="day-number">{day}</span>
+                                        <span class="day-number">{dayNum}</span>
 
                                         <FlexWrapper
                                             height="100%"
@@ -1262,7 +1322,7 @@
     .calendar-grid {
         display: grid;
         /* grid-template-columns: repeat(7, 1fr); <-- Removed to allow inline style override */
-        grid-template-rows: repeat(6, 1fr); /* Forces 6 equal rows */
+        /* grid-template-rows: repeat(6, 1fr);  <-- Removed to allow inline style override */
         gap: 0.5rem; /* Increased gap slightly for better separation */
         flex: 1; /* This makes the grid take up all remaining vertical space */
         min-height: 0; /* Crucial for scrolling inside flex children */
