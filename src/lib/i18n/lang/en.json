@@ -218,7 +218,12 @@
           },
           "viewcalendar": {
             "month": "Month",
-            "workmonth": "Work month"
+            "workmonth": "Work month",
+            "list": "List",
+            "week": "Week",
+            "workweek": "Work week",
+            "3days": "3 days",
+            "day": "Day"
           }
         },
         "field": {
@@ -452,6 +457,13 @@
           "btn": {
             "back": "Back"
           }
+        }
+      }
+    },
+    "card": {
+      "id": {
+        "btn": {
+          "back": "Back"
         }
       }
     }

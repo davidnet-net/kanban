@@ -1226,11 +1226,10 @@ function formatViewDate(date: Date | null, mode: "short" | "long"): string {
                                 actions={[
                                     { label: $_("kanban.board.id.dropdown.viewcalendar.month"), value: "month" },
                                     { label: $_("kanban.board.id.dropdown.viewcalendar.workmonth"), value: "workmonth" },
-                                    { label: "Week", value: "week" },
-                                    { label: "Work Week", value: "workweek" },
-                                    { label: "3 Days", value: "3day" },
-                                    { label: "Day", value: "day" },
-                                    { label: "List", value: "list" }
+                                    { label: $_("kanban.board.id.dropdown.viewcalendar.week"), value: "week" },
+                                    { label: $_("kanban.board.id.dropdown.viewcalendar.workweek"), value: "workweek" },
+                                    { label: $_("kanban.board.id.dropdown.viewcalendar.3days"), value: "3day" },
+                                    { label: $_("kanban.board.id.dropdown.viewcalendar.day"), value: "day" }
                                 ]}
                                 bind:value={calendarview}
                                 appearance="subtle"
