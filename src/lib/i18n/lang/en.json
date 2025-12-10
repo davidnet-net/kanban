@@ -215,6 +215,10 @@
             "delete_list": "Delete list",
             "move_left": "Move left",
             "move_right": "Move right"
+          },
+          "viewcalendar": {
+            "month": "Month",
+            "workmonth": "Work month"
           }
         },
         "field": {
