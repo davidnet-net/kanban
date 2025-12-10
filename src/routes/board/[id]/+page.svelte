@@ -1031,7 +1031,8 @@
                             }}
                         />
                         <h2>{MONTHS[month]} {year}</h2>
-                        <div>
+                        <FlexWrapper direction="row" gap="var(--token-space-1)">
+
                             <Dropdown
                                 iconbefore="calendar_view_month"
                                 actions={[
@@ -1061,7 +1062,7 @@
                                     }
                                 }}
                             />
-                        </div>
+                        </FlexWrapper>
                     </div>
 
                     <div class="calendar-row" style="grid-template-columns: repeat({calendarview === 'workmonth' ? 5 : 7}, 1fr);">
