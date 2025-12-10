@@ -482,6 +482,8 @@
                                 >
                             </div>
                         {:else}
+                            <!-- svelte-ignore a11y_click_events_have_key_events -->
+                            <!-- svelte-ignore a11y_no_static_element_interactions -->
                             <div class="description-preview" onclick={() => (editing = true)}>
                                 {@html marked(description || $_("kanban.components.cardoverlay.placeholder.add_detailed_description"))}
                             </div>
@@ -578,9 +580,9 @@
 
                         <div class="comments-list">
                                                     <div class="activity">
-                                <img crossorigin="anonymous" src={owner.profile.avatar_url} aria-hidden="true" alt="" />
+                                <img crossorigin="anonymous" src={owner?.profile.avatar_url} aria-hidden="true" alt="" />
                                 <div>
-                                    <a href="https://account.davidnet.net/profile/{openedCard.owner}">{owner.profile.display_name}</a>
+                                    <a href="https://account.davidnet.net/profile/{openedCard.owner}">{owner?.profile.display_name}</a>
                                     <div class="activity-meta">{$_("kanban.components.cardoverlay.text.created_card_on", { values: { date: creation_date } })}</div>
                                 </div>
                         </div>
@@ -632,7 +634,9 @@
     </div>
 {/snippet}
 
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 {#if showBlanket}
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
     <div class="blanket" onclick={(e) => e.target === e.currentTarget && closeOverlay()} tabindex="-1" aria-modal="true">
         {@render cardContent()}
     </div>
