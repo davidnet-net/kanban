@@ -13,7 +13,7 @@
         LinkIconButton,
         Space
     } from "@davidnet/svelte-ui";
-    import { onMount } from "svelte";
+    import { onMount, onDestroy } from "svelte";
     import { get } from "svelte/store";
     import { marked } from "marked";
     import { _ } from "svelte-i18n";
@@ -53,6 +53,13 @@
     let owner: ProfileResponse | null = $state(null);
     let loaded = $state(false);
 
+    // Blanket close guard:
+    // We only want clicks on the blanket to close the overlay if the overlay
+    // has been open for at least 200ms. This prevents immediate accidental closes
+    // from the same click that opened the overlay (or other race conditions).
+    let blanketClosable = $state(false);
+    let _blanketTimer: ReturnType<typeof setTimeout> | null = null;
+
     // Checklist State
     let addchecklistvalue: string = $state("");
     let showchecklist = $state(false);
@@ -82,6 +89,14 @@
     let description = $state(openedCard.description ?? "");
 
     onMount(async () => {
+        // Start a short timer to enable closing the overlay by clicking the blanket.
+        // This prevents immediate accidental closes (e.g., from the event that opened it).
+        // The timer will be cleared in onDestroy below.
+        _blanketTimer = setTimeout(() => {
+            blanketClosable = true;
+            _blanketTimer = null;
+        }, 200);
+
         creation_date = await formatDate_PREFERREDTIME(openedCard.created_at, correlationID);
         
         // Cache the owner profile immediately
@@ -98,6 +113,14 @@
         // Load auxiliary data in parallel
         await Promise.all([loadChecklist(), loadComments()]);
         loaded = true;
+    });
+
+    // Ensure we clean up the timer if the component is destroyed before the timeout fires.
+    onDestroy(() => {
+        if (_blanketTimer) {
+            clearTimeout(_blanketTimer);
+            _blanketTimer = null;
+        }
     });
 
     // --- Data Loading Functions ---
@@ -637,7 +660,12 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 {#if showBlanket}
     <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <div class="blanket" onclick={(e) => e.target === e.currentTarget && closeOverlay()} tabindex="-1" aria-modal="true">
+    <div
+        class="blanket"
+        onclick={(e) => blanketClosable && e.target === e.currentTarget && closeOverlay()}
+        tabindex="-1"
+        aria-modal="true"
+    >
         {@render cardContent()}
     </div>
 {:else}
