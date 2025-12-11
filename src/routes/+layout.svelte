@@ -109,7 +109,7 @@
 			<LinkIconButton icon="apps" alt="Davidnet Home" href="https://home.davidnet.net" appearance="subtle" />
 			<a href="/">Kanban</a>
 		</div>
-		<div class="nav-center">{#if import.meta.env.DEV}<span style="color: var(--token-color-text-warning)">Davidnet Development Mode</span>{:else}Davidnet{/if}</div>
+		<div class="nav-center">{#if import.meta.env.DEV}<span style="color: var(--token-color-text-warning)">Davidnet Development Build</span>{:else}Davidnet{/if}</div>
 		<div class="nav-right">
 			<ThemeMenu />
 			<Avatar id={String(si?.userId)} owner name={si?.display_name} presence="online" src={si?.profilePicture} />
