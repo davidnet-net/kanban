@@ -5,6 +5,10 @@ on:
         branches:
             - main
 
+concurrency:
+    group: deploy-srv
+    cancel-in-progress: true
+
 jobs:
     deploy:
         runs-on: ubuntu-latest
