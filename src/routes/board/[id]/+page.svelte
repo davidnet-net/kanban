@@ -1666,43 +1666,4 @@ function formatViewDate(date: Date | null, mode: "short" | "long"): string {
         font-weight: 600;
         color: var(--token-color-text-default);
     }
-
-    @media screen and (max-width: 1440px), screen and (max-height: 900px) {
-        .calendar-container {
-            /* Sta verticaal scrollen toe */
-            overflow-y: auto;
-            display: block; /* Verander flex naar block zodat scrollen beter werkt */
-        }
-
-        .calendar-grid {
-            /* Forceer dat de grid uitrekt in plaats van in 1 scherm te passen */
-            flex: none;
-            height: auto;
-
-            /* Belangrijk: Geef elke rij een minimale hoogte (bijv. 150px) 
-               Zodat de cellen niet geplet worden */
-            grid-template-rows: repeat(6, minmax(150px, 1fr));
-        }
-
-        /* Specific override for List view in mobile to ensure it behaves like a list */
-        .calendar-grid.list-view {
-             display: flex;
-             flex-direction: column;
-        }
-
-        .calendar-header {
-            /* Zorg dat de header netjes blijft staan of mee scrollt, 
-               afhankelijk van voorkeur. Hier scrolt hij mee. */
-            top: 0;
-            background: var(--token-color-surface-sunken-normal);
-            z-index: 10;
-            padding-bottom: 0.5rem;
-        }
-
-        .calendar-row {
-            /* Sticky header voor de dagen van de week */
-            top: 60px; /* Ongeveer de hoogte van de calendar-header */
-            z-index: 9;
-        }
-    }
 </style>
