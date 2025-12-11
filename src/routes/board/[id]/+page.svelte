@@ -1160,7 +1160,30 @@
                                         openedCard = card;
                                     }}
                                 >
-                                    {card.name}
+                                    <FlexWrapper alignitems="flex-start" justifycontent="flex-start" gap="var(--token-space-2)">
+                                        {card.name}
+                                        <FlexWrapper direction="row" gap="var(--token-space-1)" alignitems="center" justifycontent="flex-start">
+                                            {#if card.description}
+                                                <Icon icon="text_ad"/>
+                                            {/if}
+                                            {#if card.start_date || card.due_date}
+                                                <Icon
+                                                    icon="alarm"
+                                                    color={
+                                                        card.due_date?.slice(0, 10) === new Date().toISOString().slice(0, 10)
+                                                            ? "var(--token-color-text-danger);"
+                                                            : (
+                                                                card.start_date &&
+                                                                card.due_date?.slice(0, 10) >= card.start_date.slice(0, 10)
+                                                            )
+                                                                ? "var(--token-color-text-primary);"
+                                                                : undefined
+                                                    }
+                                                />
+                                            {/if}
+
+                                        </FlexWrapper>
+                                    </FlexWrapper>
                                 </div>
                             {/each}
 
