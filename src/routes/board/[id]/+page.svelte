@@ -1167,7 +1167,8 @@
                                             </FlexWrapper>
                                         {/if}
                                         {card.name}
-                                        <FlexWrapper direction="row" gap="var(--token-space-1)" alignitems="center" justifycontent="flex-start">
+                                        {#if card.description || card.start_date || card.due_date}
+                                            <FlexWrapper direction="row" gap="var(--token-space-1)" alignitems="center" justifycontent="flex-start">
                                             {#if card.description}
                                                 <Icon icon="text_ad"/>
                                             {/if}
@@ -1188,6 +1189,8 @@
                                             {/if}
 
                                         </FlexWrapper>
+                                        {/if}
+                                        
                                     </FlexWrapper>
                                 </div>
                             {/each}
