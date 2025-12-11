@@ -615,7 +615,7 @@
         $_("kanban.dates.month.december")
     ];
 
-function formatViewDate(date: Date | null, mode: "short" | "long"): string {
+    function formatViewDate(date: Date | null, mode: "short" | "long"): string {
         if (!date) return "";
 
         let timezone = "UTC";
