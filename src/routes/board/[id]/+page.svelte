@@ -1191,7 +1191,7 @@
 																  card.start_date &&
 																  today >= card.start_date.slice(0, 10) &&
 																  today <= card.due_date?.slice(0, 10)
-																? "var(--token-color-text-primary);" // Assuming this is your blue
+																? "var(--token-color-text-info);" // Assuming this is your blue
 																: undefined}
 													/>
 												{/if}
