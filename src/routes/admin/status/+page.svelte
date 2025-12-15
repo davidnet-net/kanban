@@ -12,7 +12,7 @@
 	import fr from "$lib/i18n/lang/fr.json";
 	import nl from "$lib/i18n/lang/es.json";
 	import pt from "$lib/i18n/lang/pt.json";
-	
+
 	// Add all your locales here
 	const locales = { de, en, es, fr, nl, pt };
 
@@ -61,7 +61,6 @@
 		.map(([localeKey, localeData]) => getCoverage(baseLocale, localeData, localeKey));
 </script>
 
-
 <Space height="var(--token-space-4)" />
 <FlexWrapper width="100%" justifycontent="space-around" direction="row">
 	<LinkButton href="/admin">Admin</LinkButton>
@@ -81,7 +80,9 @@
 	<FlexWrapper direction="row" gap="var(--token-space-6)">
 		<div class="info">
 			<img src="https://design.davidnet.net/images/logos/svelte-ui.png" alt="svelte-ui logo" aria-hidden="true" />
-			<span style="white-space: nowrap;">SvelteUI | {metadata.version} | <a target="_blank" href={metadata.commitUrl}>{metadata.commitHash.slice(0, 7)}</a></span>
+			<span style="white-space: nowrap;"
+				>SvelteUI | {metadata.version} | <a target="_blank" href={metadata.commitUrl}>{metadata.commitHash.slice(0, 7)}</a></span
+			>
 		</div>
 	</FlexWrapper>
 	<FlexWrapper direction="row" gap="var(--token-space-6)">
@@ -114,7 +115,9 @@
 	<tbody>
 		{#each reports as report}
 			<tr>
-				<td style="text-align: left; padding: var(--token-space-2); border-bottom: 1px solid var(--token-color-surface-raised-normal);">{report.locale}</td>
+				<td style="text-align: left; padding: var(--token-space-2); border-bottom: 1px solid var(--token-color-surface-raised-normal);"
+					>{report.locale}</td
+				>
 				<td style="text-align: right; padding: var(--token-space-2); border-bottom: 1px solid var(--token-color-surface-raised-normal);"
 					>{report.coverage.toFixed(1)}%</td
 				>

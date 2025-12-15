@@ -15,7 +15,7 @@
 			const si: SessionInfo | null = await getSessionInfo(correlationID);
 
 			if (!(await isAuthenticated(correlationID)) || !si || !si.admin) {
-				window.location.href ="https://account.davidnet.net/login?redirect=" + encodeURIComponent(page.url.toString()) ;
+				window.location.href = "https://account.davidnet.net/login?redirect=" + encodeURIComponent(page.url.toString());
 				return;
 			}
 
@@ -44,7 +44,7 @@
 	{:else if Authenticated}
 		<slot />
 	{:else}
-		<Loader/>
+		<Loader />
 	{/if}
 </div>
 

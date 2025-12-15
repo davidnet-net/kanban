@@ -78,7 +78,7 @@
 			return data;
 		} catch (err) {
 			toast({
-				title: $_('kanban.components.boardaccess.error.network'),
+				title: $_("kanban.components.boardaccess.error.network"),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "top-center",
@@ -116,7 +116,7 @@
 			members = enriched;
 		} catch (err) {
 			toast({
-				title: $_('kanban.components.boardaccess.error.failed_load_board_members'),
+				title: $_("kanban.components.boardaccess.error.failed_load_board_members"),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "top-center",
@@ -152,7 +152,7 @@
 			pendingInvites = enriched;
 		} catch (err) {
 			toast({
-				title: $_('kanban.components.boardaccess.error.failed_to_load_invites'),
+				title: $_("kanban.components.boardaccess.error.failed_to_load_invites"),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "top-center",
@@ -185,7 +185,7 @@
 			newidentfier = undefined;
 			newidentfierconnection = undefined;
 			toast({
-				title: $_('kanban.components.boardaccess.error.user_not_found'),
+				title: $_("kanban.components.boardaccess.error.user_not_found"),
 				icon: "person_alert",
 				appearance: "warning",
 				position: "bottom-left",
@@ -196,7 +196,7 @@
 
 		if (userID === owner?.profile.id) {
 			toast({
-				title: $_('kanban.components.boardaccess.error.user_already_in_board'),
+				title: $_("kanban.components.boardaccess.error.user_already_in_board"),
 				desc: identifier,
 				icon: "person_alert",
 				appearance: "info",
@@ -209,7 +209,7 @@
 		try {
 			await authFetch(`${kanbanapiurl}invite/send`, { board_id: boardId, user_id: userID });
 			toast({
-				title: $_('kanban.components.boardaccess.toast.invite_send.title'),
+				title: $_("kanban.components.boardaccess.toast.invite_send.title"),
 				desc: identifier,
 				icon: "person_add",
 				appearance: "success",
@@ -221,7 +221,7 @@
 			await loadInvites();
 		} catch (err) {
 			toast({
-				title: $_('kanban.components.boardaccess.error.could_not_send_invite'),
+				title: $_("kanban.components.boardaccess.error.could_not_send_invite"),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "bottom-left",
@@ -234,7 +234,7 @@
 		try {
 			await authFetch(`${kanbanapiurl}invite/cancel`, { invite_id: inviteId });
 			toast({
-				title: $_('kanban.components.boardaccess.toast.invite_canceled.title'),
+				title: $_("kanban.components.boardaccess.toast.invite_canceled.title"),
 				icon: "person_cancel",
 				appearance: "warning",
 				position: "bottom-left",
@@ -243,7 +243,7 @@
 			await loadInvites();
 		} catch (err) {
 			toast({
-				title: $_('kanban.components.boardaccess.error.cancel_invite_failed'),
+				title: $_("kanban.components.boardaccess.error.cancel_invite_failed"),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "bottom-left",
@@ -263,7 +263,7 @@
 		try {
 			await authFetch(`${kanbanapiurl}board/remove_member`, { board_id: boardId, member_id: memberToRemove.user_id });
 			toast({
-				title: $_('kanban.components.boardaccess.toast.member_removed.title'),
+				title: $_("kanban.components.boardaccess.toast.member_removed.title"),
 				desc: memberToRemove.display_name,
 				icon: "person_remove",
 				appearance: "warning",
@@ -273,8 +273,8 @@
 			await loadMembers();
 		} catch (err) {
 			toast({
-				title: $_('kanban.components.boardaccess.error.remove_failed'),
-				desc: $_('kanban.components.boardaccess.error.remove_failed_desc'),
+				title: $_("kanban.components.boardaccess.error.remove_failed"),
+				desc: $_("kanban.components.boardaccess.error.remove_failed_desc"),
 				icon: "crisis_alert",
 				appearance: "danger",
 				position: "bottom-left",
@@ -293,10 +293,10 @@
 	<div class="content">
 		{#if loaded}
 			<header class="header">
-				<h2>{$_('kanban.components.boardaccess.title')}</h2>
+				<h2>{$_("kanban.components.boardaccess.title")}</h2>
 				<div>
-					<IconButton icon="help" disabled onClick={()=>{}} appearance="subtle" alt={$_('kanban.components.boardaccess.about_alt')} />
-					<IconButton icon="close" appearance="primary" onClick={closeOverlay} alt={$_('kanban.components.boardaccess.close_alt')} />
+					<IconButton icon="help" disabled onClick={() => {}} appearance="subtle" alt={$_("kanban.components.boardaccess.about_alt")} />
+					<IconButton icon="close" appearance="primary" onClick={closeOverlay} alt={$_("kanban.components.boardaccess.close_alt")} />
 				</div>
 			</header>
 
@@ -304,9 +304,11 @@
 				<div class="overlay-body">
 					{#if viewinvites}
 						<div class="members">
-							<h4>{$_('kanban.components.boardaccess.section.invites')}</h4>
+							<h4>{$_("kanban.components.boardaccess.section.invites")}</h4>
 							{#if pendingInvites.length === 0}
-								<p style="color: var(--token-color-text-default-secondary);">{$_('kanban.components.boardaccess.no_pending_invites')}</p>
+								<p style="color: var(--token-color-text-default-secondary);">
+									{$_("kanban.components.boardaccess.no_pending_invites")}
+								</p>
 							{:else}
 								{#each pendingInvites as invite (invite.invite_id)}
 									<div class="member">
@@ -321,17 +323,17 @@
 											icon="person_cancel"
 											appearance="warning"
 											onClick={() => cancelInvite(invite.invite_id)}
-											alt={$_('kanban.components.boardaccess.cancel_invite_alt')}
+											alt={$_("kanban.components.boardaccess.cancel_invite_alt")}
 										/>
 									</div>
 								{/each}
 							{/if}
 						</div>
 						<Space height="var(--token-space-4)" />
-						<Button appearance="subtle" onClick={() => (viewinvites = false)}>{$_('kanban.components.boardaccess.view_members')}</Button>
+						<Button appearance="subtle" onClick={() => (viewinvites = false)}>{$_("kanban.components.boardaccess.view_members")}</Button>
 					{:else}
 						<div class="members">
-							<h4>{$_('kanban.components.boardaccess.section.members')}</h4>
+							<h4>{$_("kanban.components.boardaccess.section.members")}</h4>
 							<div class="member">
 								<FlexWrapper direction="row" gap="var(--token-space-3);">
 									<img crossorigin="anonymous" src={owner?.profile.avatar_url} alt="profile" />
@@ -355,19 +357,19 @@
 									<IconButton
 										icon="person_remove"
 										appearance="danger"
-										alt={$_('kanban.components.boardaccess.remove_member_alt')}
+										alt={$_("kanban.components.boardaccess.remove_member_alt")}
 										onClick={() => confirmRemoveMember(member.user_id, member.display_name)}
 									/>
 								</div>
 							{/each}
 						</div>
 						<Space height="var(--token-space-4)" />
-						<Button appearance="subtle" onClick={() => (viewinvites = true)}>{$_('kanban.components.boardaccess.view_invites')}</Button>
+						<Button appearance="subtle" onClick={() => (viewinvites = true)}>{$_("kanban.components.boardaccess.view_invites")}</Button>
 					{/if}
 				</div>
 
 				<div class="invite-container">
-					<h3 style="margin-bottom: 0px;">{$_('kanban.components.boardaccess.invite.title')}</h3>
+					<h3 style="margin-bottom: 0px;">{$_("kanban.components.boardaccess.invite.title")}</h3>
 					<FlexWrapper width="100%" height="100%">
 						<div class="invite">
 							<FlexWrapper width="100%" direction="row" justifycontent="flex-start">
@@ -379,28 +381,28 @@
 									bind:value={newidentfierconnection}
 									appearance="subtle"
 								>
-									{$_('kanban.components.boardaccess.invite.quick_connections')}
+									{$_("kanban.components.boardaccess.invite.quick_connections")}
 								</Dropdown>
 							</FlexWrapper>
 							<Space height="var(--token-space-2);" />
 							<FlexWrapper width="100%" direction="row" justifycontent="flex-end">
 								<Button appearance="primary" disabled={!newidentfierconnection} onClick={() => inviteuser(newidentfierconnection)}>
-									{$_('kanban.components.boardaccess.invite.button')}
+									{$_("kanban.components.boardaccess.invite.button")}
 								</Button>
 							</FlexWrapper>
 						</div>
 						<Space height="var(--token-space-5);" />
 						<div class="invite">
 							<TextField
-								label={$_('kanban.components.boardaccess.invite.enter_user_label')}
+								label={$_("kanban.components.boardaccess.invite.enter_user_label")}
 								type="text"
-								placeholder={$_('kanban.components.boardaccess.invite.placeholder')}
+								placeholder={$_("kanban.components.boardaccess.invite.placeholder")}
 								bind:value={newidentfier}
 							/>
 							<Space height="var(--token-space-2);" />
 							<FlexWrapper width="100%" direction="row" justifycontent="flex-end">
 								<Button appearance="primary" disabled={!newidentfier} onClick={() => inviteuser(newidentfier)}>
-									{$_('kanban.components.boardaccess.invite.button')}
+									{$_("kanban.components.boardaccess.invite.button")}
 								</Button>
 							</FlexWrapper>
 						</div>
@@ -415,9 +417,9 @@
 
 		{#if showRemoveMemberModal && memberToRemove}
 			<Modal
-				title={$_('kanban.components.boardaccess.modal.remove_title')}
+				title={$_("kanban.components.boardaccess.modal.remove_title")}
 				titleIcon="person_remove"
-				desc={$_('kanban.components.boardaccess.modal.remove_desc', {values: { name: memberToRemove.display_name }})}
+				desc={$_("kanban.components.boardaccess.modal.remove_desc", { values: { name: memberToRemove.display_name } })}
 				hasCloseBtn
 				on:close={() => {
 					showRemoveMemberModal = false;
@@ -426,7 +428,7 @@
 				options={[
 					{
 						appearance: "subtle",
-						content: $_('kanban.components.boardaccess.modal.cancel'),
+						content: $_("kanban.components.boardaccess.modal.cancel"),
 						onClick: () => {
 							showRemoveMemberModal = false;
 							memberToRemove = null;
@@ -434,7 +436,7 @@
 					},
 					{
 						appearance: "danger",
-						content: $_('kanban.components.boardaccess.modal.remove'),
+						content: $_("kanban.components.boardaccess.modal.remove"),
 						onClick: removeMemberConfirmed
 					}
 				]}
@@ -442,7 +444,6 @@
 		{/if}
 	</div>
 </div>
-
 
 <style>
 	.blanket {

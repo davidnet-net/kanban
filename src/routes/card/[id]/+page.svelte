@@ -9,15 +9,15 @@
 	import { _ } from "svelte-i18n";
 
 	let openedCard: Card | null = $state(null);
-    const id = page.params.id;
+	const id = page.params.id;
 	const correlationID = crypto.randomUUID();
-    let token = "";
-    let authencated = $state(false);
-    let si: SessionInfo | null = $state(null);
-    
-    onMount(async ()=>{
-        try {
-            await refreshAccessToken(correlationID, true, true);
+	let token = "";
+	let authencated = $state(false);
+	let si: SessionInfo | null = $state(null);
+
+	onMount(async () => {
+		try {
+			await refreshAccessToken(correlationID, true, true);
 			if (get(accessToken)) {
 				if (!(await isAuthenticated(correlationID))) {
 					return;
@@ -27,9 +27,9 @@
 
 				si = await getSessionInfo(correlationID, false);
 			}
-        } catch {
-            console.warn("Not authenticated");
-        }
+		} catch {
+			console.warn("Not authenticated");
+		}
 
 		try {
 			const res = await fetch(`${kanbanapiurl}card/get`, {
@@ -43,11 +43,11 @@
 			});
 			if (!res.ok) throw new Error(`HTTP ${res.status}`);
 			const data = await res.json();
-            openedCard = data;
+			openedCard = data;
 		} catch (e) {
 			console.warn(e);
 		}
-    })
+	});
 </script>
 
 {#if openedCard}
@@ -58,12 +58,12 @@
 		{openedCard}
 		board_id={0}
 		{correlationID}
-        canClose={false}
-        canDelete={false}
-        showBlanket={false}
+		canClose={false}
+		canDelete={false}
+		showBlanket={false}
 	/>
 {:else}
-    <Loader/>
+	<Loader />
 {/if}
-<Space height="var(--token-space-4)"/>
+<Space height="var(--token-space-4)" />
 <Button iconbefore="arrow_back" onClick={() => history.back()}>{$_("kanban.card.id.btn.back")}</Button>
