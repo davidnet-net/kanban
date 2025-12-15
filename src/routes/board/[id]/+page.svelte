@@ -1168,7 +1168,7 @@
 									}}
 								>
 									<FlexWrapper alignitems="flex-start" justifycontent="flex-start" gap="var(--token-space-2)">
-										{#if card.labels}
+										{#if card.labels.length > 0}
 											<FlexWrapper direction="row" gap="var(--token-space-1)" alignitems="center" justifycontent="flex-start">
 												{#each card.labels as label (label.id)}
 														<div style="background-color: {label.color};" class="label"></div>
