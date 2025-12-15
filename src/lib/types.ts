@@ -68,6 +68,11 @@ export interface Card {
 	description: string | null;
 	color: string | null;
 	position: number;
+	labels: {
+		id: number,
+		color: string,
+		name: string,
+	}
 }
 
 export interface List {
