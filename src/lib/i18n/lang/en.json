@@ -223,7 +223,8 @@
 						"week": "Week",
 						"workweek": "Work week",
 						"3days": "3 days",
-						"day": "Day"
+						"day": "Day",
+						"settings": "Settings"
 					}
 				},
 				"field": {

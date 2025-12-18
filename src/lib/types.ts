@@ -4,6 +4,7 @@ export interface SessionInfo {
 	display_name: string;
 	profilePicture: string;
 	email_verified: number;
+	calendar_ics_token: string;
 	email: string;
 	type: "access";
 	exp: number;

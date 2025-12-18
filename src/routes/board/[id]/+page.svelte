@@ -20,7 +20,10 @@
 		accessToken,
 		getSessionInfo,
 		isAuthenticated,
-		refreshAccessToken
+		refreshAccessToken,
+
+		CodeBlock
+
 	} from "@davidnet/svelte-ui";
 	import type { Card, SessionInfo, BoardMeta } from "$lib/types";
 	import { goto } from "$app/navigation";
@@ -32,7 +35,7 @@
 	const id = page.params.id;
 	let view: "kanban" | "calendar" | "calendardebug" = $state("kanban");
 	// Updated type to include new views
-	let calendarview: "month" | "workmonth" | "week" | "workweek" | "3day" | "day" | "list" = $state("month");
+	let calendarview: "month" | "workmonth" | "week" | "workweek" | "3day" | "day" | "list" | "settings" = $state("month");
 
 	let loading = $state(true);
 
@@ -1263,7 +1266,8 @@
 									{ label: $_("kanban.board.id.dropdown.viewcalendar.week"), value: "week" },
 									{ label: $_("kanban.board.id.dropdown.viewcalendar.workweek"), value: "workweek" },
 									{ label: $_("kanban.board.id.dropdown.viewcalendar.3days"), value: "3day" },
-									{ label: $_("kanban.board.id.dropdown.viewcalendar.day"), value: "day" }
+									{ label: $_("kanban.board.id.dropdown.viewcalendar.day"), value: "day" },
+									{ label: $_("kanban.board.id.dropdown.viewcalendar.settings"), value: "settings" }
 								]}
 								bind:value={calendarview}
 								appearance="subtle"
@@ -1275,7 +1279,13 @@
 							<IconButton icon="chevron_forward" alt="Next" onClick={nextInterval} />
 						</FlexWrapper>
 					</div>
-
+					{#if calendarview === "settings"}
+						<FlexWrapper>
+							<Space height="var(--token-space-3)"/>
+							<h1>ICS public link:</h1>
+							<CodeBlock language="plaintext" code={"https://kanban-api.davidnet.net/board/ics/" + $boardMeta?.name + "/" + $boardMeta?.calendar_ics_token}/>
+						</FlexWrapper>
+					{:else}
 					<div class="calendar-row" style="grid-template-columns: {getGridTemplateColumns(calendarview)};">
 						{#each DAYS() as day}
 							<div class="calendar-cell header">{day}</div>
@@ -1346,7 +1356,8 @@
 								{/if}
 							</div>
 						{/each}
-					</div>
+						</div>
+					{/if}
 				</div>
 			</FlexWrapper>
 		{:else}
