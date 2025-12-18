@@ -1283,7 +1283,7 @@
 						<FlexWrapper>
 							<Space height="var(--token-space-3)"/>
 							<h1>ICS public link:</h1>
-							<CodeBlock language="plaintext" code={"https://kanban-api.davidnet.net/board/ics/" + $boardMeta?.name + "/" + $boardMeta?.calendar_ics_token}/>
+							<CodeBlock language="plaintext" code={"https://kanban-api.davidnet.net/board/ics/" + $boardMeta?.id + "/" + $boardMeta?.calendar_ics_token}/>
 						</FlexWrapper>
 					{:else}
 					<div class="calendar-row" style="grid-template-columns: {getGridTemplateColumns(calendarview)};">
